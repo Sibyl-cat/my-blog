@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌼 小电视の日常 · 哔哩哔哩风格博客</title>
+  <!-- Font Awesome 6 (Cloudflare CDN, 保证快速) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* 全局 reset 与 哔哩哔哩主色调 #FB7299 (粉) */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(145deg, #ffe9f0 0%, #ffd9e5 100%);
+      /* 增加微妙的噪点纹理，让毛玻璃背后更有细节 */
+      background-image: radial-gradient(rgba(255, 255, 255, 0.3) 1px, transparent 1px);
+      background-size: 30px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem;
+      animation: bgGlow 8s infinite alternate ease-in-out;
+    }
+
+    @keyframes bgGlow {
+      0% { filter: brightness(1); }
+      100% { filter: brightness(1.02); }
+    }
+
+    /* 主容器 — 限制最大宽度，保留呼吸空间 */
+    .blog-container {
+      max-width: 1300px;
+      width: 100%;
+    }
+
+    /* ---------- 毛玻璃基类 (动效+模糊) ---------- */
+    .glass {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 32px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(251, 114, 153, 0.1);
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+    }
+
+    .glass:hover {
+      border-color: rgba(251, 114, 153, 0.5);
+      box-shadow: 0 20px 32px rgba(251, 114, 153, 0.15);
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    /* 导航栏 — 更紧凑的毛玻璃 */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 2rem;
+      margin-bottom: 2.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(14px) saturate(200%);
+      border-radius: 60px;
+      border: 1px solid rgba(255,255,255,0.5);
+      animation: slideDown 0.7s ease-out;
+    }
+
+    @keyframes slideDown {
+      0% { opacity: 0; transform: translateY(-30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #FB7299;  /* 主粉色 */
+      text-shadow: 2px 2px 6px rgba(255, 255, 255, 0.7);
+    }
+
+    .logo i {
+      font-size: 2rem;
+      color: #FB7299;
+      filter: drop-shadow(0 2px 4px rgba(251,114,153,0.4));
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #2e2e2e;
+      font-weight: 520;
+      font-size: 1.2rem;
+      padding: 0.5rem 0.2rem;
+      border-bottom: 2px solid transparent;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-links a i {
+      color: #FB7299;
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #FB7299;
+      border-bottom-color: #FB7299;
+      transform: translateY(-2px);
+    }
+
+    .nav-links a:hover i {
+      transform: scale(1.15) rotate(2deg);
+    }
+
+    /* 个人资料卡 (毛玻璃 + 动效) */
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem 2.5rem;
+      margin-bottom: 3rem;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(16px);
+      border-radius: 48px;
+      transform-origin: top;
+      animation: floatIn 0.9s cubic-bezier(0.12, 0.71, 0.33, 1) 0.1s both;
+    }
+
+    @keyframes floatIn {
+      0% { opacity: 0; transform: scale(0.95) translateY(30px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .avatar {
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      width: 110px;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid rgba(251, 114, 153, 0.6);
+      transition: all 0.3s;
+      box-shadow: 0 10px 20px rgba(251,114,153,0.2);
+    }
+
+    .avatar i {
+      font-size: 5.5rem;
+      color: #FB7299;
+      transition: transform 0.4s;
+    }
+
+    .avatar:hover i {
+      transform: rotate(8deg) scale(1.05);
+    }
+
+    .profile-info h1 {
+      font-size: 2.6rem;
+      font-weight: 750;
+      background: linear-gradient(130deg, #FB7299, #ffaaaf);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .profile-info .bio {
+      font-size: 1.2rem;
+      color: #3a3a3a;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .bio span i {
+      color: #FB7299;
+      margin-right: 6px;
+    }
+
+    /* 最新文章标题 */
+    .section-title {
+      font-size: 2.4rem;
+      font-weight: 600;
+      margin: 2rem 0 1.5rem 0.5rem;
+      color: #3d2b2b;
+      display: inline-block;
+      position: relative;
+      animation: slideIn 0.5s 0.2s both;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 70%;
+      height: 6px;
+      background: linear-gradient(90deg, #FB7299, transparent);
+      border-radius: 12px;
+    }
+
+    /* 卡片网格 */
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0 3rem;
+    }
+
+    /* 文章卡片 */
+    .article-card {
+      padding: 1.8rem 1.5rem;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      transition: all 0.35s ease;
+      animation: cardAppear 0.6s backwards;
+      display: flex;
+      flex-direction: column;
+      cursor: default;
+    }
+
+    .article-card:nth-child(1) { animation-delay: 0.1s; }
+    .article-card:nth-child(2) { animation-delay: 0.2s; }
+    .article-card:nth-child(3) { animation-delay: 0.3s; }
+    .article-card:nth-child(4) { animation-delay: 0.4s; }
+    .article-card:nth-child(5) { animation-delay: 0.5s; }
+    .article-card:nth-child(6) { animation-delay: 0.6s; }
+
+    @keyframes cardAppear {
+      0% { opacity: 0; transform: translateY(40px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .article-card:hover {
+      transform: translateY(-12px) scale(1.01);
+      background: rgba(255, 255, 255, 0.35);
+      border-color: #FB7299;
+      box-shadow: 0 28px 38px -10px rgba(251, 114, 153, 0.3);
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #4a4a4a;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px dashed rgba(251,114,153,0.3);
+      padding-bottom: 10px;
+    }
+
+    .card-meta i {
+      color: #FB7299;
+      margin-right: 5px;
+    }
+
+    .card-title {
+      font-size: 1.9rem;
+      font-weight: 680;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+      color: #1f1f1f;
+      transition: color 0.2s;
+    }
+
+    .article-card:hover .card-title {
+      color: #FB7299;
+    }
+
+    .card-excerpt {
+      color: #2f2f2f;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .tag {
+      background: rgba(251, 114, 153, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      border: 1px solid rgba(251,114,153,0.5);
+      color: #2d2d2d;
+      transition: all 0.2s;
+    }
+
+    .tag:hover {
+      background: #FB7299;
+      color: white;
+      border-color: #FB7299;
+      transform: scale(1.05) translateY(-2px);
+    }
+
+    /* 加载更多按钮 (毛玻璃+动效) */
+    .load-more {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 3.5rem;
+      margin: 0 auto 3rem;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #2a2a2a;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(16px);
+      border-radius: 60px;
+      border: 1px solid rgba(255,255,255,0.5);
+      width: fit-content;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 18px rgba(251,114,153,0.2);
+      animation: pulseGlow 2.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 4px 18px rgba(251,114,153,0.2); }
+      100% { box-shadow: 0 8px 30px rgba(251,114,153,0.5); }
+    }
+
+    .load-more:hover {
+      background: #FB7299;
+      color: white;
+      border-color: white;
+      transform: scale(1.02) translateY(-3px);
+      gap: 1.3rem;
+    }
+
+    .load-more i {
+      transition: transform 0.3s;
+    }
+
+    .load-more:hover i {
+      transform: translateX(8px) rotate(90deg);
+    }
+
+    /* 页脚 毛玻璃+社交图标 */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.6rem 2.5rem;
+      border-radius: 60px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      margin-top: 1rem;
+      border: 1px solid rgba(255,255,255,0.4);
+      animation: fadeUp 0.8s 0.3s both;
+    }
+
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .social-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .social-links a {
+      color: #2e2e2e;
+      font-size: 1.8rem;
+      transition: all 0.2s;
+    }
+
+    .social-links a:hover {
+      color: #FB7299;
+      transform: scale(1.2) rotate(4deg);
+    }
+
+    .copyright {
+      color: #3d3d3d;
+      font-size: 1.1rem;
+    }
+
+    .copyright i {
+      color: #FB7299;
+      margin: 0 4px;
+    }
+
+    /* 响应式 */
+    @media (max-width: 680px) {
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+      }
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.2rem;
+      }
+      .profile-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.8rem;
+      }
+      .profile-info .bio {
+        justify-content: center;
+      }
+      .footer {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      .article-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 小点缀: 仿B站播放器小电视icon动画 */
+    .bilibili-tv {
+      animation: tvBounce 4s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes tvBounce {
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-5px); }
+    }
+
+    /* 按钮点击动效 (模拟加载) */
+    .load-more:active {
+      transform: scale(0.98);
+      background: rgba(251,114,153,0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="blog-container">
+    <!-- 导航栏 · 毛玻璃 + 粉色调 -->
+    <nav class="navbar glass" style="background: rgba(255,255,240,0.2);">
+      <div class="logo">
+        <i class="fas fa-tv bilibili-tv" style="color: #FB7299;"></i>
+        <span>小电视の日常</span>
+      </div>
+      <div class="nav-links">
+        <a href="#"><i class="fas fa-house"></i> 首页</a>
+        <a href="#"><i class="fas fa-folder-open"></i> 归档</a>
+        <a href="#"><i class="fas fa-user-astronaut"></i> 关于</a>
+        <a href="#"><i class="fas fa-magnifying-glass"></i> 搜索</a>
+      </div>
+    </nav>
+
+    <!-- 个人资料卡 (毛玻璃 + 动效) -->
+    <div class="profile-card glass">
+      <div class="avatar">
+        <i class="fas fa-user-ninja"></i>
+      </div>
+      <div class="profile-info">
+        <h1>夜羽 ·  блог</h1>
+        <div class="bio">
+          <span><i class="fas fa-calendar-alt"></i> 注册于 2022</span>
+          <span><i class="fas fa-pen-fancy"></i> 29 篇原创</span>
+          <span><i class="fas fa-heart" style="color: #FB7299;"></i> 1.2w 人气</span>
+        </div>
+        <div style="margin-top: 12px; color:#393939;"><i class="fas fa-quote-left" style="color:#FB7299;"></i> 分享ACG与日常，周末必更 ✨</div>
+      </div>
+    </div>
+
+    <!-- 文章区域 标题 + 卡片网格 -->
+    <h2 class="section-title"><i class="fas fa-arrow-trend-up" style="color:#FB7299; margin-right: 12px;"></i>最新放映</h2>
+    <div class="article-grid">
+      <!-- 卡片 1 -->
+      <article class="article-card glass">
+        <div class="card-meta">
+          <span><i class="far fa-calendar"></i> 2025-02-18</span>
+          <span><i class="far fa-clock"></i> 6分钟前</span>
+        </div>
+        <h3 class="card-title">从零部署毛玻璃博客</h3>
+        <p class="card-excerpt">用Cloudflare Pages + 哔哩哔哩粉，手把手教你拥有丝滑模糊效果... </p>
+        <div class="card-tags">
+          <span class="tag">#教程</span>
+          <span class="tag">#Cloudflare</span>
+          <span class="tag">#前端</span>
+        </div>
+      </article>
+      <!-- 卡片 2 -->
+      <article class="article-card glass">
+        <div class="card-meta">
+          <span><i class="far fa-calendar"></i> 2025-02-15</span>
+          <span><i class="far fa-clock"></i> 12分钟前</span>
+        </div>
+        <h3 class="card-title">B站主题色搭配指南</h3>
+        <p class="card-excerpt">#FB7299 为什么让人舒适？搭配毛玻璃与动态阴影，视觉体验直接拉满...</p>
+        <div class="card-tags">
+          <span class="tag">#设计</span>
+          <span class="tag">#色彩</span>
+          <span class="tag">#灵感</span>
+        </div>
+      </article>
+      <!-- 卡片 3 -->
+      <article class="article-card glass">
+        <div class="card-meta">
+          <span><i class="far fa-calendar"></i> 2025-02-10</span>
+          <span><i class="far fa-clock"></i> 3天前</span>
+        </div>
+        <h3 class="card-title">小电视的周末歌会</h3>
+        <p class="card-excerpt">周末直播歌回，用到了全新的毛玻璃 obs 皮肤，弹幕都说太粉了~ 录像已传...</p>
+        <div class="card-tags">
+          <span class="tag">#生活</span>
+          <span class="tag">#Vlog</span>
+          <span class="tag">#音乐</span>
+        </div>
+      </article>
+      <!-- 卡片 4 -->
+      <article class="article-card glass">
+        <div class="card-meta">
+          <span><i class="far fa-calendar"></i> 2025-02-05</span>
+          <span><i class="far fa-clock"></i> 5天前</span>
+        </div>
+        <h3 class="card-title">那些让人上头的开启动效</h3>
+        <p class="card-excerpt">transition + backdrop-filter 能玩出多少花样？这篇文章汇总了15个优雅例子...</p>
+        <div class="card-tags">
+          <span class="tag">#CSS</span>
+          <span class="tag">#动画</span>
+          <span class="tag">#干货</span>
+        </div>
+      </article>
+      <!-- 卡片 5 增加密度 -->
+      <article class="article-card glass">
+        <div class="card-meta">
+          <span><i class="far fa-calendar"></i> 2025-01-28</span>
+          <span><i class="far fa-clock"></i> 春节</span>
+        </div>
+        <h3 class="card-title">新年特辑 · 毛玻璃红包</h3>
+        <p class="card-excerpt">用css画一个半透明红包，配合粉色主题，祝大家新年大吉~ 内含彩蛋。</p>
+        <div class="card-tags">
+          <span class="tag">#节日</span>
+          <span class="tag">#创意</span>
+        </div>
+      </article>
+      <!-- 卡片 6 -->
+      <article class="article-card glass">
+        <div class="card-meta">
+          <span><i class="far fa-calendar"></i> 2025-01-20</span>
+          <span><i class="far fa-clock"></i> 1月下</span>
+        </div>
+        <h3 class="card-title">Cloudflare Pages 极速部署</h3>
+        <p class="card-excerpt">从0到上线只需要3分钟，配合wrangler或git，免费托管还带全球CDN...</p>
+        <div class="card-tags">
+          <span class="tag">#部署</span>
+          <span class="tag">#指南</span>
+        </div>
+      </article>
+    </div>
+
+    <!-- 加载更多按钮 · 附带模拟点击动效 -->
+    <div class="load-more" onclick="alert('(◕‿◕) 已经是最新内容啦，期待下一篇吧～')">
+      <span>加载更多文章</span>
+      <i class="fas fa-arrow-right"></i>
+    </div>
+
+    <!-- 页脚 毛玻璃 + B站氛围 -->
+    <footer class="footer glass">
+      <div class="copyright">
+        <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客 
+        <i class="fas fa-heart" style="color: #FB7299;"></i>
+      </div>
+      <div class="social-links">
+        <a href="#"><i class="fab fa-bilibili"></i></a>
+        <a href="#"><i class="fab fa-github"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fas fa-envelope"></i></a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 微小交互：模仿哔哩哔哩 logo 浮动 -->
+  <script>
+    (function() {
+      // 加一点点趣味：所有卡片点击时小小的反馈 (保持流畅)
+      const cards = document.querySelectorAll('.article-card');
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          // 仅仅模拟阅读体验，不跳转
+          card.style.transform = 'scale(0.99)';
+          setTimeout(() => {
+            card.style.transform = '';
+          }, 150);
+        });
+      });
+
+      // 毛玻璃动态光效 (很轻微)
+      console.log('✨ 博客已加载 · 主色调 #FB7299 · 毛玻璃全开');
+    })();
+  </script>
+
+  <!-- 说明：本页面就是预览图，在浏览器打开即可看到完整粉色毛玻璃效果 -->
+  <!-- 
+    ==================== 预览图说明 ====================
+    由于文本无法直接嵌入截图，您运行此 HTML 后看到的页面即为实际预览。
+    特点：哔哩哔哩粉 (#FB7299) 贯穿始终，毛玻璃卡片、导航、页脚均带 backdrop-filter，
+    卡片加载动画逐项弹出，hover 放大+变粉，整体流畅且适配移动端。
+    ==================================================
+  -->
+</body>
+</html>
