@@ -436,6 +436,141 @@
       50%{ transform: translateY(-5px); }
     }
 
+
+/* ----- 侧边栏 (毛玻璃) ----- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-right: 1px solid rgba(251, 114, 153, 0.3);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  color: #2a2a2a;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(251, 114, 153, 0.3);
+}
+
+.sidebar-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #FB7299;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #FB7299;
+  cursor: pointer;
+  transition: transform 0.2s;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: rgba(251, 114, 153, 0.2);
+  transform: rotate(90deg);
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  flex: 1;
+}
+
+.sidebar-menu li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.8rem 1rem;
+  border-radius: 30px;
+  color: #2a2a2a;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: all 0.25s;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid transparent;
+}
+
+.sidebar-menu a:hover {
+  background: rgba(251, 114, 153, 0.15);
+  border-color: rgba(251, 114, 153, 0.3);
+  transform: translateX(6px);
+  color: #FB7299;
+}
+
+.sidebar-menu i {
+  width: 24px;
+  color: #FB7299;
+  font-size: 1.2rem;
+}
+
+.sidebar-footer {
+  padding-top: 1rem;
+  border-top: 1px solid rgba(251, 114, 153, 0.3);
+  font-size: 0.9rem;
+  text-align: center;
+  color: #5a5a5a;
+}
+
+/* 遮罩层 */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 移动端调整：导航链接在小屏幕隐藏时可以用侧边栏替代 */
+@media (max-width: 680px) {
+  .nav-links {
+    display: none; /* 隐藏原有导航链接，侧边栏承担导航功能 */
+  }
+  .sidebar {
+    width: 240px;
+  }
+}
     /* 按钮点击动效 (模拟加载) */
     .load-more:active {
       transform: scale(0.98);
