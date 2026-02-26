@@ -65,103 +65,10 @@
 
     <!-- 文章区域 标题 + 卡片网格 -->
     <h2 class="section-title"><i class="fas fa-arrow-trend-up" style="color:#FB7299; margin-right: 12px;"></i>最新放映</h2>
-    <div class="article-grid">
-      <!-- 卡片 1 -->
-      <article class="article-card glass">
-        <div class="card-meta">
-          <span><i class="far fa-calendar"></i> 2025-02-18</span>
-          <span><i class="far fa-clock"></i> 6分钟前</span>
-        </div>
-        <a href="post1.html" style="text-decoration: none; color: inherit;">
-          <h3 class="card-title">从零部署毛玻璃博客</h3>
-        </a>  
-        <p class="card-excerpt">用Cloudflare Pages + 哔哩哔哩粉，手把手教你拥有丝滑模糊效果... </p>
-        <div class="card-tags">
-          <span class="tag">#教程</span>
-          <span class="tag">#Cloudflare</span>
-          <span class="tag">#前端</span>
-        </div>
-      </article>
-      <!-- 卡片 2 -->
-      <article class="article-card glass">
-        <div class="card-meta">
-          <span><i class="far fa-calendar"></i> 2025-02-15</span>
-          <span><i class="far fa-clock"></i> 12分钟前</span>
-        </div>
-        <a href="post2.html" style="text-decoration: none; color: inherit;">
-          <h3 class="card-title">B站主题色搭配指南</h3>
-        </a>
-        <p class="card-excerpt">#FB7299 为什么让人舒适？搭配毛玻璃与动态阴影，视觉体验直接拉满...</p>
-        <div class="card-tags">
-          <span class="tag">#设计</span>
-          <span class="tag">#色彩</span>
-          <span class="tag">#灵感</span>
-        </div>
-      </article>
-      <!-- 卡片 3 -->
-      <article class="article-card glass">
-        <div class="card-meta">
-          <span><i class="far fa-calendar"></i> 2025-02-10</span>
-          <span><i class="far fa-clock"></i> 3天前</span>
-        </div>
-        <a href="post3.html" style="text-decoration: none; color: inherit;">
-          <h3 class="card-title">小电视的周末歌会</h3>
-        </a>
-        <p class="card-excerpt">周末直播歌回，用到了全新的毛玻璃 obs 皮肤，弹幕都说太粉了~ 录像已传...</p>
-        <div class="card-tags">
-          <span class="tag">#生活</span>
-          <span class="tag">#Vlog</span>
-          <span class="tag">#音乐</span>
-        </div>
-      </article>
-      <!-- 卡片 4 -->
-      <article class="article-card glass">
-        <div class="card-meta">
-          <span><i class="far fa-calendar"></i> 2025-02-05</span>
-          <span><i class="far fa-clock"></i> 5天前</span>
-        </div>
-        <a href="post4.html" style="text-decoration: none; color: inherit;">
-          <h3 class="card-title">那些让人上头的开启动效</h3>
-        </a>
-        <p class="card-excerpt">transition + backdrop-filter 能玩出多少花样？这篇文章汇总了15个优雅例子...</p>
-        <div class="card-tags">
-          <span class="tag">#CSS</span>
-          <span class="tag">#动画</span>
-          <span class="tag">#干货</span>
-        </div>
-      </article>
-      <!-- 卡片 5 增加密度 -->
-      <article class="article-card glass">
-        <div class="card-meta">
-          <span><i class="far fa-calendar"></i> 2025-01-28</span>
-          <span><i class="far fa-clock"></i> 春节</span>
-        </div>
-        <a href="post4.html" style="text-decoration: none; color: inherit;">
-          <h3 class="card-title">新年特辑 · 毛玻璃红包</h3>
-        </a>
-        <p class="card-excerpt">用css画一个半透明红包，配合粉色主题，祝大家新年大吉~ 内含彩蛋。</p>
-        <div class="card-tags">
-          <span class="tag">#节日</span>
-          <span class="tag">#创意</span>
-        </div>
-      </article>
-      <!-- 卡片 6 -->
-      <article class="article-card glass">
-        <div class="card-meta">
-          <span><i class="far fa-calendar"></i> 2025-01-20</span>
-          <span><i class="far fa-clock"></i> 1月下</span>
-        </div>
-        <a href="post4.html" style="text-decoration: none; color: inherit;">
-          <h3 class="card-title">Cloudflare Pages 极速部署</h3
-        <a/>
-        <p class="card-excerpt">从0到上线只需要3分钟，配合wrangler或git，免费托管还带全球CDN...</p>
-        <div class="card-tags">
-          <span class="tag">#部署</span>
-          <span class="tag">#指南</span>
-        </div>
-      </article>
+    <div class="article-grid" id="post-grid">
+      <!-- 这里将用 JavaScript 动态填充卡片 -->
     </div>
-
+    
     <!-- 加载更多按钮 · 附带模拟点击动效 -->
     <div class="load-more" onclick="alert('(◕‿◕) 已经是最新内容啦，期待下一篇吧～')">
       <span>加载更多文章</span>
@@ -235,5 +142,77 @@
     });
   });
   </script>
+
+<!-- 编写 JavaScript 动态加载函数 -->
+  <script>
+  // 定义一个异步函数，用于加载文章列表
+  async function loadPosts() {
+    // 1. 显示加载提示（可选）
+    const grid = document.getElementById('post-grid');
+    grid.innerHTML = '<p style="text-align: center; color: #FB7299;">加载中...</p>';
+
+    try {
+      // 2. 调用我们创建的 API 接口
+      const response = await fetch('/api/posts');
+      
+      // 3. 检查响应是否成功
+      if (!response.ok) {
+        throw new Error('网络响应错误');
+      }
+
+      // 4. 解析返回的 JSON 数据
+      const posts = await response.json();
+      
+      // 5. 清空容器，准备填充新卡片
+      grid.innerHTML = '';
+
+      // 6. 遍历每一篇文章，生成卡片 HTML
+      posts.forEach(post => {
+        // 格式化日期：从 "2025-02-18T12:34:56Z" 转为 "2025-02-18"
+        const date = new Date(post.updated_at);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');  // 月份补零
+        const day = String(date.getDate()).padStart(2, '0');         // 日期补零
+        const formattedDate = `${year}-${month}-${day}`;
+
+        // 处理标签：假设数据库里 tags 是逗号分隔的字符串，如 "教程,Cloudflare,前端"
+        let tagsHtml = '';
+        if (post.tags) {
+          const tagsArray = post.tags.split(',');  // 拆分成数组
+          tagsHtml = tagsArray.map(tag => 
+            `<span class="tag">#${tag.trim()}</span>`  // 每个标签生成一个 <span>
+          ).join('');  // 合并成字符串
+        }
+
+        // 生成整张卡片的 HTML
+        const cardHtml = `
+          <article class="article-card glass">
+            <div class="card-meta">
+              <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+              <span><i class="far fa-clock"></i> 刚刚</span>
+            </div>
+            <a href="post.html?slug=${post.slug}" style="text-decoration: none; color: inherit;">
+              <h3 class="card-title">${post.title}</h3>
+            </a>
+            <p class="card-excerpt">${post.excerpt || ''}</p>
+            <div class="card-tags">
+              ${tagsHtml}
+            </div>
+          </article>
+        `;
+
+        // 将这张卡片的 HTML 添加到容器中
+        grid.innerHTML += cardHtml;
+      });
+    } catch (error) {
+      // 7. 如果出错了，显示错误信息
+      console.error('加载文章失败:', error);
+      grid.innerHTML = '<p style="text-align: center; color: red;">文章加载失败，请稍后重试。</p>';
+    }
+  }
+
+  // 8. 当页面 DOM 加载完成后，执行 loadPosts 函数
+  document.addEventListener('DOMContentLoaded', loadPosts);
+</script>
 </body>
 </html>
