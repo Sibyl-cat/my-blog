@@ -113,11 +113,11 @@ my-blog/
 <body>
 <div class="blog-container">
     <!-- 导航栏 (与 index.html 相同) -->
-    <nav class="navbar glass">
-        <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 12px;">
-            <i class="fab fa-bilibili" style="color: #FB7299;"></i>
-            <span class="logo" style="color: #FB7299;">小电视の日常</span>
-        </a>
+    <nav class="navbar glass" style="background: rgba(255,255,240,0.2);">
+      <div class="logo">
+        <i class="fab fa-bilibili"></i>
+        <span>小电视の日常</span>
+      </div>
     </nav>
 
     <!-- 文章详情 -->
