@@ -1,32 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- 与 index.html 相同的 meta 和 link -->
-  <link rel="stylesheet" href="style.css">
-  <title>从零部署毛玻璃博客 · 小电视の日常</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>从零部署毛玻璃博客 · 小电视の日常</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="blog-container">
-    <!-- 导航栏（完全复制 index.html 中的 navbar） -->
-    <nav class="navbar glass">...</nav>
+<div class="blog-container">
+    <!-- 导航栏 (与 index.html 相同) -->
+    <nav class="navbar glass">
+        <a href="index.html" style="text-decoration: none; display: flex; align-items: center; gap: 12px;">
+            <i class="fas fa-tv bilibili-tv" style="color: #FB7299;"></i>
+            <span class="logo" style="color: #FB7299;">小电视の日常</span>
+        </a>
+    </nav>
 
-    <!-- 文章详情区域 -->
+    <!-- 文章详情 -->
     <div class="profile-card glass" style="flex-direction: column; align-items: flex-start;">
-      <h1 style="font-size: 2.5rem; color: #FB7299;">从零部署毛玻璃博客</h1>
-      <div class="card-meta" style="margin: 1rem 0;">
-        <span><i class="far fa-calendar"></i> 2025-02-18</span>
-        <span><i class="far fa-clock"></i> 6分钟前</span>
-      </div>
-      <div class="post-content" style="font-size: 1.2rem; line-height: 1.8;">
-        <p>这里是文章正文。用 Cloudflare Pages + 哔哩哔哩粉，手把手教你拥有丝滑模糊效果...</p>
-        <p>第二段内容...</p>
-        <!-- 更多内容 -->
-      </div>
-      <a href="index.html" class="load-more" style="margin: 2rem 0;">← 返回首页</a>
+        <h1 style="font-size: 2.5rem; color: #FB7299; margin-bottom: 0.5rem;">从零部署毛玻璃博客</h1>
+        <div class="card-meta" style="margin: 1rem 0; width: 100%;">
+            <span><i class="far fa-calendar"></i> 2025-02-18</span>
+            <span><i class="far fa-clock"></i> 6分钟前</span>
+            <span><i class="fas fa-tag"></i> 教程 · Cloudflare · 前端</span>
+        </div>
+        <div class="post-content" style="font-size: 1.2rem; line-height: 1.8; color: #2a2a2a;">
+            <p>最近好多朋友问我这种毛玻璃效果的博客是怎么做的，今天就出一篇保姆级教程，从零开始部署一个属于自己的粉色毛玻璃博客，并且免费托管在 Cloudflare Pages 上。</p>
+            <h2 style="color: #FB7299; margin: 1.5rem 0 0.5rem;">1. 编写基础 HTML</h2>
+            <p>首先创建一个 <code>index.html</code>，引入 Font Awesome 图标库，然后构建基本的页面结构：导航栏、个人资料卡、文章卡片网格、页脚。</p>
+            <p>关键在于使用 <code>backdrop-filter: blur(12px)</code> 实现毛玻璃效果，配合半透明背景 <code>rgba(255,255,255,0.2)</code>，让背景透出来。</p>
+            <h2 style="color: #FB7299; margin: 1.5rem 0 0.5rem;">2. 添加哔哩哔哩主题色</h2>
+            <p>主色调 #FB7299 用在图标、标题、悬停边框上。可以通过渐变背景、阴影等手法让颜色更丰富。</p>
+            <h2 style="color: #FB7299; margin: 1.5rem 0 0.5rem;">3. 部署到 Cloudflare Pages</h2>
+            <p>将代码推送到 GitHub 仓库，在 Cloudflare Pages 中连接仓库，设置构建输出目录为根目录，即可自动部署。还可以绑定自定义域名，免费开启 HTTPS。</p>
+            <p>更多细节可以看我的其他文章，或者直接查看 <a href="https://developers.cloudflare.com/pages/" target="_blank" style="color: #FB7299;">Cloudflare Pages 官方文档</a>。</p>
+        </div>
+        <a href="index.html" class="load-more" style="margin: 2rem 0; align-self: center;">← 返回首页</a>
     </div>
 
-    <!-- 页脚（完全复制 index.html 中的 footer） -->
-    <footer class="footer glass">...</footer>
-  </div>
+    <!-- 页脚 (与 index.html 相同) -->
+    <footer class="footer glass">
+        <div class="copyright">
+            <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
+            <i class="fas fa-heart" style="color: #FB7299;"></i>
+        </div>
+    </footer>
+</div>
 </body>
 </html>
