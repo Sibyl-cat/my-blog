@@ -9,6 +9,23 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  
+    <!-- 导航栏 · 毛玻璃 + 粉色调 -->
+    <nav class="navbar glass">
+  <div style="display: flex; align-items: center; gap: 1rem;"><!-- 小电视图标作为侧边栏触发器 -->
+      <div class="logo" id="sidebarToggle" style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+        <i class="fab fa-bilibili" style="color: #FB7299;"></i>
+        <span>小电视の日常</span>
+      </div>
+  </div>
+      <div class="nav-links">
+        <a href="#"><i class="fas fa-house"></i> 首页</a>
+        <a href="#"><i class="fas fa-folder-open"></i> 归档</a>
+        <a href="#"><i class="fas fa-user-astronaut"></i> 关于</a>
+        <a href="#"><i class="fas fa-magnifying-glass"></i> 搜索</a>
+      </div>
+    </nav>
+  
   <!-- 侧边栏 (毛玻璃) -->
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -29,19 +46,6 @@
 <!-- 遮罩层 (点击关闭侧边栏) -->
 <div class="overlay" id="overlay"></div>
   <div class="blog-container">
-    <!-- 导航栏 · 毛玻璃 + 粉色调 -->
-    <nav class="navbar glass" style="background: rgba(255,255,240,0.2);">
-      <div class="logo" id="sidebarToggle" style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-        <i class="fab fa-bilibili" style="color: #FB7299;"></i>
-        <span>小电视の日常</span>
-      </div>
-      <div class="nav-links">
-        <a href="#"><i class="fas fa-house"></i> 首页</a>
-        <a href="#"><i class="fas fa-folder-open"></i> 归档</a>
-        <a href="#"><i class="fas fa-user-astronaut"></i> 关于</a>
-        <a href="#"><i class="fas fa-magnifying-glass"></i> 搜索</a>
-      </div>
-    </nav>
 
     <!-- 个人资料卡 (毛玻璃 + 动效) -->
     <div class="profile-card glass">
