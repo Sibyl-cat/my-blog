@@ -7,6 +7,7 @@
     }
 
     body {
+        position: relative
       min-height: 100vh;
       background: linear-gradient(145deg, #ffe9f0 0%, #ffd9e5 100%);
       /* 增加微妙的噪点纹理，让毛玻璃背后更有细节 */
@@ -18,6 +19,19 @@
       padding: 1.5rem 1rem;
       animation: bgGlow 8s infinite alternate ease-in-out;
     }
+/* 壁纸背景（固定在最底层） */
+body::before {
+  content: '';
+  position: fixed;          /* 固定定位，不随滚动移动 */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('images/wallpaper.jpg') no-repeat center center;  /* 设置壁纸路径和位置 */
+  background-size: cover;   /* 让图片铺满整个视口，可能裁剪部分边缘 */
+  z-index: -1;              /* 确保在所有内容的下方 */
+}
+
 
     @keyframes bgGlow {
       0% { filter: brightness(1); }
