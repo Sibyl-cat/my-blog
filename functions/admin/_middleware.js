@@ -1,6 +1,13 @@
 // /functions/admin/_middleware.js
 export async function onRequest(context) {
   const { request, env, next } = context;
+  const url = new URL(request.url);
+  
+  // 1. 如果是登录页，直接放行（不检查会话）
+  if (url.pathname === '/admin/login.html') {
+    return await next();
+  }
+
 
   // 获取 Cookie
   const cookieHeader = request.headers.get('Cookie') || '';
