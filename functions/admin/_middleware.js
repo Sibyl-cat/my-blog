@@ -4,7 +4,7 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   
   // 1. 如果是登录页，直接放行（不检查会话）
-  if (url.pathname === '/admin/login') {
+  if (url.pathname === '/admin/login.html') {
     return await next();
   }
 
