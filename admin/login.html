@@ -27,16 +27,22 @@
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            if (res.ok) {
-                window.location.href = '/admin.html';
-            } else {
+            const errorMsg = document.getElementById('errorMsg');
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
                 const data = await res.json();
-                document.getElementById('errorMsg').textContent = data.error || '登录失败';
+                if (res.ok) {
+                    window.location.href = '/admin.html';
+                } else {
+                    errorMsg.textContent = data.error || '登录失败';
+                }
+            } catch (err) {
+                errorMsg.textContent = '网络错误，请重试';
             }
         });
     </script>
