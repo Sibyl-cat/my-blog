@@ -342,6 +342,26 @@
 
         // 初始加载
         loadPosts();
+        // 注销功能
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            if (confirm('确定要注销吗？')) {  // 可选确认对话框
+                try {
+                    const response = await fetch('/api/logout', {
+                        method: 'POST',
+                        credentials: 'same-origin'  // 确保携带 Cookie
+                    });
+                    if (response.ok) {
+                        // 注销成功，跳转到登录页
+                        window.location.href = '/admin/login.html';
+                    } else {
+                        alert('注销失败，请重试');
+                    }
+                } catch (error) {
+                    console.error('注销出错:', error);
+                    alert('注销出错');
+                }
+            }
+        });
     </script>
 </body>
 </html>
