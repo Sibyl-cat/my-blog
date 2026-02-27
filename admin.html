@@ -401,16 +401,6 @@
             }
         };
 
-        // 清空表单
-        function clearForm() {
-            slugInput.value = '';
-            titleInput.value = '';
-            contentInput.value = '';
-            excerptInput.value = '';
-            tagsInput.value = '';
-        }
-        clearBtn.addEventListener('click', clearForm);
-
         // 提交表单（新增/更新）
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
