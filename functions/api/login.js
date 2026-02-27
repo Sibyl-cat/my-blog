@@ -1,6 +1,4 @@
 // /functions/api/login.js
-import { verifyPassword } from './utils/auth';  // 稍后定义
-
 export async function onRequest(context) {
   const { request, env } = context;
 
