@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>管理员登录</title>
+    <style>
+        body { background: #ffe9f0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-box { background: rgba(255,255,255,0.25); backdrop-filter: blur(12px); border-radius: 32px; padding: 2rem; width: 300px; border: 1px solid #FB7299; }
+        h2 { color: #FB7299; text-align: center; }
+        input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #FB7299; border-radius: 12px; }
+        button { width: 100%; padding: 0.8rem; background: #FB7299; color: white; border: none; border-radius: 12px; cursor: pointer; }
+        .error { color: red; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>管理员登录</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="用户名" required>
+            <input type="password" id="password" placeholder="密码" required>
+            <button type="submit">登录</button>
+            <p class="error" id="errorMsg"></p>
+        </form>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (res.ok) {
+                window.location.href = '/admin.html';
+            } else {
+                const data = await res.json();
+                document.getElementById('errorMsg').textContent = data.error || '登录失败';
+            }
+        });
+    </script>
+</body>
+</html>
