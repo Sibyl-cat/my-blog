@@ -21,7 +21,6 @@ export async function onRequest(context) {
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405 });
   }
-  const userId = await getCurrentUserId(request, env);
     if (!userId) {
         return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
