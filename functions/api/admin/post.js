@@ -1,4 +1,5 @@
 // /functions/api/admin/post.js
+import { getCurrentUserId } from '../utils/auth';
 export async function onRequest(context) {
   const { request, env } = context;
   
@@ -28,6 +29,9 @@ export async function onRequest(context) {
 
     if (results.length > 0) {
       // 更新现有文章
+      if (results[0].author_id !== userId) {
+                return new Response(JSON.stringify({ error: '无权修改他人文章' }), { status: 403 });
+            }
       await env.DB.prepare(`
         UPDATE posts 
         SET title = ?, content = ?, excerpt = ?, tags = ?, updated_at = CURRENT_TIMESTAMP
