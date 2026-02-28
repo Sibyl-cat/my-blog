@@ -4,7 +4,7 @@ export async function onRequest(context) {
   console.log('中间件拦截路径:', url.pathname);
 
   // 必须放行登录页
-  if (url.pathname === '/admin/login.html') {
+  if (url.pathname === '/admin/login.html' || url.pathname === '/admin/login') {
     console.log('放行登录页');
     return await next();  // 直接通过，不检查会话
   }
