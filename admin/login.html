@@ -38,7 +38,7 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    window.location.href = '/admin.html';
+                    window.location.replace('/admin.html');
                 } else {
                     errorMsg.textContent = data.error || '登录失败';
                 }
