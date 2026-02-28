@@ -267,9 +267,9 @@
             <h2><i class="fas fa-edit"></i> 编辑文章</h2>
             <form id="post-form">
                 <div class="form-row">
-                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <div class="form-group" style="flex: 1;">
                         <label>文章标识（自动生成）</label>
-                        <input type="text" id="slug_display" class="slug-readonly" readonly value="" placeholder="保存后自动生成">
+                        <input type="text" id="slug_display" class="slug-readonly" readonly value="" placeholder="保存后自动生成" value="">
                     </div>
                     <div class="form-group">
                         <label>标签 (逗号分隔)</label>
@@ -316,6 +316,8 @@
         const excerptInput = document.getElementById('excerpt');
         const tagsInput = document.getElementById('tags');
         const messageDiv = document.getElementById('message');
+        const slugHidden = document.getElementById('slug');
+        const slugDisplay = document.getElementById('slug_display');
     
         // 显示消息
         function showMessage(text, type) {
@@ -365,11 +367,13 @@
                 const response = await fetch(`/api/post/${slug}`);
                 const post = await response.json();
                 
-                slugInput.value = post.slug;
+                slugHidden.value = post.slug;
                 titleInput.value = post.title;
                 contentInput.value = post.content || '';
                 excerptInput.value = post.excerpt || '';
                 tagsInput.value = post.tags || '';
+                slugHidden.value = post.slug;
+                if (slugDisplay) slugDisplay.value = post.slug;
                 
                 showMessage('已加载文章', 'success');
             } catch (error) {
@@ -394,9 +398,9 @@
                 if (result.success) {
                     showMessage('删除成功', 'success');
                     loadPosts();  // 刷新列表
-                    if (slugInput.value === slug) {
+                    if (slugHidden.value === slug) {
                         // 清空表单
-                        slugInput.value = '';
+                        slugHidden.value = '';
                         titleInput.value = '';
                         contentInput.value = '';
                         excerptInput.value = '';
@@ -411,11 +415,13 @@
         };
          // 清空表单函数（新建和内部使用）
         function clearForm() {
-            slugInput.value = '';
+            slugHidden.value = '';
             titleInput.value = '';
             contentInput.value = '';
             excerptInput.value = '';
             tagsInput.value = '';
+            slugHidden.value = '';
+            if (slugDisplay) slugDisplay.value = '';
         }
 
         // 提交表单（新增/更新）
