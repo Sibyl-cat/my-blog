@@ -325,7 +325,7 @@
         // 加载文章列表
         async function loadPosts() {
             try {
-                const response = await fetch('/api/posts');
+                const response = await fetch('/api/admin/posts');
                 const posts = await response.json();
                 
                 if (posts.length === 0) {
