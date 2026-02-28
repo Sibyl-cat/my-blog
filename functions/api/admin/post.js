@@ -1,5 +1,6 @@
 // /functions/api/admin/post.js
 import { getCurrentUserId } from '../utils/auth';
+import { generateSlug } from '../utils/generateSlug';
 // 新增：获取用户角色
 async function getUserRole(userId, env) {
     const { results } = await env.DB.prepare(
@@ -11,17 +12,18 @@ async function getUserRole(userId, env) {
 export async function onRequest(context) {
   const { request, env } = context;
 
-  // ... 方法检查
-    const userId = await getCurrentUserId(request, env);
-    if (!userId) return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
-
-    const role = await getUserRole(userId, env);
-    const isAdmin = role === 'admin';
   
   // 只接受 POST 请求
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405 });
   }
+    // ... 方法检查
+    const userId = await getCurrentUserId(request, env);
+    if (!userId) {return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
+                 }
+    const role = await getUserRole(userId, env);
+    const isAdmin = role === 'admin';
+  
 
   try {
     // 解析请求体（表单数据或 JSON）
@@ -33,37 +35,57 @@ export async function onRequest(context) {
     const tags = formData.get('tags');
 
     // 基本验证
-    if (!slug || !title) {
-      return new Response(JSON.stringify({ error: 'slug 和标题不能为空' }), { status: 400 });
+    if (!title) {
+      return new Response(JSON.stringify({ error: '标题不能为空' }), { status: 400 });
     }
 
-    // 检查文章是否存在（用于决定是插入还是更新）
-    const { results } = await env.DB.prepare(`
-      SELECT slug FROM posts WHERE slug = ?
-    `).bind(slug).all();
+      
 
-    if (results.length > 0) {
-      // 更新现有文章
-      if (!isAdmin && results[0].author_id !== userId) {
+     // 判断是新增还是更新
+        if (!slug) {
+            // 新增文章，自动生成 slug
+            slug = await generateSlug(env);
+            try {
+                await env.DB.prepare(
+                    `INSERT INTO posts (slug, title, content, excerpt, tags, author_id)
+                     VALUES (?, ?, ?, ?, ?, ?)`
+                ).bind(slug, title, content, excerpt, tags, userId).run();
+            } catch (err) {
+                // 唯一冲突（极小概率并发），重试一次
+                if (err.message.includes('UNIQUE constraint failed')) {
+                    slug = await generateSlug(env);
+                    await env.DB.prepare(
+                        `INSERT INTO posts (slug, title, content, excerpt, tags, author_id)
+                         VALUES (?, ?, ?, ?, ?, ?)`
+                    ).bind(slug, title, content, excerpt, tags, userId).run();
+                } else {
+                    throw err;
+                }
+            }
+        } else {
+            // 更新文章，检查权限
+            const { results } = await env.DB.prepare(
+                'SELECT author_id FROM posts WHERE slug = ?'
+            ).bind(slug).all();
+
+            if (results.length === 0) {
+                return new Response(JSON.stringify({ error: '文章不存在' }), { status: 404 });
+            }
+            if (results[0].author_id !== userId) {
                 return new Response(JSON.stringify({ error: '无权修改他人文章' }), { status: 403 });
             }
-      await env.DB.prepare(`
-        UPDATE posts 
-        SET title = ?, content = ?, excerpt = ?, tags = ?, updated_at = CURRENT_TIMESTAMP
-        WHERE slug = ?
-      `).bind(title, content, excerpt, tags, slug).run();
-    } else {
-      // 插入新文章
-      await env.DB.prepare(`
-        INSERT INTO posts (slug, title, content, excerpt, tags)
-        VALUES (?, ?, ?, ?, ?)
-      `).bind(slug, title, content, excerpt, tags).run();
-    }
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
+            await env.DB.prepare(
+                `UPDATE posts 
+                 SET title = ?, content = ?, excerpt = ?, tags = ?, updated_at = CURRENT_TIMESTAMP
+                 WHERE slug = ?`
+            ).bind(title, content, excerpt, tags, slug).run();
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    }
 }
