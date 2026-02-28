@@ -18,3 +18,22 @@ export async function verifyPassword(password, saltHex, storedHash) {
   const hash = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
   return hash === storedHash;
 }
+// 从请求的 Cookie 中获取 session_id，然后查询用户 ID
+export async function getCurrentUserId(request, env) {
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const cookies = Object.fromEntries(
+        cookieHeader.split('; ').map(c => {
+            const [key, value] = c.split('=');
+            return [key, value];
+        })
+    );
+    const sessionId = cookies.session_id;
+    if (!sessionId) return null;
+
+    const { results } = await env.DB.prepare(
+        'SELECT user_id FROM sessions WHERE id = ? AND expires_at > ?'
+    ).bind(sessionId, new Date().toISOString()).all();
+
+    if (results.length === 0) return null;
+    return results[0].user_id;
+}
