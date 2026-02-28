@@ -40,6 +40,13 @@ body::before {
     background-position: center top; /* 例如显示图片顶部 */
   }
 }
+
+/* 文章正文移动端左对齐 */
+.post-content {
+    text-align: left;   /* 确保左对齐 */
+    padding: 0 1rem;    /* 左右留边距，避免文字贴边 */
+    font-size: 1rem;    /* 可根据需要调整字体大小 */
+}
     @keyframes bgGlow {
       0% { filter: brightness(1); }
       100% { filter: brightness(1.02); }
