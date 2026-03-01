@@ -12,6 +12,13 @@ export async function onRequest(context) {
     if (!userId) {
         return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
+    // 检查是否为 admin
+    const { results: userResults } = await env.DB.prepare(
+        'SELECT role FROM users WHERE id = ?'
+    ).bind(userId).all();
+    if (userResults[0]?.role !== 'admin') {
+        return new Response(JSON.stringify({ error: '无权访问' }), { status: 403 });
+    }
 
     try {
         const { id, password } = await request.json();
