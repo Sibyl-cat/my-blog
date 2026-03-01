@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 · 小电视の日常</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .register-container {
+            max-width: 400px;
+            width: 100%;
+        }
+        .register-card {
+            padding: 2rem;
+        }
+        .register-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .register-title i {
+            font-size: 3rem;
+            color: #FB7299;
+        }
+        .register-title h1 {
+            color: #FB7299;
+            margin-top: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2a2a2a;
+            font-weight: 500;
+        }
+        input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(251,114,153,0.3);
+            border-radius: 30px;
+            background: rgba(255,255,255,0.5);
+            font-size: 1rem;
+        }
+        .btn-register {
+            width: 100%;
+            padding: 0.8rem;
+            background: #FB7299;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-register:hover {
+            background: #ff8aa5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(251,114,153,0.3);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .login-link a {
+            color: #FB7299;
+            text-decoration: none;
+        }
+        .message {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 30px;
+            display: none;
+            text-align: center;
+        }
+        .message.success {
+            background: rgba(0,200,0,0.15);
+            border: 1px solid #2ecc71;
+            color: #27ae60;
+        }
+        .message.error {
+            background: rgba(255,0,0,0.1);
+            border: 1px solid #ff7d7d;
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card glass">
+            <div class="register-title">
+                <i class="fas fa-user-plus"></i>
+                <h1>加入小电视の日常</h1>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user" style="color:#FB7299; margin-right:0.3rem;"></i> 用户名</label>
+                    <input type="text" id="username" placeholder="输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock" style="color:#FB7299; margin-right:0.3rem;"></i> 密码</label>
+                    <input type="password" id="password" placeholder="输入密码" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-check-circle" style="color:#FB7299; margin-right:0.3rem;"></i> 确认密码</label>
+                    <input type="password" id="confirmPassword" placeholder="再次输入密码" required>
+                </div>
+                <button type="submit" class="btn-register">注册</button>
+                <div class="login-link">
+                    已有账号？<a href="/admin/login.html">去登录</a>
+                </div>
+                <div id="message" class="message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('registerForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirmPassword');
+        const messageDiv = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            const confirm = confirmInput.value;
+
+            if (!username || !password) {
+                showMessage('用户名和密码不能为空', 'error');
+                return;
+            }
+            if (password !== confirm) {
+                showMessage('两次密码不一致', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage('注册成功！正在跳转到登录页...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/admin/login.html';
+                    }, 1500);
+                } else {
+                    showMessage(data.error || '注册失败', 'error');
+                }
+            } catch (err) {
+                showMessage('网络错误', 'error');
+            }
+        });
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
