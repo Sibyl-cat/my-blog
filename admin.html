@@ -157,6 +157,25 @@
             padding-top: 1rem;
             border-top: 1px solid rgba(251,114,153,0.3);
         }
+        /* 欢迎语样式 */
+        .welcome-message {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: rgba(251,114,153,0.15);
+            border-radius: 24px;
+            font-size: 1.3rem;
+            color: #FB7299;
+            border: 1px solid rgba(251,114,153,0.3);
+        }
+        .welcome-message i {
+            margin-right: 0.5rem;
+        }
+        #username {
+            font-weight: 600;
+            color: #FB7299;
+        }
+
         /* 三个按钮并排等宽 */
         .action-buttons {
             display: flex;
@@ -229,10 +248,10 @@
         padding: 0.8rem;  /* 注销按钮更大，方便点击 */
     }
     /* 按钮组在窄屏时稍微缩小内边距，保证一行显示 */
-            .action-buttons .btn,
-            .action-buttons label.btn {
-                padding: 0.5rem 0.2rem;
-                font-size: 0.9rem;
+    .action-buttons .btn,
+    .action-buttons label.btn {
+        padding: 0.5rem 0.2rem;
+        font-size: 0.9rem;
             }
     /* 超窄屏（如折叠屏）允许换行 */
         @media (max-width: 400px) {
@@ -252,6 +271,10 @@
         <!-- 左侧：文章列表 -->
         <div class="panel left-panel">
             <h2><i class="fas fa-list"></i> 文章列表</h2>
+            <!-- 作者问候语 -->
+            <div class="welcome-message glass">
+                <i class="fas fa-user-circle"></i> 你好，<span id="username">加载中...</span>！
+            </div>
             <div class="post-list" id="post-list">
                 <!-- 动态加载的文章列表 -->
             </div>
@@ -313,14 +336,15 @@
         // DOM 元素
         const postList = document.getElementById('post-list');
         const form = document.getElementById('post-form');
-        const slugInput = document.getElementById('slug');
+        const slugHidden = document.getElementById('slug');
+        const slugDisplay = document.getElementById('slug_display');
         const titleInput = document.getElementById('title');
         const contentInput = document.getElementById('content');
         const excerptInput = document.getElementById('excerpt');
         const tagsInput = document.getElementById('tags');
         const messageDiv = document.getElementById('message');
-        const slugHidden = document.getElementById('slug');
-        const slugDisplay = document.getElementById('slug_display');
+        const usernameSpan = document.getElementById('username');
+        
     
         // 显示消息
         function showMessage(text, type) {
@@ -331,12 +355,34 @@
                 messageDiv.style.display = 'none';
             }, 3000);
         }
+        // 获取当前用户信息
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/api/user/me');
+                if (!res.ok) throw new Error('获取用户失败');
+                const user = await res.json();
+                if (user.username) {
+                    usernameSpan.textContent = user.username;
+                } else {
+                    usernameSpan.textContent = '访客';
+                }
+            } catch (err) {
+                console.error('获取用户信息失败:', err);
+                usernameSpan.textContent = '未知';
+            }
+        }
+
 
         // 加载文章列表
         async function loadPosts() {
             try {
                 const response = await fetch('/api/admin/posts');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 const posts = await response.json();
+                if (!Array.isArray(posts)) {
+                    throw new Error('API 返回的数据不是数组');
+                }
                 
                 if (posts.length === 0) {
                     postList.innerHTML = '<p style="text-align: center;">暂无文章，点击右下角新增</p>';
@@ -371,12 +417,11 @@
                 const post = await response.json();
                 
                 slugHidden.value = post.slug;
+                if (slugDisplay) slugDisplay.value = post.slug;
                 titleInput.value = post.title;
                 contentInput.value = post.content || '';
                 excerptInput.value = post.excerpt || '';
                 tagsInput.value = post.tags || '';
-                slugHidden.value = post.slug;
-                if (slugDisplay) slugDisplay.value = post.slug;
                 
                 showMessage('已加载文章', 'success');
             } catch (error) {
@@ -404,6 +449,7 @@
                     if (slugHidden.value === slug) {
                         // 清空表单
                         slugHidden.value = '';
+                        if (slugDisplay) slugDisplay.value = '';
                         titleInput.value = '';
                         contentInput.value = '';
                         excerptInput.value = '';
@@ -419,12 +465,11 @@
          // 清空表单函数（新建和内部使用）
         function clearForm() {
             slugHidden.value = '';
+            if (slugDisplay) slugDisplay.value = '';
             titleInput.value = '';
             contentInput.value = '';
             excerptInput.value = '';
             tagsInput.value = '';
-            slugHidden.value = '';
-            if (slugDisplay) slugDisplay.value = '';
         }
 
         // 提交表单（新增/更新）
@@ -487,9 +532,6 @@
             e.target.value = '';
         });
 
-        // 初始加载
-        loadPosts();
-
         // 注销按钮功能
         const logoutBtn = document.getElementById('logoutBtnLeft');
         if (logoutBtn) {
@@ -516,6 +558,7 @@
             console.warn('未找到注销按钮，请检查元素ID');
         }
         // 初始加载
+        loadCurrentUser();
         loadPosts();
 
     </script>
