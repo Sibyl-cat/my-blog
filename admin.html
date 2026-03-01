@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章管理 · 小电视の日常</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #ffe9f0, #ffd9e5);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .panel {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid rgba(251, 114, 153, 0.3);
+            box-shadow: 0 12px 28px rgba(251, 114, 153, 0.1);
+        }
+        h2 {
+            color: #FB7299;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid #FB7299;
+            padding-bottom: 0.5rem;
+        }
+        .post-list {
+            list-style: none;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .post-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid rgba(251, 114, 153, 0.2);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .post-item:hover {
+            background: rgba(251, 114, 153, 0.1);
+        }
+        .post-item .title {
+            font-weight: 600;
+            color: #2a2a2a;
+        }
+        .post-item .slug {
+            color: #666;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        .post-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(251, 114, 153, 0.3);
+        }
+        .btn:hover {
+            background: #FB7299;
+            color: white;
+        }
+        .btn-danger {
+            background: rgba(255, 100, 100, 0.2);
+            border-color: #ff4d4f;
+        }
+        .btn-danger:hover {
+            background: #ff4d4f;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2a2a2a;
+            font-weight: 500;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(251, 114, 153, 0.3);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .message {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 12px;
+            display: none;
+        }
+        .message.success {
+            background: rgba(0, 200, 0, 0.2);
+            border: 1px solid #00a800;
+            color: #006400;
+        }
+        .message.error {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid #ff0000;
+            color: #a80000;
+        }
+        /* 在 <style> 中添加 */
+        .admin-container {
+            min-height: 100vh; /* 确保面板有高度参考 */
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .left-panel .post-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .logout-container {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(251,114,153,0.3);
+        }
+        /* 欢迎语样式 */
+        .welcome-message {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: rgba(251,114,153,0.15);
+            border-radius: 24px;
+            font-size: 1.3rem;
+            color: #FB7299;
+            border: 1px solid rgba(251,114,153,0.3);
+        }
+        .welcome-message i {
+            margin-right: 0.5rem;
+        }
+        #username {
+            font-weight: 600;
+            color: #FB7299;
+        }
+
+        /* 三个按钮并排等宽 */
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+        .action-buttons .btn,
+        .action-buttons label.btn {
+            flex: 1;                /* 等宽 */
+            min-width: 0;           /* 防止内容撑开 */
+            padding: 0.6rem 0.3rem; /* 稍作调整 */
+            font-size: 1rem;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        .slug-readonly {
+            background: rgba(200,200,200,0.2);
+            cursor: not-allowed;
+            color: #666;
+        }
+
+/* 手机端适配 */
+@media (max-width: 768px) {
+    .admin-container {
+        grid-template-columns: 1fr;  /* 改为单列 */
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .panel {
+        padding: 1.5rem;  /* 适当缩小内边距 */
+    }
+
+    h2 {
+        font-size: 1.5rem;  /* 标题稍微缩小 */
+    }
+
+    .post-item {
+        padding: 1rem;  /* 增大列表项的点击区域 */
+        font-size: 1rem;
+    }
+
+    .post-item .slug {
+        font-size: 0.8rem;  /* 小屏下slug字号再小一点 */
+    }
+
+    .post-actions .btn {
+        padding: 0.5rem 0.8rem;  /* 按钮大小调整 */
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        padding: 0.7rem;  /* 输入框稍微紧凑 */
+        font-size: 1rem;
+    }
+
+    .form-row {
+        flex-direction: column;  /* 如果表单中有并排字段，改为上下排列 */
+        gap: 0.5rem;
+    }
+
+    .logout-container {
+        margin-top: 0.8rem;
+        padding-top: 0.8rem;
+    }
+
+    #logoutBtnLeft {
+        padding: 0.8rem;  /* 注销按钮更大，方便点击 */
+    }
+    /* 按钮组在窄屏时稍微缩小内边距，保证一行显示 */
+    .action-buttons .btn,
+    .action-buttons label.btn {
+        padding: 0.5rem 0.2rem;
+        font-size: 0.9rem;
+            }
+    /* 超窄屏（如折叠屏）允许换行 */
+        @media (max-width: 400px) {
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            .action-buttons .btn,
+            .action-buttons label.btn {
+                flex: 1 1 100%;   /* 换行后占满宽度 */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- 左侧：文章列表 -->
+        <div class="panel left-panel">
+            <h2><i class="fas fa-list"></i> 文章列表</h2>
+            <!-- 作者问候语 -->
+            <div class="welcome-message glass">
+                <i class="fas fa-user-circle"></i> 你好，<span id="username">加载中...</span>！
+            </div>
+            <div class="post-list" id="post-list">
+                <!-- 动态加载的文章列表 -->
+            </div>
+            <div class="logout-container" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(251,114,153,0.3);">
+                <button id="logoutBtnLeft" class="btn" style="width: 100%; background: rgba(255,255,255,0.3); border: 1px solid #FB7299;">
+                    <i class="fas fa-sign-out-alt"></i> 注销
+                </button>
+            </div>
+        </div>
+
+        <!-- 右侧：编辑表单 -->
+        <div class="panel">
+                <h2 style="margin-bottom: 1.5;"><i class="fas fa-edit"></i> 编辑文章</h2>
+            <form id="post-form">
+                <div class="form-row">
+                    <!-- 隐藏的 slug 字段，用于表单提交 -->
+                    <input type="hidden" id="slug" name="slug" value="">
+                    <!-- 只读显示框，让用户看到生成的 slug -->
+                    <div class="form-group" style="flex: 1;">
+                        <label>文章标识</label>
+                        <input type="text" id="slug_display" class="slug-readonly" readonly placeholder="保存后自动生成" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>标签 (逗号分隔)</label>
+                        <input type="text" id="tags" name="tags" placeholder="教程,Cloudflare,前端">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" id="title" name="title" placeholder="文章标题" required>
+                </div>
+                <div class="form-group">
+                    <label>摘要</label>
+                    <textarea id="excerpt" name="excerpt" placeholder="简短介绍..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>正文 (支持Markdown / HTML)</label>
+                    <textarea id="content" name="content" placeholder="<p>文章内容...</p>"></textarea>
+                </div>
+                <!-- 三个按钮并排等宽，放在表单底部 -->
+                <div class="action-buttons">
+                    <button type="button" id="newPostBtn" class="btn">
+                        <i class="fas fa-plus"></i> 新建
+                    </button>
+                    <label for="uploadMd" class="btn">
+                        <i class="fas fa-upload"></i> 上传 MD
+                    </label>
+                    <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
+                    <button type="submit" class="btn">
+                        <i class="fas fa-save"></i> 保存
+                    </button>
+                </div>
+                <div id="message" class="message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const postList = document.getElementById('post-list');
+        const form = document.getElementById('post-form');
+        const slugHidden = document.getElementById('slug');
+        const slugDisplay = document.getElementById('slug_display');
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('content');
+        const excerptInput = document.getElementById('excerpt');
+        const tagsInput = document.getElementById('tags');
+        const messageDiv = document.getElementById('message');
+        const usernameSpan = document.getElementById('username');
+        
+    
+        // 显示消息
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+        // 获取当前用户信息
+        async function loadCurrentUser() {
+            try {
+                const res = await fetch('/api/user/me');
+                if (!res.ok) throw new Error('获取用户失败');
+                const user = await res.json();
+                if (user.username) {
+                    usernameSpan.textContent = user.username;
+                } else {
+                    usernameSpan.textContent = '访客';
+                }
+            } catch (err) {
+                console.error('获取用户信息失败:', err);
+                usernameSpan.textContent = '未知';
+            }
+        }
+
+
+        // 加载文章列表
+        async function loadPosts() {
+            try {
+                const response = await fetch('/api/admin/posts');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const posts = await response.json();
+                if (!Array.isArray(posts)) {
+                    throw new Error('API 返回的数据不是数组');
+                }
+                
+                if (posts.length === 0) {
+                    postList.innerHTML = '<p style="text-align: center;">暂无文章，点击右下角新增</p>';
+                    return;
+                }
+
+                let html = '';
+                posts.forEach(post => {
+                    html += `
+                        <div class="post-item">
+                            <div style="flex: 1;" onclick="editPost('${post.slug}')">
+                                <span class="title">${post.title}</span>
+                                <span class="slug">(${post.slug})</span>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn" onclick="editPost('${post.slug}')">编辑</button>
+                                <button class="btn btn-danger" onclick="deletePost('${post.slug}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                postList.innerHTML = html;
+            } catch (error) {
+                postList.innerHTML = '<p style="color: red;">加载失败</p>';
+            }
+        }
+
+        // 编辑文章：填充表单
+        window.editPost = async function(slug) {
+            try {
+                const response = await fetch(`/api/post/${slug}`);
+                const post = await response.json();
+                
+                slugHidden.value = post.slug;
+                if (slugDisplay) slugDisplay.value = post.slug;
+                titleInput.value = post.title;
+                contentInput.value = post.content || '';
+                excerptInput.value = post.excerpt || '';
+                tagsInput.value = post.tags || '';
+                
+                showMessage('已加载文章', 'success');
+            } catch (error) {
+                showMessage('加载失败', 'error');
+            }
+        };
+
+        // 删除文章
+        window.deletePost = async function(slug) {
+            if (!confirm(`确定要删除文章 "${slug}" 吗？`)) return;
+            
+            const formData = new FormData();
+            formData.append('slug', slug);
+
+            try {
+                const response = await fetch('/api/admin/post/delete', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('删除成功', 'success');
+                    loadPosts();  // 刷新列表
+                    if (slugHidden.value === slug) {
+                        // 清空表单
+                        slugHidden.value = '';
+                        if (slugDisplay) slugDisplay.value = '';
+                        titleInput.value = '';
+                        contentInput.value = '';
+                        excerptInput.value = '';
+                        tagsInput.value = '';
+                    }
+                } else {
+                    showMessage(result.error || '删除失败', 'error');
+                }
+            } catch (error) {
+                showMessage('删除失败', 'error');
+            }
+        };
+         // 清空表单函数（新建和内部使用）
+        function clearForm() {
+            slugHidden.value = '';
+            if (slugDisplay) slugDisplay.value = '';
+            titleInput.value = '';
+            contentInput.value = '';
+            excerptInput.value = '';
+            tagsInput.value = '';
+        }
+
+        // 提交表单（新增/更新）
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch('/api/admin/post', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('保存成功', 'success');
+                    loadPosts();  // 刷新列表
+                } else {
+                    showMessage(result.error || '保存失败', 'error');
+                }
+            } catch (error) {
+                showMessage('保存失败', 'error');
+            }
+        });
+        // 新建按钮
+        document.getElementById('newPostBtn').addEventListener('click', () => {
+            if (confirm('新建文章将清空当前表单，确定吗？')) {
+                clearForm();
+            }
+        });
+        // 上传 MD 文件
+        document.getElementById('uploadMd').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const allowedExts = ['.md', '.markdown'];
+            const fileName = file.name;
+            const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+            if (!allowedExts.includes(ext) && file.type !== 'text/markdown') {
+                alert('只支持上传 .md 或 .markdown 文件');
+                e.target.value = '';
+                return;
+            }
+
+            const maxSize = 1 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert('文件大小不能超过 1MB');
+                e.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                contentInput.value = event.target.result;
+                showMessage('文件已加载到正文', 'success');
+            };
+            reader.onerror = () => alert('文件读取失败');
+            reader.readAsText(file, 'UTF-8');
+            e.target.value = '';
+        });
+
+        // 注销按钮功能
+        document.getElementById('logoutBtnLeft').addEventListener('click', async () => {
+            if (confirm('确定要注销吗？')) {
+                    try {
+                        const response = await fetch('/api/logout', {
+                            method: 'POST',
+                            credentials: 'same-origin' // 确保携带 Cookie
+                        });
+                        if (response.ok) {
+                            // 注销成功，跳转到登录页
+                            window.location.replace('/admin/login.html');
+                        } else {
+                            alert('注销失败，请重试');
+                        }
+                    } catch (error) {
+                        console.error('注销出错:', error);
+                        alert('注销出错');
+                    }
+                }
+            });
+        // 初始加载
+        loadCurrentUser();
+        loadPosts();
+
+    </script>
+</body>
+</html>

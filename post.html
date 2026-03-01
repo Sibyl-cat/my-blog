@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌼文章 · 小电视の日常</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+<div class="blog-container">
+    <!-- 导航栏（与 index.html 中的导航栏代码保持一致） -->
+    <nav class="navbar glass" style="background: rgba(255,255,240,0.2);">
+      <div class="logo">
+        <i class="fab fa-bilibili"></i>
+        <span>小电视の日常</span>
+      </div>
+    </nav>>
+
+    <!-- 文章详情容器（初始为空） -->
+    <div class="profile-card glass" id="post-container" style="flex-direction: column; align-items: flex-start;">
+        <!-- 动态填充文章内容 -->
+    </div>
+
+    <!-- 页脚（与 index.html 中的页脚代码保持一致 -->
+    <footer class="footer glass">
+        <div class="copyright">
+            <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
+            <i class="fas fa-heart" style="color: #FB7299;"></i>
+        </div>
+    </footer>
+</div>
+
+<script>
+    async function loadPost() {
+        // 1. 从 URL 获取 slug 参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        if (!slug) {
+            document.getElementById('post-container').innerHTML = '<p style="color: red; text-align: center;">错误：未指定文章</p>';
+            return;
+        }
+
+        try {
+            // 3. 调用 API 获取文章数据
+            const response = await fetch(`/api/post/${slug}`);
+            const post = await response.json();
+            if (response.status === 404) {
+                document.getElementById('post-container').innerHTML = '<p>文章不存在</p>';
+                return;
+            }
+
+            // 4. 格式化日期
+            const date = new Date(post.updated_at);
+            const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+
+            // 5. 处理标签
+            let tagsHtml = '';
+            if (post.tags) {
+                tagsHtml = post.tags.split(',').map(tag => `#${tag.trim()}`).join(' · ');
+            }
+
+            // 6. 生成文章 HTML
+            // 使用 marked 解析 Markdown 内容
+            const renderedContent = marked.parse(post.content || '');
+
+            // 生成文章 HTML（使用 renderedContent）
+            document.getElementById('post-container').innerHTML = `
+                <h1 style="font-size: 2.5rem; color: #FB7299; margin-bottom: 0.5rem;">${post.title}</h1>
+                <div class="card-meta" style="margin: 1rem 0; width: 100%;">
+                    <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+                    <span><i class="fas fa-tag"></i> ${tagsHtml || '未分类'}</span>
+                </div>
+                <div class="post-content" style="font-size: 1.2rem; line-height: 1.8; color: #2a2a2a;">
+                    ${renderedContent}
+                </div>
+                <a href="index.html" class="load-more" style="margin: 2rem 0; align-self: center;">← 返回首页</a>
+            `;
+        } catch (error) {
+            console.error(error);
+            document.getElementById('post-container').innerHTML = '<p style="color: red;">加载失败</p>';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPost);
+</script>
+</body>
+</html>
