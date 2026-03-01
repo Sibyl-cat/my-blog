@@ -6,6 +6,7 @@
     <title>🌼文章 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 <div class="blog-container">
@@ -48,14 +49,11 @@
         try {
             // 3. 调用 API 获取文章数据
             const response = await fetch(`/api/post/${slug}`);
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('文章不存在');
-                } else {
-                    throw new Error('加载失败');
-                }
-            }
             const post = await response.json();
+            if (response.status === 404) {
+                document.getElementById('post-container').innerHTML = '<p>文章不存在</p>';
+                return;
+            }
 
             // 4. 格式化日期
             const date = new Date(post.updated_at);
@@ -68,7 +66,11 @@
             }
 
             // 6. 生成文章 HTML
-            const articleHtml = `
+            // 使用 marked 解析 Markdown 内容
+            const renderedContent = marked.parse(post.content || '');
+
+            // 生成文章 HTML（使用 renderedContent）
+            document.getElementById('post-container').innerHTML = `
                 <h1 style="font-size: 2.5rem; color: #FB7299; margin-bottom: 0.5rem;">${post.title}</h1>
                 <div class="card-meta" style="margin: 1rem 0; width: 100%;">
                     <span><i class="far fa-calendar"></i> ${formattedDate}</span>
@@ -79,11 +81,9 @@
                 </div>
                 <a href="index.html" class="load-more" style="margin: 2rem 0; align-self: center;">← 返回首页</a>
             `;
-
-            container.innerHTML = articleHtml;
         } catch (error) {
             console.error(error);
-            container.innerHTML = `<p style="color: red; text-align: center;">错误：${error.message}</p>`;
+            document.getElementById('post-container').innerHTML = '<p style="color: red;">加载失败</p>';
         }
     }
 
