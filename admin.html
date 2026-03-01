@@ -379,6 +379,7 @@
                 const response = await fetch('/api/admin/posts');
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
                 const posts = await response.json();
                 if (!Array.isArray(posts)) {
                     throw new Error('API 返回的数据不是数组');
@@ -404,7 +405,7 @@
                         </div>
                     `;
                 });
-                postList.innerHTML = html;}
+                postList.innerHTML = html;
             } catch (error) {
                 postList.innerHTML = '<p style="color: red;">加载失败</p>';
             }
