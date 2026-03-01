@@ -6,6 +6,8 @@
     <title>注册 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- 引入 Turnstile 脚本 -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         body {
             display: flex;
@@ -116,8 +118,7 @@
                     <input type="password" id="confirmPassword" placeholder="再次输入密码" required>
                 </div>
                 <div class="cf-turnstile" data-sitekey="0x4AAAAAACkYjCbNEpcylv56" data-theme="light"></div>
-                <!-- 引入 Turnstile 脚本 -->
-                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+               
                 <button type="submit" class="btn-register">注册</button>
                 <div class="login-link">
                     已有账号？<a href="/admin/login.html">去登录</a>
