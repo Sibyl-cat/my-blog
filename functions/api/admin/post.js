@@ -1,14 +1,6 @@
 // /functions/api/admin/post.js
 import { getCurrentUserId } from '../utils/auth';
 import { generateSlug } from '../utils/generateSlug';
-// 新增：获取用户角色
-async function getUserRole(userId, env) {
-    const { results } = await env.DB.prepare(
-        'SELECT role FROM users WHERE id = ?'
-    ).bind(userId).all();
-    return results.length ? results[0].role : 'author';
-}
-
 export async function onRequest(context) {
   const { request, env } = context;
 
@@ -20,10 +12,13 @@ export async function onRequest(context) {
     // ... 方法检查
     const userId = await getCurrentUserId(request, env);
     if (!userId) {return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
-                 }
-    const role = await getUserRole(userId, env);
-    const isAdmin = role === 'admin';
-  
+    }
+     // 获取当前用户角色
+    const { results: userResults } = await env.DB.prepare(
+        'SELECT role FROM users WHERE id = ?'
+    ).bind(userId).all();
+    const isAdmin = userResults[0]?.role === 'admin';
+
 
   try {
     // 解析请求体（表单数据或 JSON）
@@ -45,24 +40,12 @@ export async function onRequest(context) {
         if (!slug) {
             // 新增文章，自动生成 slug
             slug = await generateSlug(env);
-            try {
-                await env.DB.prepare(
-                    `INSERT INTO posts (slug, title, content, excerpt, tags, author_id)
-                     VALUES (?, ?, ?, ?, ?, ?)`
+            await env.DB.prepare(
+                `INSERT INTO posts (slug, title, content, excerpt, tags, author_id)
+                    VALUES (?, ?, ?, ?, ?, ?)`
                 ).bind(slug, title, content, excerpt, tags, userId).run();
-            } catch (err) {
-                // 唯一冲突（极小概率并发），重试一次
-                if (err.message.includes('UNIQUE constraint failed')) {
-                    slug = await generateSlug(env);
-                    await env.DB.prepare(
-                        `INSERT INTO posts (slug, title, content, excerpt, tags, author_id)
-                         VALUES (?, ?, ?, ?, ?, ?)`
-                    ).bind(slug, title, content, excerpt, tags, userId).run();
-                } else {
-                    throw err;
-                }
-            }
-        } else {
+            } else {
+                
             // 更新文章，检查权限
             const { results } = await env.DB.prepare(
                 'SELECT author_id FROM posts WHERE slug = ?'
@@ -71,7 +54,8 @@ export async function onRequest(context) {
             if (results.length === 0) {
                 return new Response(JSON.stringify({ error: '文章不存在' }), { status: 404 });
             }
-            if (results[0].author_id !== userId) {
+            const authorId = results[0].author_id;
+            if (!isAdmin && authorId !== userId) {
                 return new Response(JSON.stringify({ error: '无权修改他人文章' }), { status: 403 });
             }
 
