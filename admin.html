@@ -287,7 +287,18 @@
 
         <!-- 右侧：编辑表单 -->
         <div class="panel">
-            <h2><i class="fas fa-edit"></i> 编辑文章</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h2 style="margin-bottom: 0;"><i class="fas fa-edit"></i> 编辑文章</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" id="newPostBtn" class="btn" style="background: rgba(255,255,255,0.3); border: 1px solid #FB7299;">
+                        <i class="fas fa-plus"></i> 新建
+                    </button>
+                    <label for="uploadMd" class="btn" style="background: rgba(255,255,255,0.3); border: 1px solid #FB7299; cursor: pointer;">
+                        <i class="fas fa-upload"></i> 上传 MD
+                    </label>
+                    <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
+                </div>
+            </div>
             <form id="post-form">
                 <div class="form-row">
                     <!-- 隐藏的 slug 字段，用于表单提交 -->
@@ -553,9 +564,6 @@
                     }
                 }
             });
-        } else {
-            console.warn('未找到注销按钮，请检查元素ID');
-        }
         // 初始加载
         loadCurrentUser();
         loadPosts();
