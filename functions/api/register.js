@@ -32,9 +32,8 @@ export async function onRequest(context) {
         const { salt, hash } = await hashPassword(password);
 
         await env.DB.prepare(
-            'INSERT INTO users (username, password_hash, salt) VALUES (?, ?, ?)'
-        ).bind(username, hash, salt).run();
-
+            'INSERT INTO users (username, password_hash, salt, role) VALUES (?, ?, ?, ?)'
+        ).bind(username, hash, salt, 'user').run();
         return new Response(JSON.stringify({ success: true }), {
             headers: { 'Content-Type': 'application/json' }
         });
