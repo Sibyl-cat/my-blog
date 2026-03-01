@@ -230,7 +230,6 @@
                     <input type="password" id="confirmPassword" placeholder="再次输入密码">
                 </div>
                 <div class="btn-group">
-                    <button type="button" id="addUserBtn" class="btn"><i class="fas fa-plus"></i> 新增</button>
                     <button type="button" id="updateUserBtn" class="btn"><i class="fas fa-key"></i> 修改密码</button>
                     <button type="button" id="deleteUserBtn" class="btn btn-danger"><i class="fas fa-trash"></i> 删除</button>
                 </div>
@@ -245,7 +244,6 @@
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const confirmInput = document.getElementById('confirmPassword');
-        const addBtn = document.getElementById('addUserBtn');
         const updateBtn = document.getElementById('updateUserBtn');
         const deleteBtn = document.getElementById('deleteUserBtn');
         const refreshBtn = document.getElementById('refreshUsersBtn');
@@ -309,40 +307,7 @@
             document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
         }
 
-        // 新增用户
-        addBtn.addEventListener('click', async () => {
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value;
-            const confirm = confirmInput.value;
-
-            if (!username || !password) {
-                showMessage('用户名和密码不能为空', 'error');
-                return;
-            }
-            if (password !== confirm) {
-                showMessage('两次密码不一致', 'error');
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/admin/user/add', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const result = await res.json();
-                if (res.ok) {
-                    showMessage('用户添加成功', 'success');
-                    clearForm();
-                    loadUsers();
-                } else {
-                    showMessage(result.error || '添加失败', 'error');
-                }
-            } catch (err) {
-                showMessage('请求失败', 'error');
-            }
-        });
-
+        
         // 修改密码
         updateBtn.addEventListener('click', async () => {
             if (!selectedUserId) {
