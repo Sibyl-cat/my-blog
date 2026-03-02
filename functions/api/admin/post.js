@@ -38,6 +38,10 @@ export async function onRequest(context) {
 
      // 判断是新增还是更新
         if (!slug) {
+          // ⭐ superadmin 禁止新建
+            if (role === 'superadmin') {
+                return new Response(JSON.stringify({ error: '超级管理员不能创建文章' }), { status: 403 });
+            }
             // 新增文章，自动生成 slug
             slug = await generateSlug(env);
             await env.DB.prepare(
