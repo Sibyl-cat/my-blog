@@ -1,20 +1,21 @@
 // /functions/api/posts.js
 export async function onRequest(context) {
-  const { env } = context;
-  
-  try {
-    // 查询所有文章，按更新时间倒序排列
+    const { env } = context;
+
     const { results } = await env.DB.prepare(`
-      SELECT slug, title, excerpt, tags, updated_at
-      FROM posts
-      ORDER BY updated_at DESC
+        SELECT 
+            p.slug, 
+            p.title, 
+            p.excerpt, 
+            p.tags, 
+            p.updated_at,
+            u.username as author
+        FROM posts p
+        LEFT JOIN users u ON p.author_id = u.id
+        ORDER BY p.updated_at DESC
     `).all();
-    
-    // 返回 JSON
+
     return new Response(JSON.stringify(results), {
-      headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
     });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
 }
