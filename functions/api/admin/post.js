@@ -13,11 +13,12 @@ export async function onRequest(context) {
     const userId = await getCurrentUserId(request, env);
     if (!userId) {return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
-     // 获取当前用户角色
-    const { results: userResults } = await env.DB.prepare(
+    let role; // 先在 try 外部定义
+try {
+    const {results: userResults } = await env.DB.prepare(
         'SELECT role FROM users WHERE id = ?'
     ).bind(userId).all();
-    const isAdmin = userResults[0]?.role === 'admin';
+       role = userResults[0]?.role; // 赋值
 
 
   try {
