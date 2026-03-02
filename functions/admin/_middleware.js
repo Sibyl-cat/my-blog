@@ -3,16 +3,17 @@ export async function onRequest(context) {
     const { request, env, next } = context;
     const url = new URL(request.url);
 
-    // 放行登录页和注册页（这些页面不需要保护）
+    // 放行登录页和注册页
     if (url.pathname === '/admin/login.html' || url.pathname === '/admin/login' || url.pathname === '/register.html') {
         return await next();
     }
 
-    // 需要保护的页面列表：/admin/* 下的所有页面 + 根目录下的 /users.html
-    const isProtectedPage = url.pathname.startsWith('/admin/') || url.pathname === '/users.html';
+    // 需要保护的页面：/admin/* 下的所有路径 + 根目录的 /users.html 和 /users
+    const isProtectedPage = url.pathname.startsWith('/admin/') || 
+                            url.pathname === '/users.html' || 
+                            url.pathname === '/users';
     if (!isProtectedPage) {
-        // 如果不是受保护页面，直接放行（如首页、文章页等）
-        return await next();
+        return await next(); // 其他页面（如首页）直接放行
     }
 
     // 获取 Cookie
@@ -25,7 +26,6 @@ export async function onRequest(context) {
     );
     const sessionId = cookies.session_id;
 
-    // 未登录 → 重定向到登录页
     if (!sessionId) {
         return new Response(null, {
             status: 302,
@@ -33,7 +33,7 @@ export async function onRequest(context) {
         });
     }
 
-    // 验证会话
+    // 查询会话（包括角色）
     const { results } = await env.DB.prepare(
         'SELECT user_id, role FROM sessions WHERE id = ? AND expires_at > ?'
     ).bind(sessionId, new Date().toISOString()).all();
@@ -47,17 +47,16 @@ export async function onRequest(context) {
 
     const { role } = results[0];
 
-    // 对特定页面进行角色权限检查
-    if (url.pathname === '/admin.html' || url.pathname === '/users.html') {
+    // ⭐ 仅对 /users.html 和 /users 进行管理员角色检查
+    if (url.pathname === '/users.html' || url.pathname === '/users') {
         if (role !== 'admin') {
-            // 非管理员重定向到登录页（或首页）
             return new Response(null, {
                 status: 302,
-                headers: { Location: '/admin/login.html' }
+                headers: { Location: '/admin/login.html' } // 非管理员重定向到登录页
             });
         }
     }
 
-    // 其他受保护页面仅需登录，无需额外角色
+    // 其他受保护页面（如 /admin.html）仅需登录，无需角色检查
     return await next();
 }
