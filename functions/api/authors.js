@@ -5,6 +5,7 @@ export async function onRequest(context) {
         `SELECT u.id, u.username, COUNT(p.id) as post_count
          FROM users u
          LEFT JOIN posts p ON u.id = p.author_id
+         WHERE u.role != 'superadmin'  -- 排除 superadmin
          GROUP BY u.id
          ORDER BY post_count DESC`
     ).all();
