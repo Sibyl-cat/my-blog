@@ -12,7 +12,8 @@ export async function onRequest(context) {
 
     // 需要保护的页面列表（任何登录用户可访问）
     const isProtectedPage = 
-        url.pathname === '/admin.html' ||                 // 文章管理页
+        url.pathname === '/admin.html' ||
+        url.pathname === '/admin' ||                  // 文章管理页
         url.pathname.startsWith('/admin/') ||             // 其他 admin 子路径
         url.pathname === '/users.html' ||                 // 用户管理页
         url.pathname === '/users';                         // 可能的用户管理页别名
