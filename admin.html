@@ -208,6 +208,24 @@
             border-color: #FB7299;
             text-decoration: none;
         }
+        .suggested-tag {
+            background: rgba(251,114,153,0.1);
+            border: 1px solid #FB7299;
+            color: #FB7299;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        .suggested-tag:hover {
+            background: rgba(251,114,153,0.2);
+        }
+        .suggested-tag.selected {
+            background: #FB7299;
+            color: white;
+        }
 
 /* 手机端适配 */
 @media (max-width: 768px) {
@@ -316,9 +334,16 @@
                         <label>文章标识</label>
                         <input type="text" id="slug_display" class="slug-readonly" readonly placeholder="保存后自动生成" value="">
                     </div>
+                    <!-- 标签输入框 -->
                     <div class="form-group">
                         <label>标签 (逗号分隔)</label>
-                        <input type="text" id="tags" name="tags" placeholder="教程,Cloudflare,前端">
+                        <input type="text" id="tags" name="tags" placeholder="教程,Cloudflare,前端" style="width: 100%;">
+                    </div>
+
+                    <!-- 新增：推荐标签区域 -->
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                        <button type="button" id="suggestTagsBtn" class="btn">✨ 推荐</button>
+                        <div id="suggested-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1;"></div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -357,6 +382,8 @@
         const tagsInput = document.getElementById('tags');
         const messageDiv = document.getElementById('message');
         const usernameSpan = document.getElementById('username');
+        const suggestBtn = document.getElementById('suggestTagsBtn');
+        const suggestedContainer = document.getElementById('suggested-tags');
 
         // 在脚本开头添加变量
         let currentUserRole = null;
@@ -443,6 +470,74 @@ async function loadCurrentUser() {
                 postList.innerHTML = '<p style="color: red;">加载失败</p>';
             }
         }
+        // 更新输入框和推荐标签选中状态的函数
+        function updateTagSelection(clickedTag) {
+            // 解析当前输入框中的标签
+            let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
+            const index = currentTags.indexOf(clickedTag);
+            if (index > -1) {
+                currentTags.splice(index, 1); // 移除
+            } else {
+                currentTags.push(clickedTag); // 添加
+            }
+            tagsInput.value = currentTags.join(', ');
+
+            // 更新所有推荐标签的选中样式
+             document.querySelectorAll('.suggested-tag').forEach(el => {
+                const tag = el.dataset.tag;
+                if (currentTags.includes(tag)) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            });
+        }
+
+        // 推荐按钮点击事件
+        suggestBtn.addEventListener('click', async () => {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            if (!title && !content) {
+                alert('请先填写标题或内容以便推荐标签');
+                return;
+            }
+            try {
+                const res = await fetch('/api/suggest-tags', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content })
+                });
+                const tags = await res.json();
+                if (!Array.isArray(tags)) {
+                    console.error('推荐标签返回格式错误');
+                    return;
+                }
+                // 最多显示5个
+                const limited = tags.slice(0, 5);
+                // 清空容器
+                suggestedContainer.innerHTML = '';
+                // 生成推荐标签
+                limited.forEach(tag => {
+                    const span = document.createElement('span');
+                    span.className = 'suggested-tag';
+                    span.dataset.tag = tag;
+                    span.textContent = '#' + tag;
+                    span.addEventListener('click', () => updateTagSelection(tag));
+                    suggestedContainer.appendChild(span);
+                });
+
+                // 根据当前输入框设置初始选中状态
+                const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
+                document.querySelectorAll('.suggested-tag').forEach(el => {
+                    if (currentTags.includes(el.dataset.tag)) {
+                        el.classList.add('selected');
+                    }
+                });
+            } catch (err) {
+                console.error('获取推荐标签失败:', err);
+                alert('推荐标签加载失败，请稍后重试');
+            }
+        });
 
         // 编辑文章：填充表单
         window.editPost = async function(slug) {
