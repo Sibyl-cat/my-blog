@@ -335,16 +335,10 @@
                 </div>
                 <!-- 三个按钮并排等宽，放在表单底部 -->
                 <div class="action-buttons">
-                    <button type="button" id="newPostBtn" class="btn">
-                        <i class="fas fa-plus"></i> 新建
-                    </button>
-                    <label for="uploadMd" class="btn">
-                        <i class="fas fa-upload"></i> 上传 MD
-                    </label>
+                    <button type="button" id="newPostBtn" class="btn"><i class="fas fa-plus"></i> 新建</button>
+                    <label for="uploadMd" id="uploadMdLabel" class="btn"><i class="fas fa-upload"></i> 上传 MD</label>
                     <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
-                    <button type="submit" class="btn">
-                        <i class="fas fa-save"></i> 保存
-                    </button>
+                    <button type="submit" class="btn"><i class="fas fa-save"></i> 保存</button>
                 </div>
                 <div id="message" class="message"></div>
             </form>
@@ -363,6 +357,9 @@
         const tagsInput = document.getElementById('tags');
         const messageDiv = document.getElementById('message');
         const usernameSpan = document.getElementById('username');
+
+        // 在脚本开头添加变量
+        let currentUserRole = null;
         
     
         // 显示消息
@@ -375,22 +372,19 @@
             }, 3000);
         }
         // 获取当前用户信息
-        async function loadCurrentUser() {
+async function loadCurrentUser() {
     try {
         const res = await fetch('/api/user/me');
         if (!res.ok) throw new Error('获取用户失败');
         const user = await res.json();
         if (user.username) {
             usernameSpan.textContent = user.username;
+            currentUserRole = user.role;  // 保存角色
 
-            // 控制用户管理按钮的显示
+            // 控制用户管理按钮的显示（仅 admin）
             const userBtn = document.getElementById('userManagementBtn');
             if (userBtn) {
-                if (user.role === 'admin') {
-                    userBtn.style.display = 'inline-block'; // 或 'flex'，取决于布局
-                } else {
-                    userBtn.style.display = 'none'; // 确保隐藏
-                }
+                userBtn.style.display = user.role === 'admin' ? 'inline-block' : 'none';
             }
         } else {
             usernameSpan.textContent = '访客';
@@ -399,6 +393,12 @@
         console.error('获取用户信息失败:', err);
         usernameSpan.textContent = '未知';
     }
+    if (currentUserRole === 'superadmin') {
+    // 隐藏新建和上传按钮
+    document.getElementById('newPostBtn').style.display = 'none';
+    document.getElementById('uploadMdLabel').style.display = 'none';
+    // 保存按钮保留
+}
 }
 
 
