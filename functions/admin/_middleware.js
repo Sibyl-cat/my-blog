@@ -40,8 +40,8 @@ export async function onRequest(context) {
 
         const { role } = results[0];
 
-        // 权限检查：只有 admin 可以访问 admin.html 和 users.html
-        if (url.pathname === '/admin.html' || url.pathname === '/users.html') 
+        // 权限检查：只有 admin 可以访问 users.html
+        if (url.pathname === '/users' || url.pathname === '/users.html') 
     {
             if (role !== 'admin') {
                 // 普通用户重定向到登录页
