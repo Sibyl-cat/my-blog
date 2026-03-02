@@ -13,11 +13,16 @@ export async function onRequest(context) {
         return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
 
-    // 获取当前用户角色
-    const { results: userResults } = await env.DB.prepare(
-        'SELECT role FROM users WHERE id = ?'
-    ).bind(userId).all();
-    const isAdmin = userResults[0]?.role === 'admin';
+    let role; // 提前声明
+    try {
+        // 获取用户角色
+        const { results: userResults } = await env.DB.prepare(
+            'SELECT role FROM users WHERE id = ?'
+        ).bind(userId).all();
+        if (userResults.length === 0) {
+            return new Response(JSON.stringify({ error: '用户不存在' }), { status: 404 });
+        }
+        role = userResults[0].role;
 
     try {
         const formData = await request.formData();
