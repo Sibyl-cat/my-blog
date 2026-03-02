@@ -41,12 +41,13 @@ export async function onRequest(context) {
         const { role } = results[0];
 
         // 权限检查：只有 admin 可以访问 admin.html 和 users.html
-        if (url.pathname === '/admin.html' || url.pathname === '/users.html') {
+        if (url.pathname === '/admin.html' || url.pathname === '/users.html') 
+    {
             if (role !== 'admin') {
                 // 普通用户重定向到首页
                 return new Response(null, {
                     status: 302,
-                    headers: { Location: '/' }
+                    headers: { Location: 'admin/login.html' }
                 });
             }
         }
@@ -54,7 +55,3 @@ export async function onRequest(context) {
         // 其他 /admin/* 资源（如 API）由各自处理，这里仅确保登录
         return await next();
     }
-
-    // 其他路径不处理
-    return await next();
-}
