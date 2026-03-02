@@ -282,10 +282,10 @@
     <div class="admin-container">
         <!-- 左侧：文章列表 -->
         <div class="panel left-panel">
-        <!-- 标题行：左侧标题 + 右侧按钮（响应式换行） -->
+            <!-- 左侧面板标题行 -->
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
                 <h2 style="margin-bottom: 0;"><i class="fas fa-list"></i> 文章列表</h2>
-                <a href="/users.html" class="btn btn-user" style="background: rgba(251,114,153,0.15); border: 1px dashed #FB7299;">
+                <a href="/users.html" class="btn btn-user" id="userManagementBtn" style="display: none;">
                     <i class="fas fa-users"></i> 用户管理
                 </a>
             </div>
@@ -376,20 +376,30 @@
         }
         // 获取当前用户信息
         async function loadCurrentUser() {
-            try {
-                const res = await fetch('/api/user/me');
-                if (!res.ok) throw new Error('获取用户失败');
-                const user = await res.json();
-                if (user.username) {
-                    usernameSpan.textContent = user.username;
+    try {
+        const res = await fetch('/api/user/me');
+        if (!res.ok) throw new Error('获取用户失败');
+        const user = await res.json();
+        if (user.username) {
+            usernameSpan.textContent = user.username;
+
+            // 控制用户管理按钮的显示
+            const userBtn = document.getElementById('userManagementBtn');
+            if (userBtn) {
+                if (user.role === 'admin') {
+                    userBtn.style.display = 'inline-block'; // 或 'flex'，取决于布局
                 } else {
-                    usernameSpan.textContent = '访客';
+                    userBtn.style.display = 'none'; // 确保隐藏
                 }
-            } catch (err) {
-                console.error('获取用户信息失败:', err);
-                usernameSpan.textContent = '未知';
             }
+        } else {
+            usernameSpan.textContent = '访客';
         }
+    } catch (err) {
+        console.error('获取用户信息失败:', err);
+        usernameSpan.textContent = '未知';
+    }
+}
 
 
         // 加载文章列表
