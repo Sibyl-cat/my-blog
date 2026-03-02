@@ -389,16 +389,18 @@ body::before {
       border-color: #FB7299;
       box-shadow: 0 28px 38px -10px rgba(251, 114, 153, 0.3);
     }
-
+    /* 卡片元信息行：左侧日期，右侧作者，弹性布局确保换行 */
     .card-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #4a4a4a;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-      border-bottom: 1px dashed rgba(251,114,153,0.3);
-      padding-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;        /* 允许换行 */
+        gap: 0.5rem;            /* 间距 */
+        margin-bottom: 1rem;
+        color: #4a4a4a;
+        font-size: 0.95rem;
+        border-bottom: 1px dashed rgba(251,114,153,0.3);
+        padding-bottom: 10px;
     }
 
     .card-meta i {
@@ -426,6 +428,22 @@ body::before {
       font-size: 1rem;
       opacity: 0.9;
     }
+    /* 日期部分（左） */
+    .card-date {
+        white-space: nowrap;     /* 日期一般较短，不换行 */
+    }
+
+    /* 作者部分（右） */
+    .card-author {
+        max-width: 150px;        /* 限制最大宽度，防止过长 */
+        overflow: hidden;
+        text-overflow: ellipsis; /* 超出显示省略号 */
+        white-space: nowrap;     /* 默认单行省略 */
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
 
     .card-tags {
       display: flex;
@@ -450,6 +468,20 @@ body::before {
       color: white;
       border-color: #FB7299;
       transform: scale(1.05) translateY(-2px);
+    }
+    /* 移动端优化：当屏幕较窄时，允许作者换行并取消省略号 */
+    @media (max-width: 480px) {
+        .card-meta {
+            flex-direction: column;  /* 改为垂直排列，日期在上，作者在下 */
+            align-items: flex-start;
+        }
+        .card-author {
+            max-width: 100%;         /* 取消宽度限制 */
+            white-space: normal;      /* 允许换行 */
+            overflow: visible;
+            text-overflow: clip;
+            word-break: break-word;   /* 长单词换行 */
+        }
     }
 
     /* 加载更多按钮 (毛玻璃+动效) */
