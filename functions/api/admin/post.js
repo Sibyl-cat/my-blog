@@ -1,57 +1,53 @@
 // /functions/api/admin/post.js
 import { getCurrentUserId } from '../utils/auth';
 import { generateSlug } from '../utils/generateSlug';
+
 export async function onRequest(context) {
-  const { request, env } = context;
+    const { request, env } = context;
 
-  
-  // 只接受 POST 请求
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: '方法不允许' }), { status: 405 });
-  }
-    // ... 方法检查
+    if (request.method !== 'POST') {
+        return new Response('Method Not Allowed', { status: 405 });
+    }
+
     const userId = await getCurrentUserId(request, env);
-    if (!userId) {return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
-    }
-    let role; // 先在 try 外部定义
-try {
-    const {results: userResults } = await env.DB.prepare(
-        'SELECT role FROM users WHERE id = ?'
-    ).bind(userId).all();
-       role = userResults[0]?.role; // 赋值
-
-
-  try {
-    // 解析请求体（表单数据或 JSON）
-    const formData = await request.formData();
-    let slug = formData.get('slug');
-    const title = formData.get('title');
-    const content = formData.get('content');
-    const excerpt = formData.get('excerpt');
-    const tags = formData.get('tags');
-
-    // 基本验证
-    if (!title) {
-      return new Response(JSON.stringify({ error: '标题不能为空' }), { status: 400 });
+    if (!userId) {
+        return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
 
-      
+    let role;
+    try {
+        // 获取当前用户角色
+        const { results: userResults } = await env.DB.prepare(
+            'SELECT role FROM users WHERE id = ?'
+        ).bind(userId).all();
+        if (userResults.length === 0) {
+            return new Response(JSON.stringify({ error: '用户不存在' }), { status: 404 });
+        }
+        role = userResults[0].role;
 
-     // 判断是新增还是更新
+        const formData = await request.formData();
+        let slug = formData.get('slug');
+        const title = formData.get('title');
+        const content = formData.get('content');
+        const excerpt = formData.get('excerpt');
+        const tags = formData.get('tags');
+
+        if (!title) {
+            return new Response(JSON.stringify({ error: '标题不能为空' }), { status: 400 });
+        }
+
         if (!slug) {
-          // ⭐ superadmin 禁止新建
+            // 新增文章
             if (role === 'superadmin') {
                 return new Response(JSON.stringify({ error: '超级管理员不能创建文章' }), { status: 403 });
             }
-            // 新增文章，自动生成 slug
             slug = await generateSlug(env);
             await env.DB.prepare(
                 `INSERT INTO posts (slug, title, content, excerpt, tags, author_id)
-                    VALUES (?, ?, ?, ?, ?, ?)`
-                ).bind(slug, title, content, excerpt, tags, userId).run();
-            } else {
-                
-            // 更新文章，检查权限
+                 VALUES (?, ?, ?, ?, ?, ?)`
+            ).bind(slug, title, content, excerpt, tags, userId).run();
+        } else {
+            // 更新文章
             const { results } = await env.DB.prepare(
                 'SELECT author_id FROM posts WHERE slug = ?'
             ).bind(slug).all();
@@ -59,8 +55,10 @@ try {
             if (results.length === 0) {
                 return new Response(JSON.stringify({ error: '文章不存在' }), { status: 404 });
             }
+
             const authorId = results[0].author_id;
-            if (role !== 'admin' && role !== 'superadmin' && results[0].author_id !== userId) {
+            // 允许 admin/superadmin 或作者本人修改
+            if (role !== 'admin' && role !== 'superadmin' && authorId !== userId) {
                 return new Response(JSON.stringify({ error: '无权修改他人文章' }), { status: 403 });
             }
 
