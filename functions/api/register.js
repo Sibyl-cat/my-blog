@@ -9,7 +9,7 @@ export async function onRequest(context) {
 
     try {
         const body = await request.json();
-        const { username, password, honeypot, timestamp } = body;  // 只提取需要的字段，不再关心 cf-turnstile-response
+        const { username, password, honeypot } = body;  // 只提取需要的字段，不再关心 cf-turnstile-response
 
         // 蜜罐检查
         if (honeypot) {
@@ -18,23 +18,7 @@ export async function onRequest(context) {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-        // 时间戳检查：如果 timestamp 缺失，直接返回错误（避免后面使用 submitTime）
-        if (!timestamp) {
-            return new Response(JSON.stringify({ error: '提交超时，请刷新页面重试' }), {
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
-
-        const now = Date.now();
-        const submitTime = parseInt(timestamp);
-
-        if (isNaN(submitTime) || Math.abs(now - submitTime) < 2000) { // 使用绝对值
-            return new Response(JSON.stringify({ error: '提交速度过快，请稍后再试' }), {
-                status: 403,
-                headers: { 'Content-Type': 'application/json' }
-            });
-        }
+        
 
         if (!username || !password) {
             return new Response(JSON.stringify({ error: '用户名和密码不能为空' }), {
