@@ -381,449 +381,353 @@
         </div>
     </div>
 
-    <script>
-        // DOM 元素
-        const postList = document.getElementById('post-list');
-        const form = document.getElementById('post-form');
-        const slugHidden = document.getElementById('slug');
-        const slugDisplay = document.getElementById('slug_display');
-        const titleInput = document.getElementById('title');
-        const contentInput = document.getElementById('content');
-        const excerptInput = document.getElementById('excerpt');
-        const tagsInput = document.getElementById('tags');
-        const messageDiv = document.getElementById('message');
-        const usernameSpan = document.getElementById('username');
-        const suggestBtn = document.getElementById('suggestTagsBtn');
-        const suggestedContainer = document.getElementById('suggested-tags');
-        
-        // 在脚本开头添加变量
-        let currentUserRole = null;
-        let currentPost = null; // 当前编辑的文章 { slug, is_published }
-        const saveDraftBtn = document.getElementById('saveDraftBtn');
-        const publishBtn = document.getElementById('publishBtn');
-        
-    
-        // 显示消息
-        function showMessage(text, type) {
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-        }
-        // 获取当前用户信息
-async function loadCurrentUser() {
-    try {
-        const res = await fetch('/api/user/me');
-        if (!res.ok) throw new Error('获取用户失败');
-        const user = await res.json();
-        if (user.username) {
-            usernameSpan.textContent = user.username;
-            currentUserRole = user.role;  // 保存角色
+  <script>
+    // ==================== 全局变量 ====================
+    const postList = document.getElementById('post-list'); // 文章列表容器（实际会被两个子容器替代，但保留用于兼容）
+    const publishedContainer = document.getElementById('published-posts'); // 已发表文章容器
+    const draftContainer = document.getElementById('draft-posts'); // 草稿箱容器
+    const form = document.getElementById('post-form'); // 编辑表单
+    const slugHidden = document.getElementById('slug'); // 隐藏的slug字段
+    const slugDisplay = document.getElementById('slug_display'); // 只读显示的slug
+    const titleInput = document.getElementById('title');
+    const contentInput = document.getElementById('content');
+    const excerptInput = document.getElementById('excerpt');
+    const tagsInput = document.getElementById('tags');
+    const messageDiv = document.getElementById('message');
+    const usernameSpan = document.getElementById('username');
+    const newPostBtn = document.getElementById('newPostBtn');
+    const uploadMd = document.getElementById('uploadMd');
+    const saveDraftBtn = document.getElementById('saveDraftBtn');
+    const publishBtn = document.getElementById('publishBtn');
+    const logoutBtn = document.getElementById('logoutBtnLeft');
+    const userManagementBtn = document.getElementById('userManagementBtn'); // 用户管理按钮（可选）
 
-            // 控制用户管理按钮的显示（仅 admin）
-            const userBtn = document.getElementById('userManagementBtn');
-            if (userBtn) {
-                userBtn.style.display = user.role === 'admin' ? 'inline-block' : 'none';
-            }
-        } else {
-            usernameSpan.textContent = '访客';
-        }
-    } catch (err) {
-        console.error('获取用户信息失败:', err);
-        usernameSpan.textContent = '未知';
+    let currentUserRole = null;      // 当前登录用户角色
+    let currentPost = null;          // 当前编辑的文章 { slug, is_published }
+
+    // ==================== 工具函数：显示消息 ====================
+    function showMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = 'block';
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
     }
 
-}
+    // ==================== 加载当前用户信息 ====================
+    async function loadCurrentUser() {
+        try {
+            const res = await fetch('/api/user/me');
+            if (!res.ok) throw new Error('获取用户失败');
+            const user = await res.json();
+            if (user.username) {
+                usernameSpan.textContent = user.username;
+                currentUserRole = user.role;
 
-
-
-        // 加载文章列表
-        async function loadPosts() {
-            try {
-                const response = await fetch('/api/admin/posts');
-                if (!response.ok) throw new Error('加载失败');
-                const posts = await response.json();
-        
-                const publishedContainer = document.getElementById('published-posts');
-                const draftContainer = document.getElementById('draft-posts');
-                publishedContainer.innerHTML = '';
-                draftContainer.innerHTML = '';
-
-                if (posts.length === 0) {
-                    publishedContainer.innerHTML = '<p style="text-align:center;">暂无文章</p>';
-                    return;
+                // 控制用户管理按钮（仅admin可见）
+                if (userManagementBtn) {
+                    userManagementBtn.style.display = user.role === 'admin' ? 'inline-block' : 'none';
                 }
 
-                posts.forEach(post => {
-                    const displayInfo = (currentUserRole === 'superadmin') 
-                        ? `<span class="slug">作者: ${post.author || '未知'}</span>`
-                        : `<span class="slug">(${post.slug})</span>`;
+                // 根据角色控制右侧按钮组
+                if (user.role === 'superadmin') {
+                    // superadmin 只保留保存按钮
+                    if (newPostBtn) newPostBtn.style.display = 'none';
+                    if (uploadMd) uploadMd.style.display = 'none';       // 隐藏文件输入
+                    if (publishBtn) publishBtn.style.display = 'none';
+                    // 保存按钮占满宽度
+                    if (saveDraftBtn) {
+                        saveDraftBtn.style.width = '100%';
+                        saveDraftBtn.style.display = ''; // 确保显示
+                    }
+                } else {
+                    // 其他角色显示所有按钮
+                    if (newPostBtn) newPostBtn.style.display = '';
+                    if (uploadMd) uploadMd.style.display = '';           // 恢复显示
+                    if (publishBtn) publishBtn.style.display = '';
+                    if (saveDraftBtn) saveDraftBtn.style.width = '';    // 恢复默认宽度
+                }
+            } else {
+                usernameSpan.textContent = '访客';
+            }
+        } catch (err) {
+            console.error('获取用户信息失败:', err);
+            usernameSpan.textContent = '未知';
+        }
+    }
 
-                    const html = `
-                        <div class="post-item" data-slug="${post.slug}" data-published="${post.is_published}">
-                            <div style="flex: 1;" onclick="editPost('${post.slug}')">
-                                <span class="title">${post.title}</span>
-                                ${displayInfo}
-                            </div>
-                            <div class="post-actions">
-                                <button class="btn" onclick="editPost('${post.slug}')">编辑</button>
-                                <button class="btn btn-danger" onclick="deletePost('${post.slug}')">删除</button>
-                            </div>
+    // ==================== 加载文章列表 ====================
+    async function loadPosts() {
+        try {
+            const response = await fetch('/api/admin/posts');
+            if (!response.ok) throw new Error('加载失败');
+            const posts = await response.json();
+
+            // 清空容器
+            publishedContainer.innerHTML = '';
+            draftContainer.innerHTML = '';
+
+            if (posts.length === 0) {
+                publishedContainer.innerHTML = '<p style="text-align:center;">暂无文章</p>';
+                return;
+            }
+
+            posts.forEach(post => {
+                // 根据当前用户角色决定显示作者还是slug
+                const displayInfo = (currentUserRole === 'superadmin')
+                    ? `<span class="slug">作者: ${post.author || '未知'}</span>`
+                    : `<span class="slug">(${post.slug})</span>`;
+
+                const html = `
+                    <div class="post-item" data-slug="${post.slug}" data-published="${post.is_published}">
+                        <div style="flex: 1;" onclick="editPost('${post.slug}')">
+                            <span class="title">${post.title}</span>
+                            ${displayInfo}
                         </div>
-                    `;
-                    if (post.is_published == 1) {
-                        publishedContainer.innerHTML += html;
-                    } else {
-                        draftContainer.innerHTML += html;
-                    }
-                });
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        // 更新输入框和推荐标签选中状态的函数
-        function updateTagSelection(clickedTag) {
-            // 解析当前输入框中的标签
-            let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
-            const index = currentTags.indexOf(clickedTag);
-            if (index > -1) {
-                currentTags.splice(index, 1); // 移除
-            } else {
-                currentTags.push(clickedTag); // 添加
-            }
-            tagsInput.value = currentTags.join(', ');
+                        <div class="post-actions">
+                            <button class="btn" onclick="editPost('${post.slug}')">编辑</button>
+                            <button class="btn btn-danger" onclick="deletePost('${post.slug}')">删除</button>
+                        </div>
+                    </div>
+                `;
 
-            // 更新所有推荐标签的选中样式
-             document.querySelectorAll('.suggested-tag').forEach(el => {
-                const tag = el.dataset.tag;
-                if (currentTags.includes(tag)) {
-                    el.classList.add('selected');
+                if (post.is_published == 1) {
+                    publishedContainer.innerHTML += html;
                 } else {
-                    el.classList.remove('selected');
+                    draftContainer.innerHTML += html;
                 }
             });
+        } catch (error) {
+            console.error(error);
+            publishedContainer.innerHTML = '<p style="color: red;">加载失败</p>';
         }
+    }
 
-        // 推荐按钮点击事件
-        suggestBtn.addEventListener('click', async () => {
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
-            if (!title && !content) {
-                alert('请先填写标题或内容以便推荐标签');
-                return;
-            }
-            try {
-                const res = await fetch('/api/suggest-tags', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, content })
-                });
-                const tags = await res.json();
-                if (!Array.isArray(tags)) {
-                    console.error('推荐标签返回格式错误');
-                    return;
-                }
-                // 最多显示5个
-                const limited = tags.slice(0, 5);
-                // 清空容器
-                suggestedContainer.innerHTML = '';
-                // 生成推荐标签
-                limited.forEach(tag => {
-                    const span = document.createElement('span');
-                    span.className = 'suggested-tag';
-                    span.dataset.tag = tag;
-                    span.textContent = '#' + tag;
-                    span.addEventListener('click', () => updateTagSelection(tag));
-                    suggestedContainer.appendChild(span);
-                });
+    // ==================== 编辑文章 ====================
+    window.editPost = async function(slug) {
+        try {
+            const response = await fetch(`/api/post/${slug}`);
+            if (!response.ok) throw new Error('加载失败');
+            const post = await response.json();
 
-                // 根据当前输入框设置初始选中状态
-                const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
-                document.querySelectorAll('.suggested-tag').forEach(el => {
-                    if (currentTags.includes(el.dataset.tag)) {
-                        el.classList.add('selected');
-                    }
-                });
-            } catch (err) {
-                console.error('获取推荐标签失败:', err);
-                alert('推荐标签加载失败，请稍后重试');
-            }
-        });
+            // 填充表单
+            slugHidden.value = post.slug;
+            if (slugDisplay) slugDisplay.value = post.slug;
+            titleInput.value = post.title;
+            contentInput.value = post.content || '';
+            excerptInput.value = post.excerpt || '';
+            tagsInput.value = post.tags || '';
 
-        // 编辑文章：填充表单
-        window.editPost = async function(slug) {
-            try {
-                const response = await fetch(`/api/post/${slug}`);
-                const post = await response.json();
-                
-                slugHidden.value = post.slug;
-                if (slugDisplay) slugDisplay.value = post.slug;
-                titleInput.value = post.title;
-                contentInput.value = post.content || '';
-                excerptInput.value = post.excerpt || '';
-                tagsInput.value = post.tags || '';
-                
+            // 记录当前文章状态
+            currentPost = { slug: post.slug, is_published: post.is_published };
 
-currentPost = { slug: post.slug, is_published: post.is_published };
-        
-        // 控制发表按钮
-        if (publishBtn) {
-            if (post.is_published) {
-                publishBtn.disabled = true;
-                publishBtn.style.opacity = 0.5;
-                publishBtn.title = '文章已发表，无需再次发表';
-            } else {
-                publishBtn.disabled = false;
-                publishBtn.style.opacity = 1;
-                publishBtn.title = '发表此草稿';
-            }
-        }
-
-                showMessage('已加载文章', 'success');
-            } catch (error) {
-                showMessage('加载失败', 'error');
-            }
-        };
-
-        // 删除文章
-        window.deletePost = async function(slug) {
-            if (!confirm(`确定要删除文章 "${slug}" 吗？`)) return;
-            
-            const formData = new FormData();
-            formData.append('slug', slug);
-
-            try {
-                const response = await fetch('/api/admin/post/delete', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-                
-                if (result.success) {
-                    showMessage('删除成功', 'success');
-                    loadPosts();  // 刷新列表
-                    if (slugHidden.value === slug) {
-                        // 清空表单
-                        slugHidden.value = '';
-                        if (slugDisplay) slugDisplay.value = '';
-                        titleInput.value = '';
-                        contentInput.value = '';
-                        excerptInput.value = '';
-                        tagsInput.value = '';
-                    }
-                } else {
-                    showMessage(result.error || '删除失败', 'error');
-                }
-            } catch (error) {
-                showMessage('删除失败', 'error');
-            }
-        };
-         // 清空表单函数（新建和内部使用）
-        function clearForm() {
-            slugHidden.value = '';
-            if (slugDisplay) slugDisplay.value = '';
-            titleInput.value = '';
-            contentInput.value = '';
-            excerptInput.value = '';
-            tagsInput.value = '';
-        }
-
-        // 提交表单（新增/更新）
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(form);
-            
-            try {
-                const response = await fetch('/api/admin/post', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-                
-                if (result.success) {
-                    showMessage('保存成功', 'success');
-                    loadPosts();  // 刷新列表
-                } else {
-                    showMessage(result.error || '保存失败', 'error');
-                }
-            } catch (error) {
-                showMessage('保存失败', 'error');
-            }
-        });
-        // 新建按钮
-        document.getElementById('newPostBtn').addEventListener('click', () => {
-            if (confirm('新建文章将清空当前表单，确定吗？')) {
-                clearForm();
-            }
-        });
-
-        function clearForm() {
-            slugHidden.value = '';
-            if (slugDisplay) slugDisplay.value = '';
-            titleInput.value = '';
-            contentInput.value = '';
-            excerptInput.value = '';
-            tagsInput.value = '';
-            currentPost = null;
-            // 恢复发表按钮为可用状态（因为新建的是草稿）
+            // 控制发表按钮（已发表文章禁用发表）
             if (publishBtn) {
-                publishBtn.disabled = false;
-                publishBtn.style.opacity = 1;
-                publishBtn.title = '发表此草稿';
-            }
-}
-        // 上传 MD 文件
-        document.getElementById('uploadMd').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const allowedExts = ['.md', '.markdown'];
-            const fileName = file.name;
-            const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
-            if (!allowedExts.includes(ext) && file.type !== 'text/markdown') {
-                alert('只支持上传 .md 或 .markdown 文件');
-                e.target.value = '';
-                return;
-            }
-
-            const maxSize = 1 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert('文件大小不能超过 1MB');
-                e.target.value = '';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                contentInput.value = event.target.result;
-                showMessage('文件已加载到正文', 'success');
-            };
-            reader.onerror = () => alert('文件读取失败');
-            reader.readAsText(file, 'UTF-8');
-            e.target.value = '';
-        });
-
-        // 注销按钮功能
-        document.getElementById('logoutBtnLeft').addEventListener('click', async () => {
-            if (confirm('确定要注销吗？')) {
-                    try {
-                        const response = await fetch('/api/logout', {
-                            method: 'POST',
-                            credentials: 'same-origin' // 确保携带 Cookie
-                        });
-                        if (response.ok) {
-                            // 注销成功，跳转到登录页
-                            window.location.replace('/admin/login.html');
-                        } else {
-                            alert('注销失败，请重试');
-                        }
-                    } catch (error) {
-                        console.error('注销出错:', error);
-                        alert('注销出错');
-                    }
-                }
-            });
-        // 第7步：保存草稿按钮事件
-        saveDraftBtn.addEventListener('click', async () => {
-            // 获取表单数据
-            const formData = new FormData(form);
-    
-            // 显示保存中状态（可选）
-            saveDraftBtn.disabled = true;
-            saveDraftBtn.textContent = '保存中...';
-
-            try {
-                const response = await fetch('/api/admin/post', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-        
-                if (result.success) {
-                    showMessage('草稿保存成功', 'success');
-            
-                    // 更新当前文章的 slug 和状态
-                    if (result.slug) {
-                    // 如果是新建草稿，更新隐藏字段和显示字段
-                        slugHidden.value = result.slug;
-                        if (slugDisplay) slugDisplay.value = result.slug;
-                
-                        // 更新 currentPost（如果是新建，is_published 为 false；如果是更新，保留原状态）
-                        currentPost = { 
-                            slug: result.slug, 
-                            is_published: currentPost ? currentPost.is_published : false 
-                        };
-                    }
-            
-                    // 刷新文章列表
-                    await loadPosts();
-                } else {
-                    showMessage(result.error || '保存失败', 'error');
-                }
-            } catch (error) {
-                console.error('保存草稿出错:', error);
-                showMessage('保存失败，请稍后重试', 'error');
-            } finally {
-                // 恢复按钮状态
-                saveDraftBtn.disabled = false;
-                saveDraftBtn.textContent = '保存';
-            }
-        });
-
-        // 第8步：发表按钮事件
-        publishBtn.addEventListener('click', async () => {
-            if (!currentPost) {
-                showMessage('请先选择或创建一篇文章', 'error');
-                return;
-            }
-            if (currentPost.is_published) {
-                showMessage('文章已发表，无需重复操作', 'error');
-                return;
-            }
-            if (!confirm('确定要发表这篇文章吗？')) return;
-
-            publishBtn.disabled = true;
-            publishBtn.textContent = '发表中...';
-
-            try {
-                const response = await fetch('/api/admin/post/publish', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ slug: currentPost.slug })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    showMessage('发表成功', 'success');
-                    // 更新当前文章信息
-                    currentPost.slug = result.newSlug;
-                    currentPost.is_published = true;
-                    slugHidden.value = result.newSlug;
-                    if (slugDisplay) slugDisplay.value = result.newSlug;
-                    // 发表按钮保持禁用
+                if (post.is_published) {
                     publishBtn.disabled = true;
                     publishBtn.style.opacity = 0.5;
-                    publishBtn.title = '文章已发表';
-                    // 刷新列表
-                    await loadPosts();
+                    publishBtn.title = '文章已发表，无需再次发表';
                 } else {
-                    showMessage(result.error || '发表失败', 'error');
-                    publishBtn.disabled = false; // 恢复
+                    publishBtn.disabled = false;
+                    publishBtn.style.opacity = 1;
+                    publishBtn.title = '发表此草稿';
+                }
+            }
+            showMessage('已加载文章', 'success');
+        } catch (error) {
+            showMessage('加载失败', 'error');
+        }
+    };
+
+    // ==================== 删除文章 ====================
+    window.deletePost = async function(slug) {
+        if (!confirm(`确定要删除文章 "${slug}" 吗？`)) return;
+
+        const formData = new FormData();
+        formData.append('slug', slug);
+
+        try {
+            const response = await fetch('/api/admin/post/delete', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage('删除成功', 'success');
+                loadPosts();
+                if (slugHidden.value === slug) {
+                    clearForm(); // 如果删除的是当前编辑的文章，清空表单
+                }
+            } else {
+                showMessage(result.error || '删除失败', 'error');
+            }
+        } catch (error) {
+            showMessage('删除失败', 'error');
+        }
+    };
+
+    // ==================== 清空表单 ====================
+    function clearForm() {
+        slugHidden.value = '';
+        if (slugDisplay) slugDisplay.value = '';
+        titleInput.value = '';
+        contentInput.value = '';
+        excerptInput.value = '';
+        tagsInput.value = '';
+        currentPost = null;
+
+        // 恢复发表按钮状态
+        if (publishBtn) {
+            publishBtn.disabled = false;
+            publishBtn.style.opacity = 1;
+            publishBtn.title = '发表此草稿';
+        }
+    }
+
+    // ==================== 新建按钮 ====================
+    newPostBtn.addEventListener('click', () => {
+        if (confirm('新建文章将清空当前表单，确定吗？')) {
+            clearForm();
+        }
+    });
+
+    // ==================== 上传MD文件 ====================
+    uploadMd.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const allowedExts = ['.md', '.markdown'];
+        const fileName = file.name;
+        const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+        if (!allowedExts.includes(ext) && file.type !== 'text/markdown') {
+            alert('只支持上传 .md 或 .markdown 文件');
+            e.target.value = '';
+            return;
+        }
+
+        const maxSize = 1 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('文件大小不能超过 1MB');
+            e.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            contentInput.value = event.target.result;
+            showMessage('文件已加载到正文', 'success');
+        };
+        reader.onerror = () => alert('文件读取失败');
+        reader.readAsText(file, 'UTF-8');
+        e.target.value = ''; // 允许再次上传同一文件
+    });
+
+    // ==================== 保存草稿 ====================
+    saveDraftBtn.addEventListener('click', async () => {
+        const formData = new FormData(form);
+        saveDraftBtn.disabled = true;
+        saveDraftBtn.textContent = '保存中...';
+
+        try {
+            const response = await fetch('/api/admin/post', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage('草稿保存成功', 'success');
+                if (result.slug) {
+                    slugHidden.value = result.slug;
+                    if (slugDisplay) slugDisplay.value = result.slug;
+                    currentPost = {
+                        slug: result.slug,
+                        is_published: currentPost ? currentPost.is_published : false
+                    };
+                }
+                await loadPosts();
+            } else {
+                showMessage(result.error || '保存失败', 'error');
+            }
+        } catch (error) {
+            showMessage('保存失败，请稍后重试', 'error');
+        } finally {
+            saveDraftBtn.disabled = false;
+            saveDraftBtn.textContent = '保存';
+        }
+    });
+
+    // ==================== 发表文章 ====================
+    publishBtn.addEventListener('click', async () => {
+        if (!currentPost) {
+            showMessage('请先选择或创建一篇文章', 'error');
+            return;
+        }
+        if (currentPost.is_published) {
+            showMessage('文章已发表，无需重复操作', 'error');
+            return;
+        }
+        if (!confirm('确定要发表这篇文章吗？发表后将生成正式链接并出现在首页。')) return;
+
+        publishBtn.disabled = true;
+        publishBtn.textContent = '发表中...';
+
+        try {
+            const response = await fetch('/api/admin/post/publish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug: currentPost.slug })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage('文章发表成功', 'success');
+                // 更新当前文章信息
+                currentPost.slug = result.newSlug;
+                currentPost.is_published = true;
+                slugHidden.value = result.newSlug;
+                if (slugDisplay) slugDisplay.value = result.newSlug;
+                // 发表按钮保持禁用
+                publishBtn.disabled = true;
+                publishBtn.style.opacity = 0.5;
+                publishBtn.title = '文章已发表';
+                await loadPosts();
+            } else {
+                showMessage(result.error || '发表失败', 'error');
+                publishBtn.disabled = false;
+            }
+        } catch (error) {
+            showMessage('发表失败，请稍后重试', 'error');
+            publishBtn.disabled = false;
+        } finally {
+            publishBtn.textContent = '发表';
+        }
+    });
+
+    // ==================== 注销按钮 ====================
+    logoutBtn.addEventListener('click', async () => {
+        if (confirm('确定要注销吗？')) {
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                });
+                if (response.ok) {
+                    window.location.replace('/admin/login.html');
+                } else {
+                    alert('注销失败');
                 }
             } catch (error) {
-                 showMessage('发表失败', 'error');
-                publishBtn.disabled = false;
-            } finally {
-                publishBtn.textContent = '发表';
+                alert('注销出错');
             }
-        });
-        
-        // 初始加载
-        loadCurrentUser();
-        loadPosts();
+        }
+    });
 
-    </script>
+    // ==================== 初始加载 ====================
+    loadCurrentUser();
+    loadPosts();
+</script>
 </body>
 </html>
