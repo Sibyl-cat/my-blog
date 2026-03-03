@@ -427,19 +427,6 @@ async function loadCurrentUser() {
             if (userBtn) {
                 userBtn.style.display = user.role === 'admin' ? 'inline-block' : 'none';
             }
-            // 控制右侧按钮组（针对 superadmin）
-            const newBtn = document.getElementById('newPostBtn');
-            const uploadLabel = document.getElementById('uploadMdLabel');
-            const publishBtn = document.getElementById('publishBtn');
-            const saveBtn = document.getElementById('saveDraftBtn');
-
-            if (user.role === 'superadmin') {
-                // superadmin 隐藏新建、上传、发表
-                if (newBtn) newBtn.style.display = 'none';
-                if (uploadLabel) uploadLabel.style.display = 'none';
-                if (publishBtn) publishBtn.style.display = 'none';
-                // 保存按钮占满宽度（可选）
-                if (saveBtn) saveBtn.style.width = '100%';
         } else {
             usernameSpan.textContent = '访客';
         }
