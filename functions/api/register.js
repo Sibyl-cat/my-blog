@@ -8,26 +8,15 @@ export async function onRequest(context) {
     }
 
     try {
-        const { username, password, 'cf-turnstile-response': token } = await request.json();
-        // 验证 Turnstile token
-        if (!token) {
-            return new Response(JSON.stringify({ error: '请完成验证码' }), { status: 400 });
-        }
-        // 准备请求体，用于向 Cloudflare 验证 token
-        const turnstileBody = {
-          secret: env.TURNSTILE_SECRET, // ✅ 从环境变量中读取 Secret 密钥
-          response: token,
-          remoteip: request.headers.get('CF-Connecting-IP') || ''
-        };
+        const body = await request.json();
+        const { username, password, honeypot } = body;  // 只提取需要的字段，不再关心 cf-turnstile-response
 
-        const turnstileRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(turnstileBody)
-        });
-        const turnstileData = await turnstileRes.json();
-        if (!turnstileData.success) {
-            return new Response(JSON.stringify({ error: '验证码验证失败' }), { status: 400 });
+        // 蜜罐检查
+        if (honeypot) {
+            return new Response(JSON.stringify({ error: '检测到机器人行为' }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' }
+            });
         }
 
         if (!username || !password) {
