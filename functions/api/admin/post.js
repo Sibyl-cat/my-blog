@@ -53,7 +53,7 @@ export async function onRequest(context) {
             }
 
             const authorId = results[0].author_id;
-            if (role !== 'admin' && role !== 'superadmin' && authorId !== userId) {
+            if (role !== 'superadmin' && authorId !== userId) {
                 return new Response(JSON.stringify({ error: '无权修改他人文章' }), { status: 403 });
             }
 
