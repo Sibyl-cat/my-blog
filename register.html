@@ -119,8 +119,7 @@
                     
                     <!-- 蜜罐字段：对用户隐藏 -->
                     <input type="text" name="honeypot" style="display:none" autocomplete="off" tabindex="-1">
-                    <input type="hidden" name="timestamp" id="timestamp" value="">
-               
+                    
                 <button type="submit" class="btn-register">注册</button>
                 <div class="login-link">
                     已有账号？<a href="/admin/login.html">去登录</a>
@@ -152,8 +151,6 @@
                 alert('两次密码不一致');
                 return;
             }
-            // 设置时间戳
-            document.getElementById('timestamp').value = Date.now();
 
 
             // 发送注册请求
