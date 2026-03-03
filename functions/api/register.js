@@ -18,8 +18,7 @@ export async function onRequest(context) {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-        // 时间戳检查
-        const now = Date.now();
+        // 时间戳检查：如果 timestamp 缺失，直接返回错误（避免后面使用 submitTime）
         if (!timestamp) {
             return new Response(JSON.stringify({ error: '提交超时，请刷新页面重试' }), {
                 status: 403,
@@ -27,8 +26,10 @@ export async function onRequest(context) {
             });
         }
 
-        const timeDiff = now - submitTime;
-        if (Math.abs(timeDiff) < 2000) { // 绝对值小于2秒才拦截
+        const now = Date.now();
+        const submitTime = parseInt(timestamp);
+
+        if (isNaN(submitTime) || Math.abs(now - submitTime) < 2000) { // 使用绝对值
             return new Response(JSON.stringify({ error: '提交速度过快，请稍后再试' }), {
                 status: 403,
                 headers: { 'Content-Type': 'application/json' }
