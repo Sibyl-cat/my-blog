@@ -153,24 +153,34 @@
             }
 
             // 发送注册请求
-            const res = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username,
-                    password,
-                    'cf-turnstile-response': token
-                })
-            });
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
 
-            const data = await res.json();
-            if (res.ok) {
-                alert('注册成功，即将跳转到登录页');
-                window.location.href = '/admin/login.html';
-            } else {
-                alert(data.error || '注册失败');
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    showMessage('注册成功！正在跳转...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/admin/login.html';
+                    }, 1500);
+                } else {
+                    showMessage(result.error || '注册失败', 'error');
+                }
+            } catch (err) {
+                showMessage('网络错误', 'error');
             }
         });
+
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
     </script>
 </body>
 </html>
