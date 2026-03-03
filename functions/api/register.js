@@ -9,11 +9,27 @@ export async function onRequest(context) {
 
     try {
         const body = await request.json();
-        const { username, password, honeypot } = body;  // 只提取需要的字段，不再关心 cf-turnstile-response
+        const { username, password, honeypot, timestamp } = body;  // 只提取需要的字段，不再关心 cf-turnstile-response
 
         // 蜜罐检查
         if (honeypot) {
             return new Response(JSON.stringify({ error: '检测到机器人行为' }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        // 时间戳检查
+        const now = Date.now();
+        if (!timestamp) {
+            return new Response(JSON.stringify({ error: '提交超时，请刷新页面重试' }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        const submitTime = parseInt(timestamp);
+        if (isNaN(submitTime) || now - submitTime < 2000) { // 小于2秒
+            return new Response(JSON.stringify({ error: '提交速度过快，请稍后再试' }), {
                 status: 403,
                 headers: { 'Content-Type': 'application/json' }
             });
