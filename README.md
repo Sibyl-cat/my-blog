@@ -1,171 +1,162 @@
-<div align="center">
-<picture>
-  <source media="(prefers-color-scheme: light)" srcset="/images/avatar.jpg">
-  <img alt="avatar" src="/images/avatar.jpg" width="50%" height="50%">
-</picture>
-</div>
-<p align="center">小电视の日常 · 粉系毛玻璃博客。</p>
+# 小电视の日常 · 粉系毛玻璃博客
 
----
+一个功能完整的个人博客系统，基于 Cloudflare Pages + D1 数据库构建，支持多作者、Markdown 渲染、用户管理、文章管理等功能。界面采用哔哩哔哩主题色 (#FB7299) 搭配毛玻璃效果，适配移动端。
 
-一个部署在 Cloudflare Pages 上的个人博客，采用 $\color{#FB7299}{哔哩哔哩主题色}$  搭配毛玻璃效果，动效流畅，支持文章详情页和 B站主页跳转。
-本项目是完全静态的 HTML/CSS/JS 实现，可轻松扩展为动态博客（结合 Cloudflare D1 / KV）。
+## ✨ 功能特性
 
-## ✨ 功能特点
+- **多用户支持**：普通用户（user）和管理员（admin）角色分离，各自管理自己的文章
+- **文章管理**：新建、编辑、删除文章，支持 Markdown 上传与渲染
+- **用户管理**：管理员可查看、修改密码、删除用户（普通用户无权限）
+- **注册与登录**：注册页面集成 Cloudflare Turnstile 验证码，防止恶意注册
+- **作者归档**：按作者查看文章列表
+- **毛玻璃 UI**：统一的设计语言，响应式适配手机端
+- **动态内容**：所有文章、用户数据由 Cloudflare D1 数据库驱动
 
-- **🎨 哔哩哔哩主题色**：主色调 $\color{#FB7299}{\blacksquare}$ 贯穿始终，搭配柔和的渐变背景。
-- **🥛 毛玻璃设计**：导航、卡片、页脚均采用 backdrop-filter 模糊，质感通透。
-- **📱 响应式布局**：完美适配手机、平板和桌面端。
-- **✨ 流畅动效**：卡片加载动画、悬停放大、图标旋转等微交互。
-- **🔗 文章详情页**：每篇文章独立页面，支持从首页卡片点击进入。
-- **🌐 一键部署**：可快速部署到 Cloudflare Pages，并绑定自定义域名。
+## 🛠️ 技术栈
 
-## 🧱 技术栈
+- **前端**：HTML5, CSS3, JavaScript (原生)
+- **图标库**：Font Awesome 6
+- **Markdown 渲染**：[marked](https://cdn.jsdelivr.net/npm/marked/marked.min.js)
+- **后端**：Cloudflare Pages Functions (Node.js 环境)
+- **数据库**：Cloudflare D1 (SQLite)
+- **部署**：Cloudflare Pages (Git 集成)
 
-- **HTML5**：页面结构。
-- **CSS3**：Flex/Grid 布局、毛玻璃效果、动画、响应式设计。
-- **Font Awesome 6**：图标库（免费版）。
-- **Cloudflare Pages**：托管与部署。
-- **Cloudflare D1/KV**：用于扩展为动态博客（、阅读量等）。
+## 📁 文件结构详解
 
-## 📁 项目结构
-
+项目根目录下的主要文件及文件夹说明：
 ```
-my-blog/
-├── index.html               # 博客首页（文章列表）
-├── style.css                 # 全局样式（从 index.html 提取）
-├── images/                   # 存放图片资源
-│   └── avatar.jpg            # 个人头像（示例）
-├── post1.html                # 文章详情页1
-├── post2.html                # 文章详情页2
-├── post3.html                # 文章详情页3
-├── ...                        # 其他文章页
-└── README.md                  # 本文档
-```
-<p align="center"><em>
-说明：如果您有更多文章，只需按 postX.html 的模板继续创建即可。
-</em></p>
-
----
-
-## ☁️ 部署到 Cloudflare Pages
-
-将本项目部署到Cloudflare有许多种方法。
-### 方法一：通过 Git 自动部署
-
-1. 将本项目推送到您的 GitHub/GitLab 仓库。
-2. 登录 Cloudflare 控制台 → Workers & Pages → 创建应用程序 → Pages → 连接到 Git。
-3. 选择仓库，设置如下：
-   - 项目名称：自定义
-   - 生产分支：main
-   - 框架预设：无
-   - 构建命令：exit 0（或留空）
-   - 构建输出目录：.（根目录）
-4. 点击保存并部署，稍等片刻即可访问 https://<项目名>.pages.dev。
-
-### 方法二：直接上传
-
-1. 在 Cloudflare Pages 中创建项目，选择“直接上传”。
-2. 将本地 my-blog 文件夹拖拽到上传区域。
-3. 点击部署，获得预览链接。
-4. 绑定自定义域名：在项目详情页 → 自定义域 → 设置自定义域，输入您的域名并按提示添加 CNAME 记录即可（DNS 托管在 Cloudflare 时可自动完成）。
-
----
-
-## 🔌 扩展为动态博客（可选）
-
-如果您希望添加评论、阅读量统计等动态功能，可以结合 Cloudflare D1（关系型数据库）和 Pages Functions 实现。
-
-示例：添加阅读量
-
-1. 在 D1 中创建表 page_views。
-2. 创建 /functions/api/views.js 处理计数逻辑。
-3. 在文章页调用 fetch('/api/views?id=post1') 显示阅读数。
-
-详细文档可参考 Cloudflare D1 文档 和 Pages Functions 文档。
-
----
-
-## 🎨 自定义样式
-
-所有样式集中在 style.css 中，您可以轻松修改：
-
-- 主题色：搜索 #FB7299 替换为您喜欢的颜色。
-- 毛玻璃透明度：调整 background: rgba(255,255,255,0.2) 中的 0.2 值。
-- 动画时长：修改 transition 和 animation 中的时间参数。
-
----
-
-## 📝 文章模板
-
-新建文章页时，复制以下模板并修改内容：
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>>🌼标签页的题目</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="blog-container">
-    <!-- 导航栏 (与 index.html 相同) -->
-    <nav class="navbar glass" style="background: rgba(255,255,240,0.2);">
-      <div class="logo">
-        <i class="fab fa-bilibili"></i>
-        <span>小电视の日常</span>
-      </div>
-    </nav>
-
-    <!-- 文章详情 -->
-    <div class="profile-card glass" style="flex-direction: column; align-items: flex-start;">
-        <h1 style="font-size: 2.5rem; color: #FB7299; margin-bottom: 0.5rem;">这里是文章标题</h1>
-        <div class="card-meta" style="margin: 1rem 0; width: 100%;">
-            <span><i class="far fa-calendar"></i> 这里是日期</span>
-            <span><i class="far fa-clock"></i> 这里是时间(假的)</span>
-            <span><i class="fas fa-tag"></i> 这里是标签</span>
-        </div>
-        <div class="post-content" style="font-size: 1.2rem; line-height: 1.8; color: #2a2a2a;">
-            <p>文章梗概</p>
-            <h2 style="color: #FB7299; margin: 1.5rem 0 0.5rem;">1. 小标题一</h2>
-            <p>文本1</p>
-            <h2 style="color: #FB7299; margin: 1.5rem 0 0.5rem;">2. 小标题二</h2>
-            <p>文本2</p>
-            <h2 style="color: #FB7299; margin: 1.5rem 0 0.5rem;">3. 小标题三</h2>
-            <p>文本3</p>
-            <p>更多细节可以看我的其他文章，或者直接查看 <a href="https://developers.cloudflare.com/pages/" target="_blank" style="color: #FB7299;">Cloudflare Pages 官方文档</a>。</p>
-        </div>
-        <a href="index.html" class="load-more" style="margin: 2rem 0; align-self: center;">← 返回首页</a>
-    </div>
-
-    <!-- 页脚 (与 index.html 相同) -->
-    <footer class="footer glass">
-        <div class="copyright">
-            <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
-            <i class="fas fa-heart" style="color: #FB7299;"></i>
-        </div>
-    </footer>
-</div>
-</body>
-</html>
+├── index.html               # 博客首页，动态加载所有文章卡片
+├── post.html                # 文章详情页，使用 marked 渲染 Markdown
+├── authors.html             # 作者列表页，显示所有注册作者
+├── author.html              # 单个作者的文章列表页
+├── admin.html               # 管理后台首页（仅 admin 可访问）
+├── users.html               # 用户管理页面（仅 admin 可访问）
+├── register.html            # 公开注册页面，包含 Turnstile 验证码
+├── admin/                   # 存放受保护的管理页面
+│   └── login.html           # 管理员登录页
+├── functions/               # Cloudflare Pages Functions 目录
+│   ├── api/                 # 公开 API 路由
+│   │   ├── posts.js         # 获取所有文章（首页用）
+│   │   ├── post/            # 单篇文章相关
+│   │   │   └── [slug].js    # 根据 slug 获取单篇文章
+│   │   ├── authors.js       # 获取所有作者列表
+│   │   ├── author/          # 单个作者相关
+│   │   │   └── [username].js # 根据用户名获取该作者所有文章
+│   │   ├── register.js      # 用户注册（包含 Turnstile 验证）
+│   │   ├── user/            # 用户信息
+│   │   │   └── me.js        # 获取当前登录用户信息
+│   │   ├── login.js         # 登录 API（验证密码，创建会话）
+│   │   ├── logout.js        # 注销 API（删除会话）
+│   │   └── utils/           # 工具函数
+│   │       ├── auth.js      # 密码哈希、验证、获取当前用户 ID
+│   │       ├── generateSlug.js # 生成文章 slug (post1, post2...)
+│   │       └── slugify.js   # 将标题转换为 slug 字符串
+│   └── admin/               # 受保护的管理 API（需登录）
+│       ├── _middleware.js   # 中间件：检查登录状态及角色权限
+│       ├── posts.js         # 获取当前用户自己的文章列表
+│       ├── post.js          # 新增/更新文章（自动生成 slug，检查权限）
+│       ├── post/            # 文章相关操作
+│       │   └── delete.js    # 删除文章（检查权限）
+│       ├── users.js         # 获取所有用户列表（仅 admin）
+│       └── user/            # 用户管理操作
+│           ├── add.js       # 新增用户（仅 admin，但注册页已独立）
+│           ├── update.js    # 修改用户密码（仅 admin）
+│           └── delete.js    # 删除用户（仅 admin，禁止删除自己）
+├── style.css                # 全局样式（毛玻璃、响应式、主色调）
+├── schema.sql               # 数据库建表语句（users, sessions, posts）
+└── README.md                # 本文档
 ```
 
----
+## 🗄️ 数据库设计
+
+数据库使用 Cloudflare D1，包含三张表：
+
+### `users` 用户表
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INTEGER PRIMARY KEY | 用户 ID |
+| username | TEXT UNIQUE | 用户名 |
+| password_hash | TEXT | PBKDF2 哈希值 |
+| salt | TEXT | 随机盐 |
+| role | TEXT | 'admin' 或 'user'，默认 'user' |
+| created_at | DATETIME | 注册时间 |
+
+### `sessions` 会话表
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | TEXT PRIMARY KEY | 随机会话 ID |
+| user_id | INTEGER | 关联 users.id |
+| role | TEXT | 冗余用户角色，方便中间件快速判断 |
+| expires_at | DATETIME | 会话过期时间 |
+
+### `posts` 文章表
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INTEGER PRIMARY KEY | 文章 ID |
+| slug | TEXT UNIQUE | 文章标识（如 post1） |
+| title | TEXT | 标题 |
+| content | TEXT | 正文（Markdown 格式） |
+| excerpt | TEXT | 摘要 |
+| tags | TEXT | 逗号分隔的标签 |
+| author_id | INTEGER | 关联 users.id |
+| created_at | DATETIME | 创建时间 |
+| updated_at | DATETIME | 最后更新时间（自动更新） |
+
+## 🔧 部署指南
+
+### 前提条件
+- 拥有 [Cloudflare 账号](https://dash.cloudflare.com/)
+- 项目代码已托管至 GitHub（或其他 Git 仓库）
+
+### 步骤
+
+1. **创建 D1 数据库**
+   - 在 Cloudflare 控制台进入 **Workers & Pages** → **D1** → **创建数据库**，命名为 `my-blog-db`
+   - 记录数据库 ID
+
+2. **导入表结构**
+   - 进入数据库控制台，执行 `schema.sql` 中的 SQL 语句
+   - 手动插入一个管理员账号（需使用工具生成盐和哈希，或通过注册页面注册后手动修改 role）
+
+3. **创建 Pages 项目**
+   - 在 Cloudflare Pages 中点击 **创建项目** → **连接到 Git** → 选择本仓库
+   - 构建设置：框架预设选择“无”，构建命令留空，输出目录填当前目录 `.`
+   - 点击 **保存并部署**
+
+4. **绑定 D1 数据库**
+   - 在项目详情页 → **设置** → **绑定** → **添加绑定**
+   - 变量名称填 `DB`，选择刚刚创建的 D1 数据库
+
+5. **配置环境变量**
+   - 在项目 **设置** → **环境变量** 中添加：
+     - `TURNSTILE_SECRET`：从 Cloudflare Turnstile 获取的秘密密钥（用于注册页验证）
+
+6. **配置 Turnstile**
+   - 在 Cloudflare 控制台进入 **Turnstile** → **添加站点**
+   - 域名填写您的 Pages 域名（如 `xxx.pages.dev` 或自定义域名）
+   - 获取站点密钥，填入 `register.html` 的 `data-sitekey` 中
+
+7. **重新部署**
+   - 以上配置完成后，手动触发一次部署或推送代码更新
+
+## 🔐 权限说明
+
+- **未登录用户**：可访问首页、文章详情、作者页、注册页
+- **普通用户 (role='user')**：登录后可管理自己的文章（`admin.html` 对其不可见，中间件会重定向到首页）
+- **管理员 (role='admin')**：可访问所有管理页面（`admin.html`, `users.html`），管理所有文章和用户
+
+## 📝 使用说明
+
+- **注册**：访问 `/register.html` 填写信息，完成 Turnstile 验证后提交
+- **登录**：访问 `/admin/login.html` 输入用户名密码
+- **管理文章**：登录后访问 `/admin.html` 可新建/编辑/删除文章（仅自己或管理员）
+- **管理用户**：管理员访问 `/users.html` 可查看所有用户、修改密码、删除用户
+- **按作者浏览**：访问 `/authors.html` 点击作者进入该作者的文章列表
 
 ## 🤝 贡献
 
-如果您有任何改进建议，欢迎提交 Issue 或 Pull Request。
-
----
+欢迎通过 Issue 或 Pull Request 提出改进建议。
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证，您可以自由使用、修改和分发。
-
----
-
-祝您使用愉快！
-如果您在部署或自定义过程中遇到问题，欢迎随时提问。
+MIT License © 2025 小电视の日常
