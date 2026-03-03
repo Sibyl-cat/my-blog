@@ -41,7 +41,7 @@ export async function onRequest(context) {
 
         const authorId = results[0].author_id;
         // 允许 admin/superadmin 或作者本人删除
-        if (role !== 'admin' && role !== 'superadmin' && authorId !== userId) {
+        if (role !== 'superadmin' && authorId !== userId) {
             return new Response(JSON.stringify({ error: '无权删除他人文章' }), { status: 403 });
         }
 
