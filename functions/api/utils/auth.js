@@ -1,4 +1,10 @@
 // /functions/api/utils/auth.js
+
+/**
+ * 生成密码哈希和盐（使用 PBKDF2 + SHA-256）
+ * @param {string} password - 明文密码
+ * @returns {Promise<{salt: string, hash: string}>} 十六进制字符串的盐和哈希
+ */
 export async function hashPassword(password) {
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const encoder = new TextEncoder();
@@ -22,26 +28,39 @@ export async function hashPassword(password) {
     return { salt: saltHex, hash: hashHex };
 }
 
+/**
+ * 验证密码是否正确
+ * @param {string} password - 待验证的明文密码
+ * @param {string} saltHex - 十六进制盐
+ * @param {string} storedHash - 存储的哈希值
+ * @returns {Promise<boolean>} 密码是否匹配
+ */
 export async function verifyPassword(password, saltHex, storedHash) {
-  const salt = new Uint8Array(saltHex.match(/.{2}/g).map(byte => parseInt(byte, 16)));
-  const encoder = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw', encoder.encode(password), { name: 'PBKDF2' }, false, ['deriveBits']
-  );
-  const derivedBits = await crypto.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
-      salt: salt,
-      iterations: 100000,
-      hash: 'SHA-256'
-    },
-    keyMaterial,
-    256
-  );
-  const hash = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
-  return hash === storedHash;
+    const salt = new Uint8Array(saltHex.match(/.{2}/g).map(byte => parseInt(byte, 16)));
+    const encoder = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+        'raw', encoder.encode(password), { name: 'PBKDF2' }, false, ['deriveBits']
+    );
+    const derivedBits = await crypto.subtle.deriveBits(
+        {
+            name: 'PBKDF2',
+            salt: salt,
+            iterations: 100000,
+            hash: 'SHA-256'
+        },
+        keyMaterial,
+        256
+    );
+    const hash = Array.from(new Uint8Array(derivedBits)).map(b => b.toString(16).padStart(2, '0')).join('');
+    return hash === storedHash;
 }
-// 从请求的 Cookie 中获取 session_id，然后查询用户 ID
+
+/**
+ * 从请求的 Cookie 中获取当前登录用户的 ID
+ * @param {Request} request - 请求对象
+ * @param {any} env - 环境变量对象（包含 DB 绑定）
+ * @returns {Promise<number|null>} 用户 ID，若未登录或会话过期则返回 null
+ */
 export async function getCurrentUserId(request, env) {
     const cookieHeader = request.headers.get('Cookie') || '';
     const cookies = Object.fromEntries(
