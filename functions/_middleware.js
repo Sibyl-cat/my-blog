@@ -21,6 +21,7 @@ export async function onRequest(context) {
         // 放行静态资源和修复模式相关页面/API
         const isAllowedPath = (
             path === '/maintenance.html' ||                     // 修复页面本身
+            path === '/maintenance' ||                     // 修复页面不带后缀
             path.startsWith('/images/') ||                       // 图片资源
             path.startsWith('/css/') ||                          // CSS 资源
             path.startsWith('/js/') ||                           // JS 资源
