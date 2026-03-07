@@ -19,7 +19,7 @@ export async function onRequest(context) {
         }
 
         // 放行修复模式专用登录 API
-        if (path === '/api/maintenance-login') {
+        if (path === '/api/maintenance-login' || path === '/api/repair-time') {
             return await next();
         }
 
