@@ -1,5 +1,5 @@
 // /functions/api/maintenance-login.js
-import { verifyPassword } from '../../utils/auth';
+import { verifyPassword } from './utils/auth';
 
 export async function onRequest(context) {
     const { request, env } = context;
