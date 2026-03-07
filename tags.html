@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>标签云 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="./components.js"></script>
     <style>
         /* 标签云额外样式 */
         .search-box {
@@ -13,35 +15,39 @@
             display: flex;
             justify-content: center;
         }
+
         .search-box input {
             width: 100%;
             max-width: 500px;
             padding: 0.8rem 1.5rem;
-            border: 1px solid rgba(251,114,153,0.3);
+            border: 1px solid rgba(251, 114, 153, 0.3);
             border-radius: 60px;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.5);
             font-size: 1rem;
             backdrop-filter: blur(10px);
             transition: all 0.2s;
         }
+
         .search-box input:focus {
             outline: none;
             border-color: #FB7299;
-            box-shadow: 0 0 0 3px rgba(251,114,153,0.2);
+            box-shadow: 0 0 0 3px rgba(251, 114, 153, 0.2);
         }
+
         .tags-cloud {
             display: flex;
             flex-wrap: wrap;
             gap: 0.8rem;
             justify-content: center;
             padding: 2rem;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(12px);
             border-radius: 48px;
-            border: 1px solid rgba(255,255,255,0.35);
+            border: 1px solid rgba(255, 255, 255, 0.35);
         }
+
         .tag-item {
-            background: rgba(251,114,153,0.1);
+            background: rgba(251, 114, 153, 0.1);
             border: 1px solid #FB7299;
             border-radius: 30px;
             padding: 0.5rem 1.2rem;
@@ -51,28 +57,33 @@
             transition: all 0.2s;
             display: inline-block;
         }
+
         .tag-item:hover {
             background: #FB7299;
             color: white;
             transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(251,114,153,0.3);
+            box-shadow: 0 4px 10px rgba(251, 114, 153, 0.3);
         }
+
         .tag-count {
             margin-left: 0.3rem;
             font-size: 0.8rem;
             color: inherit;
             opacity: 0.8;
         }
+
         .no-tags {
             text-align: center;
             color: #666;
             padding: 2rem;
         }
+
         @media (max-width: 768px) {
             .tags-cloud {
                 padding: 1.5rem;
                 gap: 0.5rem;
             }
+
             .tag-item {
                 font-size: 0.9rem;
                 padding: 0.4rem 1rem;
@@ -80,85 +91,77 @@
         }
     </style>
 </head>
+
 <body>
-<div class="blog-container">
-    <!-- 导航栏（请根据实际调整链接） -->
-    <nav class="navbar glass">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="logo" id="sidebarToggle" style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                <i class="fab fa-bilibili" style="color: #FB7299;"></i>
-                <span>小电视の日常</span>
+    <div class="blog-container">
+
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+
+        <h2 class="section-title"><i class="fas fa-tags" style="color:#FB7299; margin-right:12px;"></i>标签云</h2>
+
+        <!-- 搜索框 -->
+        <div class="search-box">
+            <input type="text" id="tagSearch" placeholder="🔍 搜索标签..." autofocus>
+        </div>
+
+        <!-- 标签云容器 -->
+        <div id="tags-cloud" class="tags-cloud">
+            <p class="no-tags">加载中...</p>
+        </div>
+
+        <!-- 页脚（复制 index.html 的页脚） -->
+        <footer class="footer glass">
+            <div class="copyright">
+                <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
+                <i class="fas fa-heart" style="color: #FB7299;"></i>
             </div>
-        </div>
-        <div class="nav-links">
-            <a href="index.html"><i class="fas fa-house"></i> 首页</a>
-            <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
-            <a href="tags.html"><i class="fas fa-tags"></i> 标签</a>
-            <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
-            <a href="admin/login.html"><i class="fas fa-sign-in-alt"></i> 登录</a>
-        </div>
-    </nav>
-
-    <h2 class="section-title"><i class="fas fa-tags" style="color:#FB7299; margin-right:12px;"></i>标签云</h2>
-
-    <!-- 搜索框 -->
-    <div class="search-box">
-        <input type="text" id="tagSearch" placeholder="🔍 搜索标签..." autofocus>
+        </footer>
     </div>
 
-    <!-- 标签云容器 -->
-    <div id="tags-cloud" class="tags-cloud">
-        <p class="no-tags">加载中...</p>
-    </div>
+    <script>
+        let allTags = []; // 存储所有标签
 
-    <!-- 页脚（复制 index.html 的页脚） -->
-    <footer class="footer glass">
-        <div class="copyright">
-            <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
-            <i class="fas fa-heart" style="color: #FB7299;"></i>
-        </div>
-    </footer>
-</div>
-
-<script>
-    let allTags = []; // 存储所有标签
-
-    async function loadTags() {
-        try {
-            const res = await fetch('/api/tags');
-            allTags = await res.json();
-            renderTags(allTags);
-        } catch (err) {
-            console.error('加载标签失败:', err);
-            document.getElementById('tags-cloud').innerHTML = '<p class="no-tags">加载失败</p>';
+        async function loadTags() {
+            try {
+                const res = await fetch('/api/tags');
+                allTags = await res.json();
+                renderTags(allTags);
+            } catch (err) {
+                console.error('加载标签失败:', err);
+                document.getElementById('tags-cloud').innerHTML = '<p class="no-tags">加载失败</p>';
+            }
         }
-    }
 
-    function renderTags(tags) {
-        const container = document.getElementById('tags-cloud');
-        if (!tags || tags.length === 0) {
-            container.innerHTML = '<p class="no-tags">暂无标签</p>';
-            return;
+        function renderTags(tags) {
+            const container = document.getElementById('tags-cloud');
+            if (!tags || tags.length === 0) {
+                container.innerHTML = '<p class="no-tags">暂无标签</p>';
+                return;
+            }
+            let html = '';
+            tags.forEach(tag => {
+                html += `<a href="tag.html?name=${encodeURIComponent(tag.name)}" class="tag-item">#${tag.name}<span class="tag-count">(${tag.count})</span></a>`;
+            });
+            container.innerHTML = html;
         }
-        let html = '';
-        tags.forEach(tag => {
-            html += `<a href="tag.html?name=${encodeURIComponent(tag.name)}" class="tag-item">#${tag.name}<span class="tag-count">(${tag.count})</span></a>`;
+
+        // 搜索过滤（模糊匹配）
+        document.getElementById('tagSearch').addEventListener('input', (e) => {
+            const keyword = e.target.value.trim().toLowerCase();
+            if (!keyword) {
+                renderTags(allTags);
+                return;
+            }
+            const filtered = allTags.filter(tag => tag.name.toLowerCase().includes(keyword));
+            renderTags(filtered);
         });
-        container.innerHTML = html;
-    }
 
-    // 搜索过滤（模糊匹配）
-    document.getElementById('tagSearch').addEventListener('input', (e) => {
-        const keyword = e.target.value.trim().toLowerCase();
-        if (!keyword) {
-            renderTags(allTags);
-            return;
-        }
-        const filtered = allTags.filter(tag => tag.name.toLowerCase().includes(keyword));
-        renderTags(filtered);
-    });
-
-    loadTags();
-</script>
+        loadTags();
+    </script>
 </body>
+
 </html>

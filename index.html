@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,45 +8,33 @@
   <!-- Font Awesome 6 (国内CDN, 保证快速) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="style.css">
+  <script src="./components.js"></script>
 </head>
+
 <body>
-  
-    <!-- 导航栏 · 毛玻璃 + 粉色调 -->
-    <nav class="navbar glass">
-  <div style="display: flex; align-items: center; gap: 1rem;"><!-- 小电视图标作为侧边栏触发器 -->
-      <div class="logo" id="sidebarToggle" style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-        <i class="fab fa-bilibili" style="color: #FB7299;"></i>
-        <span>小电视の日常</span>
+
+  <!-- 导航栏 · 毛玻璃 + 粉色调 -->
+  <nav class="navbar glass">
+    <div style="display: flex; align-items: center; gap: 1rem;"><!-- 小电视图标作为侧边栏触发器 -->
+      <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+        <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;"
+          title="打开侧边栏"></i>
+        <a href="./index.html" style="text-decoration: none; color: inherit; cursor: pointer;" title="返回首页">
+          <span>小电视の日常</span>
+        </a>
       </div>
-  </div>
-      <div class="nav-links">
-        <a href="#"><i class="fas fa-house"></i> 首页</a>
-        <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
-        <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
-        <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
-      </div>
-    </nav>
-  
-  <!-- 侧边栏 (毛玻璃) -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <span class="sidebar-title">导航</span>
-    <button class="close-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
-  </div>
-  <ul class="sidebar-menu">
-    <li><a href="index.html"><i class="fas fa-house"></i> 首页</a></li>
-    <li><a href="authors.html"><i class="fas fa-users"></i> 作者</a></li>
-    <li><a href="register.html"><i class="fas fa-user-plus"></i> 注册</a></li>
-    <li><a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a></li>
-    <li><a href="admin.html"><i class="fa-solid fa-blog"></i> 管理</a></li>
-    <li><a href="#"><i class="fas fa-cog"></i> 设置</a></li>
-  </ul>
-  <div class="sidebar-footer">
-    <p>© 2025 小电视の日常</p>
-  </div>
-</div>
-<!-- 遮罩层 (点击关闭侧边栏) -->
-<div class="overlay" id="overlay"></div>
+    </div>
+    <div class="nav-links">
+      <a href="#"><i class="fas fa-house"></i> 首页</a>
+      <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
+      <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
+      <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
+    </div>
+  </nav>
+
+  <!-- 全局侧边栏组件 -->
+  <blog-sidebar></blog-sidebar>
+
   <div class="blog-container">
 
     <!-- 个人资料卡 (毛玻璃 + 动效) -->
@@ -60,7 +49,8 @@
           <span><i class="fas fa-pen-fancy"></i> <span id="totalPosts">29</span> 篇原创</span>
           <span><i class="fas fa-heart" style="color: #FB7299;"></i> <span id="totalUsers">1.2w</span> 人气</span>
         </div>
-        <div style="margin-top: 12px; color:#393939;"><i class="fas fa-quote-left" style="color:#FB7299;"></i> 分享计算机小白的日常，周末也许会更 ✨</div>
+        <div style="margin-top: 12px; color:#393939;"><i class="fas fa-quote-left" style="color:#FB7299;"></i>
+          分享计算机小白的日常，周末也许会更 ✨</div>
       </div>
     </div>
 
@@ -69,7 +59,7 @@
     <div class="article-grid" id="post-grid">
       <!-- 这里将用 JavaScript 动态填充卡片 -->
     </div>
-    
+
     <!-- 加载更多按钮 · 附带模拟点击动效 -->
     <div class="load-more" onclick="alert('(◕‿◕) 已经是最新内容啦，期待下一篇吧～')">
       <span>加载更多文章</span>
@@ -79,7 +69,7 @@
     <!-- 页脚 毛玻璃 + B站氛围 -->
     <footer class="footer glass">
       <div class="copyright">
-        <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客 
+        <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
         <i class="fas fa-heart" style="color: #FB7299;"></i>
       </div>
       <div class="social-links">
@@ -93,7 +83,7 @@
 
   <!-- 微小交互：模仿哔哩哔哩 logo 浮动 -->
   <script>
-    (function() {
+    (function () {
       // 加一点点趣味：所有卡片点击时小小的反馈 (保持流畅)
       const cards = document.querySelectorAll('.article-card');
       cards.forEach(card => {
@@ -111,82 +101,49 @@
     })();
   </script>
 
-  <!-- 控制侧边栏的打开/关闭 -->
+  <!-- 编写 JavaScript 动态加载函数 -->
   <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const closeBtn = document.getElementById('closeSidebar');
+    // 定义一个异步函数，用于加载文章列表
+    async function loadPosts() {
+      // 1. 显示加载提示（可选）
+      const grid = document.getElementById('post-grid');
+      grid.innerHTML = '<p style="text-align: center; color: #FB7299;">加载中...</p>';
 
-    function openSidebar() {
-      sidebar.classList.add('open');
-      overlay.classList.add('active');
-      document.body.style.overflow = 'hidden'; // 禁止背景滚动
-    }
+      try {
+        // 2. 调用我们创建的 API 接口
+        const response = await fetch('/api/posts');
 
-    function closeSidebar() {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('active');
-      document.body.style.overflow = ''; // 恢复滚动
-    }
-
-    sidebarToggle.addEventListener('click', openSidebar);
-    closeBtn.addEventListener('click', closeSidebar);
-    overlay.addEventListener('click', closeSidebar);
-
-    // 可选：按 ESC 键关闭侧边栏
-    window.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && sidebar.classList.contains('open')) {
-        closeSidebar();
-      }
-    });
-  });
-  </script>
-
-<!-- 编写 JavaScript 动态加载函数 -->
-  <script>
-  // 定义一个异步函数，用于加载文章列表
-  async function loadPosts() {
-    // 1. 显示加载提示（可选）
-    const grid = document.getElementById('post-grid');
-    grid.innerHTML = '<p style="text-align: center; color: #FB7299;">加载中...</p>';
-
-    try {
-      // 2. 调用我们创建的 API 接口
-      const response = await fetch('/api/posts');
-      
-      // 3. 检查响应是否成功
-      if (!response.ok) {
-        throw new Error('网络响应错误');
-      }
-
-      // 4. 解析返回的 JSON 数据
-      const posts = await response.json();
-      
-      // 5. 清空容器，准备填充新卡片
-      grid.innerHTML = '';
-
-      // 6. 遍历每一篇文章，生成卡片 HTML
-      posts.forEach(post => {
-        // 格式化日期：从 "2025-02-18T12:34:56Z" 转为 "2025-02-18"
-        const date = new Date(post.updated_at);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');  // 月份补零
-        const day = String(date.getDate()).padStart(2, '0');         // 日期补零
-        const formattedDate = `${year}-${month}-${day}`;
-
-        // 处理标签：假设数据库里 tags 是逗号分隔的字符串，如 "教程,Cloudflare,前端"
-        let tagsHtml = '';
-        if (post.tags) {
-          const tagsArray = post.tags.split(',');  // 拆分成数组
-          tagsHtml = tagsArray.map(tag => 
-            `<span class="tag">#${tag.trim()}</span>`  // 每个标签生成一个 <span>
-          ).join('');  // 合并成字符串
+        // 3. 检查响应是否成功
+        if (!response.ok) {
+          throw new Error('网络响应错误');
         }
 
-        // 生成整张卡片的 HTML
-      const card = `
+        // 4. 解析返回的 JSON 数据
+        const posts = await response.json();
+
+        // 5. 清空容器，准备填充新卡片
+        grid.innerHTML = '';
+
+        // 6. 遍历每一篇文章，生成卡片 HTML
+        posts.forEach(post => {
+          // 格式化日期：从 "2025-02-18T12:34:56Z" 转为 "2025-02-18"
+          const date = new Date(post.updated_at);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');  // 月份补零
+          const day = String(date.getDate()).padStart(2, '0');         // 日期补零
+          const formattedDate = `${year}-${month}-${day}`;
+
+          // 处理标签：假设数据库里 tags 是逗号分隔的字符串，如 "教程,Cloudflare,前端"
+          let tagsHtml = '';
+          if (post.tags) {
+            const tagsArray = post.tags.split(',');  // 拆分成数组
+            tagsHtml = tagsArray.map(tag =>
+              `<span class="tag">#${tag.trim()}</span>`  // 每个标签生成一个 <span>
+            ).join('');  // 合并成字符串
+          }
+
+          // 生成整张卡片的 HTML
+          const card = `
         <article class="article-card glass">
             <div class="card-meta">
                 <span class="card-date"><i class="far fa-calendar"></i> ${formattedDate}</span>
@@ -202,45 +159,46 @@
         </article>
         `;
 
-        // 将这张卡片的 HTML 添加到容器中
-        grid.innerHTML += card;
-      });
-    } catch (error) {
-      // 7. 如果出错了，显示错误信息
-      console.error('加载文章失败:', error);
-      grid.innerHTML = '<p style="text-align: center; color: red;">文章加载失败，请稍后重试。</p>';
+          // 将这张卡片的 HTML 添加到容器中
+          grid.innerHTML += card;
+        });
+      } catch (error) {
+        // 7. 如果出错了，显示错误信息
+        console.error('加载文章失败:', error);
+        grid.innerHTML = '<p style="text-align: center; color: red;">文章加载失败，请稍后重试。</p>';
+      }
     }
-  }
 
-  // 8. 当页面 DOM 加载完成后，执行 loadPosts 函数
-  document.addEventListener('DOMContentLoaded', loadPosts);
-    
-    
+    // 8. 当页面 DOM 加载完成后，执行 loadPosts 函数
+    document.addEventListener('DOMContentLoaded', loadPosts);
+
+
     // 格式化数字：超过10000显示 x.xw，超过1000显示 x.xk，否则原样
     function formatCount(num) {
-        if (num >= 10000) {
-            return (num / 10000).toFixed(1) + 'w';
-        } else if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'k';
-        } else {
-            return num;
-        }
+      if (num >= 10000) {
+        return (num / 10000).toFixed(1) + 'w';
+      } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'k';
+      } else {
+        return num;
+      }
     }
 
     async function loadStats() {
-        try {
-            const res = await fetch('/api/stats');
-            if (!res.ok) throw new Error('网络错误');
-            const data = await res.json();
-            document.getElementById('totalPosts').textContent = data.postsCount;
-            document.getElementById('totalUsers').textContent = formatCount(data.usersCount);
-        } catch (err) {
-            console.error('加载统计失败:', err);
-            // 可选：保留原静态数字或显示占位符
-        }
+      try {
+        const res = await fetch('/api/stats');
+        if (!res.ok) throw new Error('网络错误');
+        const data = await res.json();
+        document.getElementById('totalPosts').textContent = data.postsCount;
+        document.getElementById('totalUsers').textContent = formatCount(data.usersCount);
+      } catch (err) {
+        console.error('加载统计失败:', err);
+        // 可选：保留原静态数字或显示占位符
+      }
     }
 
     document.addEventListener('DOMContentLoaded', loadStats);
-</script>
+  </script>
 </body>
+
 </html>

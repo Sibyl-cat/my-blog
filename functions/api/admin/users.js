@@ -8,6 +8,12 @@ export async function onRequest(context) {
         return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
 
+<<<<<<< HEAD
+    const { results } = await env.DB.prepare(
+        'SELECT id, username, created_at FROM users ORDER BY id ASC'
+    ).all();
+
+=======
     // 检查是否为 admin
     const { results: userResults } = await env.DB.prepare(
         'SELECT role FROM users WHERE id = ?'
@@ -20,6 +26,7 @@ export async function onRequest(context) {
     const { results } = await env.DB.prepare(
         "SELECT id, username, created_at FROM users WHERE role != 'superadmin' ORDER BY id ASC"
     ).all();
+>>>>>>> 13ec8190b9cdf379ca0a14ec490da7131d115ebe
     return new Response(JSON.stringify(results), {
         headers: { 'Content-Type': 'application/json' }
     });

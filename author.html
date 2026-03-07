@@ -1,62 +1,61 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>作者文章 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="./components.js"></script>
 </head>
+
 <body>
-<div class="blog-container">
-    <!-- 导航栏（与 authors.html 相同） -->
-    <nav class="navbar glass">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="logo" id="sidebarToggle" style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                <i class="fab fa-bilibili" style="color: #FB7299;"></i>
-                <span>小电视の日常</span>
+    <div class="blog-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+
+        <!-- 作者信息卡片（毛玻璃） -->
+        <div class="profile-card glass" id="author-info" style="margin-bottom: 2rem;">
+            <!-- 动态填充作者信息 -->
+        </div>
+
+        <!-- 文章网格标题 -->
+        <h2 class="section-title"><i class="fas fa-pen-fancy" style="color:#FB7299; margin-right: 12px;"></i>他的文章</h2>
+
+        <!-- 文章卡片网格 -->
+        <div class="article-grid" id="post-grid">
+            <!-- 动态加载 -->
+        </div>
+
+        <!-- 页脚（与 authors.html 相同） -->
+        <footer class="footer glass">
+            <div class="copyright">
+                <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
+                <i class="fas fa-heart" style="color: #FB7299;"></i>
             </div>
-        </div>
-    </nav>
 
-    <!-- 作者信息卡片（毛玻璃） -->
-    <div class="profile-card glass" id="author-info" style="margin-bottom: 2rem;">
-        <!-- 动态填充作者信息 -->
+        </footer>
     </div>
 
-    <!-- 文章网格标题 -->
-    <h2 class="section-title"><i class="fas fa-pen-fancy" style="color:#FB7299; margin-right: 12px;"></i>他的文章</h2>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const authorName = urlParams.get('name');
+        if (!authorName) {
+            window.location.href = 'authors.html';
+        }
 
-    <!-- 文章卡片网格 -->
-    <div class="article-grid" id="post-grid">
-        <!-- 动态加载 -->
-    </div>
+        async function loadAuthorAndPosts() {
+            try {
+                // 获取该作者的文章
+                const postsRes = await fetch(`/api/author/${encodeURIComponent(authorName)}`);
+                const posts = await postsRes.json();
 
-    <!-- 页脚（与 authors.html 相同） -->
-   <footer class="footer glass">
-        <div class="copyright">
-            <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
-            <i class="fas fa-heart" style="color: #FB7299;"></i>
-        </div>
-        
-    </footer>
-</div>
-
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorName = urlParams.get('name');
-    if (!authorName) {
-        window.location.href = 'authors.html';
-    }
-
-    async function loadAuthorAndPosts() {
-        try {
-            // 获取该作者的文章
-            const postsRes = await fetch(`/api/author/${encodeURIComponent(authorName)}`);
-            const posts = await postsRes.json();
-
-            // 显示作者信息（简单处理，因为没有作者详情 API，我们可复用 posts 中的作者名）
-            document.getElementById('author-info').innerHTML = `
+                // 显示作者信息（简单处理，因为没有作者详情 API，我们可复用 posts 中的作者名）
+                document.getElementById('author-info').innerHTML = `
                 <div class="author-info-container">
                     <div class="author-info-avatar">
                         <i class="fas fa-user-circle"></i>
@@ -68,19 +67,19 @@
              </div>
 `;
 
-            // 渲染文章卡片
-            const grid = document.getElementById('post-grid');
-            if (posts.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; color: #666;">该作者暂无文章</p>';
-                return;
-            }
+                // 渲染文章卡片
+                const grid = document.getElementById('post-grid');
+                if (posts.length === 0) {
+                    grid.innerHTML = '<p style="text-align: center; color: #666;">该作者暂无文章</p>';
+                    return;
+                }
 
-            let html = '';
-            posts.forEach(post => {
-                const date = new Date(post.updated_at);
-                const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-                const tags = post.tags ? post.tags.split(',').map(t => `<span class="tag">#${t.trim()}</span>`).join('') : '';
-                html += `
+                let html = '';
+                posts.forEach(post => {
+                    const date = new Date(post.updated_at);
+                    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                    const tags = post.tags ? post.tags.split(',').map(t => `<span class="tag">#${t.trim()}</span>`).join('') : '';
+                    html += `
                     <article class="article-card glass">
                         <div class="card-meta">
                             <span><i class="far fa-calendar"></i> ${formattedDate}</span>
@@ -92,15 +91,45 @@
                         <div class="card-tags">${tags}</div>
                     </article>
                 `;
-            });
-            grid.innerHTML = html;
-        } catch (err) {
-            console.error('加载失败:', err);
-            document.getElementById('author-info').innerHTML = '<p style="color: red;">加载失败</p>';
+                });
+                grid.innerHTML = html;
+            } catch (err) {
+                console.error('加载失败:', err);
+                document.getElementById('author-info').innerHTML = '<p style="color: red;">加载失败</p>';
+            }
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', loadAuthorAndPosts);
-</script>
+        document.addEventListener('DOMContentLoaded', loadAuthorAndPosts);
+
+        // 侧边栏逻辑
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const closeBtn = document.getElementById('closeSidebar');
+
+            if (sidebarToggle && sidebar && overlay && closeBtn) {
+                function openSidebar() {
+                    sidebar.classList.add('open');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeSidebar() {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                sidebarToggle.addEventListener('click', openSidebar);
+                closeBtn.addEventListener('click', closeSidebar);
+                overlay.addEventListener('click', closeSidebar);
+                window.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

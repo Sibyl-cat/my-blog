@@ -1,80 +1,81 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌼文章 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="./components.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body>
-<div class="blog-container">
-    <!-- 导航栏（与 index.html 中的导航栏代码保持一致） -->
-    <nav class="navbar glass" style="background: rgba(255,255,240,0.2);">
-      <div class="logo">
-        <i class="fab fa-bilibili"></i>
-        <span>小电视の日常</span>
-      </div>
-    </nav>>
 
-    <!-- 文章详情容器（初始为空） -->
-    <div class="profile-card glass" id="post-container" style="flex-direction: column; align-items: flex-start;">
-        <!-- 动态填充文章内容 -->
+<body>
+    <div class="blog-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+
+        <!-- 文章详情容器（初始为空） -->
+        <div class="profile-card glass" id="post-container" style="flex-direction: column; align-items: flex-start;">
+            <!-- 动态填充文章内容 -->
+        </div>
+
+        <!-- 页脚（与 index.html 中的页脚代码保持一致 -->
+        <footer class="footer glass">
+            <div class="copyright">
+                <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
+                <i class="fas fa-heart" style="color: #FB7299;"></i>
+            </div>
+        </footer>
     </div>
 
-    <!-- 页脚（与 index.html 中的页脚代码保持一致 -->
-    <footer class="footer glass">
-        <div class="copyright">
-            <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
-            <i class="fas fa-heart" style="color: #FB7299;"></i>
-        </div>
-    </footer>
-</div>
+    <script>
+        async function loadPost() {
 
-<script>
-    async function loadPost() {
-        
-        const container = document.getElementById('post-container');
-        if (!container) return;
+            const container = document.getElementById('post-container');
+            if (!container) return;
 
-        // 从 URL 获取 slug 参数
-        const urlParams = new URLSearchParams(window.location.search);
-        const slug = urlParams.get('slug');
+            // 从 URL 获取 slug 参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('slug');
 
-        if (!slug) {
-            container.innerHTML = '<p style="color: red; text-align: center;">文章不存在</p>';
-            return;
-        }
+            if (!slug) {
+                container.innerHTML = '<p style="color: red; text-align: center;">文章不存在</p>';
+                return;
+            }
 
-        try {
-            const response = await fetch(`/api/post/${slug}`);
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('文章不存在');
-                } else {
-                    throw new Error(`加载失败 (${response.status})`);
+            try {
+                const response = await fetch(`/api/post/${slug}`);
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('文章不存在');
+                    } else {
+                        throw new Error(`加载失败 (${response.status})`);
+                    }
                 }
-            }
-            const post = await response.json();
+                const post = await response.json();
 
-            // 格式化日期
-            const date = new Date(post.updated_at);
-            const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+                // 格式化日期
+                const date = new Date(post.updated_at);
+                const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-            // 处理标签
-            let tagsHtml = '';
-            if (post.tags) {
-                tagsHtml = post.tags.split(',').map(tag => `#${tag.trim()}`).join(' · ');
-            }
+                // 处理标签
+                let tagsHtml = '';
+                if (post.tags) {
+                    tagsHtml = post.tags.split(',').map(tag => `#${tag.trim()}`).join(' · ');
+                }
 
-            // 判断内容格式：如果去除空格后以 < 开头且包含 >，则视为 HTML，否则按 Markdown 渲染
-            const trimmed = (post.content || '').trim();
-            const isLikelyHTML = trimmed.startsWith('<') && trimmed.includes('>');
-            const renderedContent = isLikelyHTML ? trimmed : marked.parse(trimmed);
+                // 判断内容格式：如果去除空格后以 < 开头且包含 >，则视为 HTML，否则按 Markdown 渲染
+                const trimmed = (post.content || '').trim();
+                const isLikelyHTML = trimmed.startsWith('<') && trimmed.includes('>');
+                const renderedContent = isLikelyHTML ? trimmed : marked.parse(trimmed);
 
-            // 渲染文章
-            container.innerHTML = `
+                // 渲染文章
+                container.innerHTML = `
                 <h1 style="font-size: 2.5rem; color: #FB7299;">${post.title}</h1>
                 <div class="card-meta" style="margin: 1rem 0; width: 100%;">
                     <span><i class="far fa-calendar"></i> ${formattedDate}</span>
@@ -85,26 +86,16 @@
                 </div>
                 <a href="index.html" class="load-more" style="margin: 2rem 0; align-self: center;">← 返回首页</a>
             `;
-        } catch (error) {
-            console.error(error);
-            container.innerHTML = `<p style="color: red; text-align: center;">${error.message}</p>`;
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<p style="color: red; text-align: center;">${error.message}</p>`;
+            }
         }
-    }
 
-    // 返回上一页：点击导航栏左侧的“小电视の日常”区域
-document.addEventListener('DOMContentLoaded', function() {
-    const logo = document.querySelector('.logo');
-    if (logo) {
-        logo.addEventListener('click', function(e) {
-            e.preventDefault();          // 防止可能存在的默认跳转
-            window.history.back();       // 返回上一页
-        });
-    }
-});
+        // 确保 DOM 加载完成后执行
+        document.addEventListener('DOMContentLoaded', loadPost);
 
-    // 确保 DOM 加载完成后执行
-    document.addEventListener('DOMContentLoaded', loadPost);
-    
-</script>
+    </script>
 </body>
+
 </html>

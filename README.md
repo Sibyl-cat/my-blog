@@ -29,6 +29,8 @@
 ├── post.html                # 文章详情页，使用 marked 渲染 Markdown
 ├── authors.html             # 作者列表页，显示所有注册作者
 ├── author.html              # 单个作者的文章列表页
+├── tags.html                # 标签云页面，显示按人气排序的标签
+├── tag.html                 # 标签分类页，显示特定标签下的文章
 ├── admin.html               # 管理后台首页（仅 admin 可访问）
 ├── users.html               # 用户管理页面（仅 admin 可访问）
 ├── register.html            # 公开注册页面，包含 Turnstile 验证码
@@ -63,6 +65,7 @@
 │           ├── update.js    # 修改用户密码（仅 admin）
 │           └── delete.js    # 删除用户（仅 admin，禁止删除自己）
 ├── style.css                # 全局样式（毛玻璃、响应式、主色调）
+├── components.js            # 独立的 Web Components 模块（侧边栏、精简导航栏）
 ├── schema.sql               # 数据库建表语句（users, sessions, posts）
 └── README.md                # 本文档
 ```

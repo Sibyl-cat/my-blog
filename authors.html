@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>作者 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="./components.js"></script>
     <style>
         /* 针对作者页的额外微调 */
         .author-card {
@@ -13,9 +15,11 @@
             text-align: center;
             transition: all 0.3s ease;
         }
+
         .author-card:hover {
             transform: translateY(-8px) scale(1.02);
         }
+
         .author-avatar {
             width: 120px;
             height: 120px;
@@ -27,24 +31,29 @@
             justify-content: center;
             border: 3px solid rgba(251, 114, 153, 0.5);
         }
+
         .author-avatar i {
             font-size: 4rem;
             color: #FB7299;
         }
+
         .author-name {
             font-size: 2rem;
             font-weight: 600;
             color: #FB7299;
             margin-bottom: 0.5rem;
         }
+
         .author-stats {
             font-size: 1.1rem;
             color: #555;
         }
+
         .author-stats i {
             color: #FB7299;
             margin-right: 0.3rem;
         }
+
         /* 网格布局与主页保持一致 */
         .authors-grid {
             display: grid;
@@ -54,50 +63,46 @@
         }
     </style>
 </head>
+
 <body>
-<div class="blog-container">
-    <!-- 导航栏（直接复制 index.html 中的导航栏，注意链接） -->
-    <nav class="navbar glass">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="logo" id="sidebarToggle" style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-                <i class="fab fa-bilibili" style="color: #FB7299;"></i>
-                <span>小电视の日常</span>
-            </div>
+    <div class="blog-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+
+        <!-- 页面标题 -->
+        <h2 class="section-title"><i class="fas fa-users" style="color:#FB7299; margin-right: 12px;"></i>所有作者</h2>
+
+        <!-- 作者卡片网格 -->
+        <div class="authors-grid" id="authors-grid">
+            <!-- 动态加载 -->
         </div>
-        
-    </nav>
 
-    <!-- 页面标题 -->
-    <h2 class="section-title"><i class="fas fa-users" style="color:#FB7299; margin-right: 12px;"></i>所有作者</h2>
+        <!-- 页脚（复制 index.html 的页脚） -->
+        <footer class="footer glass">
+            <div class="copyright">
+                <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
+                <i class="fas fa-heart" style="color: #FB7299;"></i>
+            </div>
 
-    <!-- 作者卡片网格 -->
-    <div class="authors-grid" id="authors-grid">
-        <!-- 动态加载 -->
+        </footer>
     </div>
 
-    <!-- 页脚（复制 index.html 的页脚） -->
-    <footer class="footer glass">
-        <div class="copyright">
-            <i class="fas fa-copyright"></i> 2025 小电视の日常 · 粉系毛玻璃博客
-            <i class="fas fa-heart" style="color: #FB7299;"></i>
-        </div>
-        
-    </footer>
-</div>
-
-<script>
-    async function loadAuthors() {
-        try {
-            const res = await fetch('/api/authors');
-            const authors = await res.json();
-            const grid = document.getElementById('authors-grid');
-            if (authors.length === 0) {
-                grid.innerHTML = '<p style="text-align: center; color: #666;">暂无作者</p>';
-                return;
-            }
-            let html = '';
-            authors.forEach(author => {
-                html += `
+    <script>
+        async function loadAuthors() {
+            try {
+                const res = await fetch('/api/authors');
+                const authors = await res.json();
+                const grid = document.getElementById('authors-grid');
+                if (authors.length === 0) {
+                    grid.innerHTML = '<p style="text-align: center; color: #666;">暂无作者</p>';
+                    return;
+                }
+                let html = '';
+                authors.forEach(author => {
+                    html += `
                     <div class="author-card glass">
                         <div class="author-avatar">
                             <i class="fas fa-user-circle"></i>
@@ -109,15 +114,44 @@
                         <a href="author.html?name=${encodeURIComponent(author.username)}" style="display: inline-block; margin-top: 1rem; padding: 0.5rem 1.5rem; background: rgba(251,114,153,0.2); border-radius: 30px; color: #FB7299; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.background='#FB7299'; this.style.color='white';" onmouseout="this.style.background='rgba(251,114,153,0.2)'; this.style.color='#FB7299';">查看文章</a>
                     </div>
                 `;
-            });
-            grid.innerHTML = html;
-        } catch (err) {
-            console.error('加载作者失败:', err);
-            document.getElementById('authors-grid').innerHTML = '<p style="color: red;">加载失败</p>';
+                });
+                grid.innerHTML = html;
+            } catch (err) {
+                console.error('加载作者失败:', err);
+                document.getElementById('authors-grid').innerHTML = '<p style="color: red;">加载失败</p>';
+            }
         }
-    }
-    document.addEventListener('DOMContentLoaded', loadAuthors);
-</script>
-<!-- 侧边栏相关 JS（如果使用）可以保留，但注意不要重复 -->
+        document.addEventListener('DOMContentLoaded', loadAuthors);
+
+        // 侧边栏逻辑
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const closeBtn = document.getElementById('closeSidebar');
+
+            if (sidebarToggle && sidebar && overlay && closeBtn) {
+                function openSidebar() {
+                    sidebar.classList.add('open');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeSidebar() {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+                sidebarToggle.addEventListener('click', openSidebar);
+                closeBtn.addEventListener('click', closeSidebar);
+                overlay.addEventListener('click', closeSidebar);
+                window.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

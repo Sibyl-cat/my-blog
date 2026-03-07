@@ -11,6 +11,8 @@ export async function onRequest(context) {
     if (!userId) {
         return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
+<<<<<<< HEAD
+=======
     // 检查是否为 admin
     const { results: userResults } = await env.DB.prepare(
         'SELECT role FROM users WHERE id = ?'
@@ -18,6 +20,7 @@ export async function onRequest(context) {
     if (userResults[0]?.role !== 'admin') {
         return new Response(JSON.stringify({ error: '无权访问' }), { status: 403 });
     }
+>>>>>>> 13ec8190b9cdf379ca0a14ec490da7131d115ebe
 
     try {
         const { id } = await request.json();
