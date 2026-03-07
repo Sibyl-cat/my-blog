@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>站点维护中 · 小电视の日常</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #ffe9f0, #ffd9e5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid rgba(251, 114, 153, 0.3);
+            box-shadow: 0 12px 28px rgba(251, 114, 153, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #FB7299;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .timer {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #FB7299;
+            margin: 1rem 0;
+        }
+        .quote {
+            font-style: italic;
+            color: #444;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: rgba(255,255,255,0.3);
+            border-radius: 20px;
+        }
+        .login-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #FB7299;
+            font-size: 1.2rem;
+            border: 1px solid rgba(251,114,153,0.3);
+            transition: all 0.2s;
+        }
+        .login-trigger:hover {
+            background: #FB7299;
+            color: white;
+        }
+        .login-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 300px;
+        }
+        .login-popup.show {
+            display: block;
+        }
+        .login-popup input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 1px solid rgba(251,114,153,0.3);
+            border-radius: 30px;
+            background: rgba(255,255,255,0.8);
+        }
+        .login-popup button {
+            width: 100%;
+            padding: 0.8rem;
+            background: #FB7299;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            z-index: 999;
+        }
+        .overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <h1>🔧 站点维护中</h1>
+        <p class="subtitle">我们正在努力修复，稍后将恢复访问</p>
+        <div class="timer" id="timer">00:00:00</div>
+        <div class="quote" id="quote">加载一言中...</div>
+        <p style="color:#aaa; font-size:0.9rem;">—— 小电视の日常</p>
+    </div>
+
+    <!-- 隐藏登录触发器 -->
+    <div class="login-trigger" id="loginTrigger">
+        <i class="fas fa-tools"></i>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 登录弹窗 -->
+    <div class="login-popup" id="loginPopup">
+        <h3 style="color:#FB7299; margin-bottom:1rem;">管理员登录</h3>
+        <input type="text" id="username" placeholder="用户名">
+        <input type="password" id="password" placeholder="密码">
+        <button id="loginBtn">登录</button>
+        <div class="error-message" id="loginError"></div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/yourkitid.js" crossorigin="anonymous"></script>
+    <!-- 如果没有 Font Awesome 密钥，可以使用 CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+
+    <script>
+        // 计时器
+        function updateTimer(startTime) {
+            const now = Math.floor(Date.now() / 1000); // 当前秒数
+            const elapsed = now - startTime;
+            if (elapsed < 0) return "00:00:00";
+            const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0');
+            const minutes = Math.floor((elapsed % 3600) / 60).toString().padStart(2, '0');
+            const seconds = (elapsed % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // 获取修复开始时间（从环境变量或服务器API获取）
+        async function getStartTime() {
+            try {
+                const res = await fetch('/api/repair-time'); // 可选API，返回 { startTime: 1234567890 }
+                const data = await res.json();
+                return data.startTime;
+            } catch (e) {
+                // 如果API不可用，使用当前时间（假设修复刚开始）
+                return Math.floor(Date.now() / 1000);
+            }
+        }
+
+        (async function() {
+            const startTime = await getStartTime();
+            setInterval(() => updateTimer(startTime), 1000);
+        })();
+
+        // 每日一言（使用免费API）
+        fetch('https://v1.hitokoto.cn/')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('quote').textContent = data.hitokoto || '世界很小，请带着梦想一起奔跑。';
+            })
+            .catch(() => {
+                document.getElementById('quote').textContent = '世界很小，请带着梦想一起奔跑。';
+            });
+
+        // 登录弹窗控制
+        const trigger = document.getElementById('loginTrigger');
+        const popup = document.getElementById('loginPopup');
+        const overlay = document.getElementById('overlay');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        function showLogin() {
+            popup.classList.add('show');
+            overlay.classList.add('show');
+        }
+
+        function hideLogin() {
+            popup.classList.remove('show');
+            overlay.classList.remove('show');
+            loginError.textContent = '';
+        }
+
+        trigger.addEventListener('click', showLogin);
+        overlay.addEventListener('click', hideLogin);
+
+        loginBtn.addEventListener('click', async () => {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                loginError.textContent = '请输入用户名和密码';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/maintenance-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    // 登录成功，刷新页面（中间件将允许访问主页）
+                    window.location.href = '/';
+                } else {
+                    loginError.textContent = data.error || '登录失败';
+                }
+            } catch (err) {
+                loginError.textContent = '网络错误';
+            }
+        });
+    </script>
+</body>
+</html>
