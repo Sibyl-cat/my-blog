@@ -1,5 +1,5 @@
 // /functions/api/maintenance-login.js
-import { hashPassword } from '../utils/auth'; // 假设 hashPassword 用于验证，实际上验证密码需要 verifyPassword，这里需要导入 verifyPassword
+import { verifyPassword } from './utils/auth'; // 假设 hashPassword 用于验证，实际上验证密码需要 verifyPassword，这里需要导入 verifyPassword
 // 通常 auth.js 中应包含 verifyPassword 函数，我们假设已存在
 
 export async function onRequest(context) {
