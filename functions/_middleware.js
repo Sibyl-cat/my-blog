@@ -4,26 +4,37 @@ export async function onRequest(context) {
     const url = new URL(request.url);
     const path = url.pathname;
 
-    // ========== 修复模式检查（优先级最高） ==========
-    const maintenanceMode = env.MAINTENANCE_MODE === 'on';
+    // ========== 1. 读取修复模式状态（从数据库） ==========
+    let maintenanceMode = false;
+    try {
+        const modeResult = await env.DB.prepare(
+            'SELECT value FROM site_config WHERE key = ?'
+        ).bind('maintenance_mode').first();
+        maintenanceMode = modeResult?.value === 'on';
+    } catch (e) {
+        // 如果数据库查询失败，记录错误但继续（默认不开启维护模式）
+        console.error('读取修复模式状态失败:', e);
+    }
+
+    // ========== 2. 修复模式处理（优先级最高） ==========
     if (maintenanceMode) {
-        // 放行修复页面本身和静态资源
-        const isStaticAsset = 
-            path === '/maintenance.html' ||
-            path.startsWith('/images/') ||
-            path.startsWith('/css/') ||
-            path.startsWith('/js/') ||
-            path.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?|ttf|eot)$/i);
-        if (isStaticAsset) {
+        // 放行静态资源和修复模式相关页面/API
+        const isAllowedPath = (
+            path === '/maintenance.html' ||                     // 修复页面本身
+            path.startsWith('/images/') ||                       // 图片资源
+            path.startsWith('/css/') ||                          // CSS 资源
+            path.startsWith('/js/') ||                           // JS 资源
+            path.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?|ttf|eot)$/i) || // 常见静态文件
+            path === '/api/maintenance-login' ||                 // 修复模式专用登录 API
+            path === '/api/repair-time' ||                       // 修复模式计时 API
+            path.startsWith('/api/admin/maintenance/')           // 管理员切换修复模式的 API
+        );
+
+        if (isAllowedPath) {
             return await next();
         }
 
-        // 放行修复模式专用登录 API
-        if (path === '/api/maintenance-login' || path === '/api/repair-time') {
-            return await next();
-        }
-
-        // 检查用户是否已登录且为 admin（复用现有会话）
+        // 检查当前用户是否为管理员（通过会话）
         const cookieHeader = request.headers.get('Cookie') || '';
         const cookies = Object.fromEntries(
             cookieHeader.split('; ').map(c => {
@@ -38,8 +49,8 @@ export async function onRequest(context) {
                 const { results } = await env.DB.prepare(
                     'SELECT role FROM sessions WHERE id = ? AND expires_at > ?'
                 ).bind(sessionId, new Date().toISOString()).all();
-                if (results.length > 0 && results[0].role === 'admin') {
-                    // 管理员登录，放行（允许访问所有页面）
+                if (results.length > 0 && (results[0].role === 'admin' || results[0].role === 'superadmin')) {
+                    // 管理员放行，可以正常访问网站
                     return await next();
                 }
             } catch (e) {
@@ -47,14 +58,14 @@ export async function onRequest(context) {
             }
         }
 
-        // 其他所有请求重定向到修复页面
+        // 非管理员且非放行路径，重定向到修复页面
         return new Response(null, {
             status: 302,
             headers: { Location: '/maintenance.html' }
         });
     }
 
-    // ========== 以下为原有页面保护逻辑 ==========
+    // ========== 3. 原有页面保护逻辑（仅在修复模式关闭时执行） ==========
     // 放行登录页和注册页（无需任何检查）
     if (path === '/admin/login.html' || 
         path === '/admin/login' || 
@@ -75,7 +86,7 @@ export async function onRequest(context) {
         return await next();
     }
 
-    // ----- 以下为登录检查 -----
+    // ----- 登录检查 -----
     const cookieHeader = request.headers.get('Cookie') || '';
     const cookies = Object.fromEntries(
         cookieHeader.split('; ').map(c => {
