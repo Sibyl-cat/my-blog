@@ -113,7 +113,6 @@ body::before {
   display: flex;
   gap: 2.5rem;
   align-items: center;
-  margin-left: auto;
 }
 
 .nav-links a {

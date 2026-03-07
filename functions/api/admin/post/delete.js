@@ -1,4 +1,3 @@
-// /functions/api/admin/post/delete.js
 import { getCurrentUserId } from '../../utils/auth';
 
 export async function onRequest(context) {
@@ -13,25 +12,21 @@ export async function onRequest(context) {
         return new Response(JSON.stringify({ error: '未登录' }), { status: 401 });
     }
 
-    let role;
+    // 获取当前用户角色
+    const { results: userResults } = await env.DB.prepare(
+        'SELECT role FROM users WHERE id = ?'
+    ).bind(userId).all();
+    const role = userResults[0]?.role;
+
     try {
-        // 获取当前用户角色
-        const { results: userResults } = await env.DB.prepare(
-            'SELECT role FROM users WHERE id = ?'
-        ).bind(userId).all();
-
-        if (userResults.length === 0) {
-            return new Response(JSON.stringify({ error: '用户不存在' }), { status: 404 });
-        }
-        role = userResults[0].role;
-
         const formData = await request.formData();
         const slug = formData.get('slug');
 
         if (!slug) {
-            return new Response(JSON.stringify({ error: 'slug 不能为空' }), { status: 400 });
+            return new Response(JSON.stringify({ error: 'slug不能为空' }), { status: 400 });
         }
 
+        // 查询文章作者
         const { results } = await env.DB.prepare(
             'SELECT author_id FROM posts WHERE slug = ?'
         ).bind(slug).all();
@@ -41,8 +36,9 @@ export async function onRequest(context) {
         }
 
         const authorId = results[0].author_id;
-        // 允许 superadmin 或作者本人删除
-        if (role !== 'superadmin' && authorId !== userId) {
+
+        // 权限判断：superadmin 和 admin 可以删除任何文章，作者本人可以删除自己的文章
+        if (role !== 'superadmin' && role !== 'admin' && authorId !== userId) {
             return new Response(JSON.stringify({ error: '无权删除他人文章' }), { status: 403 });
         }
 
