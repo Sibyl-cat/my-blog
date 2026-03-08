@@ -55,6 +55,83 @@
             font-size: 1rem;
             color: #FB7299;
         }
+        /* 贡献者卡片 */
+        .contributor-card {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 32px;
+            border: 1px solid rgba(251,114,153,0.3);
+            transition: all 0.2s;
+        }
+        .contributor-card:hover {
+            border-color: #FB7299;
+            box-shadow: 0 8px 20px rgba(251,114,153,0.15);
+        }
+        .contributor-avatar {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            border: 3px solid #FB7299;
+            overflow: hidden;
+            background: rgba(251,114,153,0.1);
+        }
+        .contributor-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .contributor-avatar i {
+            font-size: 5rem;
+            color: #FB7299;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .contributor-info {
+            flex: 1;
+        }
+        .contributor-name {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #FB7299;
+            margin-bottom: 0.3rem;
+        }
+        .contributor-role {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 0.8rem;
+        }
+        .contributor-social {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .contributor-social a {
+            color: #FB7299;
+            font-size: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .contributor-social a:hover {
+            transform: scale(1.2);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .contributor-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            .contributor-social {
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -87,6 +164,24 @@
             </div>
         </div>
 
+
+        <!-- 贡献者卡片 -->
+        <div class="about-section">
+            <h3>🤝 贡献者</h3>
+            <div class="contributor-card glass">
+                <div class="contributor-avatar">
+                    <!-- 如果有真实头像，用 <img src="images/contributor.jpg" alt="张三"> 替换图标 -->
+                    <i class="fas fa-user-ninja"></i>
+                </div>
+                <div class="contributor-info">
+                    <div class="contributor-name">Sunny081209</div>
+                    <div class="contributor-role">前端优化 · 样式贡献者</div>
+                    <div class="contributor-social">
+                        <a href="https://github.com/Sunny090623" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="https://space.bilibili.com/691968295" target="_blank" title="B站"><i class="fab fa-bilibili"></i></a>
+                    </div>
+                </div>
+            </div>
         <!-- 建站历程 -->
         <div class="about-section">
             <h3>📅 建站历程</h3>
@@ -118,9 +213,8 @@
         <div class="about-section">
             <h3>📬 联系我</h3>
             <div class="contact-icons">
-                <a href="https://space.bilibili.com/349993104" target="_blank" title="B站"><i class="fab fa-bilibili"></i></a>
                 <a href="https://github.com/Sibyl-cat" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
-                <a href="mailto:sibyl@example.com" title="Email"><i class="fas fa-envelope"></i></a>
+                <a href="1703023351@qq.com" title="Email"><i class="fas fa-envelope"></i></a>
                 <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
             </div>
             <p style="text-align: center; margin-top: 1rem;">或直接在博客留言，每条都会看～</p>
