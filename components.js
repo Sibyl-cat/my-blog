@@ -16,6 +16,7 @@ class BlogSidebar extends HTMLElement {
                 <li><a href="./register.html"><i class="fas fa-user-plus"></i> 注册</a></li>
                 <li><a href="./tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a></li>
                 <li><a href="./admin.html"><i class="fa-solid fa-blog"></i> 管理</a></li>
+                <li><a href="./about.html"><i class="fas fa-code"></i> 关于</a></li>
             </ul>
             <div class="sidebar-footer">
                 <p>© 2025 小电视の日常</p>
