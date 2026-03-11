@@ -359,55 +359,6 @@
                 </button>
             </div>
         </div>
-
-        <!-- 右侧：编辑表单 -->
-        <div class="panel">
-            <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-edit"></i> 编辑文章</h2>
-            <form id="post-form">
-                <!-- 隐藏的 slug 字段，用于表单提交 -->
-                <input type="hidden" id="slug" name="slug" value="">
-
-                <!-- 标题 -->
-                <div class="form-group">
-                    <label>标题</label>
-                    <input type="text" id="title" name="title" placeholder="文章标题" required>
-                </div>
-
-                <!-- 标签输入 + 推荐按钮 -->
-                <div class="form-group">
-                    <label>标签 (逗号分隔)</label>
-                    <input type="text" id="tags" name="tags" placeholder="教程,Cloudflare,前端">
-                </div>
-
-                <!-- 推荐标签区域 -->
-                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                    <button type="button" id="suggestTagsBtn" class="btn">✨ 推荐</button>
-                    <div id="suggested-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1;"></div>
-                </div>
-
-                <!-- 摘要 -->
-                <div class="form-group">
-                    <label>摘要</label>
-                    <textarea id="excerpt" name="excerpt" placeholder="简短介绍..."></textarea>
-                </div>
-
-                <!-- 正文 -->
-                <div class="form-group">
-                    <label>正文 (支持Markdown / HTML)</label>
-                    <textarea id="content" name="content" placeholder="<p>文章内容...</p>"></textarea>
-                </div>
-
-                <!-- 按钮组 -->
-                <div class="action-buttons">
-                    <button type="button" id="newPostBtn" class="btn">新建</button>
-                    <label for="uploadMd" id="uploadLabel" class="btn">上传</label>
-                    <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
-                    <button type="button" id="saveDraftBtn" class="btn">保存</button>
-                    <button type="button" id="publishBtn" class="btn">发表</button>
-                </div>
-                <div id="message" class="message"></div>
-            </form>
-        </div>
     </div>
 
     <script>
@@ -565,11 +516,13 @@
                     // 移除所有 slug 和作者显示，只保留标题
                     const html = `
                         <div class="post-item" data-slug="${post.slug}" data-published="${post.is_published}">
-                            <div style="flex: 1;" onclick="editPost('${post.slug}')">
-                                <span class="title">${post.title}</span>
+                            <div style="flex: 1;">
+                                <a href="editor.html?slug=${post.slug}" style="text-decoration: none; color: inherit;">
+                                    <span class="title">${post.title}</span>
+                                </a>
                             </div>
                             <div class="post-actions">
-                                <button class="btn" onclick="editPost('${post.slug}')">编辑</button>
+                                <a href="editor.html?slug=${post.slug}" class="btn">编辑</a>
                                 <button class="btn btn-danger" onclick="deletePost('${post.slug}')">删除</button>
                             </div>
                         </div>
