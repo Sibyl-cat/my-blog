@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章编辑 · 小电视の日常</title>
+    <!-- 引入 Font Awesome 和 全局样式 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <!-- 引入 Quill 富文本编辑器 -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <style>
+        /* 页面特有样式 */
+        body {
+            background: linear-gradient(145deg, #ffe9f0, #ffd9e5);
+            padding: 1rem;
+        }
+        .editor-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .editor-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 2rem;
+            border: 1px solid rgba(251, 114, 153, 0.3);
+            box-shadow: 0 12px 28px rgba(251, 114, 153, 0.1);
+        }
+        .editor-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .back-btn {
+            color: #FB7299;
+            font-size: 1.5rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .back-btn:hover {
+            transform: translateX(-4px);
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1 1 250px;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2a2a2a;
+            font-weight: 500;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid rgba(251,114,153,0.3);
+            border-radius: 30px;
+            background: rgba(255,255,255,0.5);
+            font-size: 1rem;
+        }
+        /* Quill 编辑器样式调整 */
+        #editor-container {
+            height: 500px; /* 固定高度，可根据需要调整 */
+            margin-bottom: 1rem;
+        }
+        .ql-container {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 0 0 20px 20px;
+            border: 1px solid rgba(251,114,153,0.3) !important;
+        }
+        .ql-toolbar {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px 20px 0 0;
+            border: 1px solid rgba(251,114,153,0.3) !important;
+            border-bottom: none !important;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.7rem 2rem;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(251,114,153,0.3);
+        }
+        .btn-primary {
+            background: #FB7299;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #ff8aa5;
+            transform: scale(1.02);
+        }
+        .btn:hover {
+            background: #FB7299;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .editor-card {
+                padding: 1.5rem;
+            }
+            #editor-container {
+                height: 400px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="editor-container">
+    <!-- 返回按钮和页面标题 -->
+    <div class="editor-card" style="padding: 1rem 2rem;">
+        <div class="editor-header">
+            <a href="admin.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回管理</a>
+            <h2 style="color: #FB7299; margin:0;">📝 编辑文章</h2>
+        </div>
+    </div>
+
+    <!-- 主编辑卡片 -->
+    <div class="editor-card">
+        <!-- 隐藏字段：用于提交 slug -->
+        <input type="hidden" id="slug" name="slug" value="">
+
+        <!-- 标题和标签行 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" id="title" placeholder="文章标题">
+            </div>
+            <div class="form-group">
+                <label>标签 (逗号分隔)</label>
+                <input type="text" id="tags" placeholder="教程,Cloudflare,前端">
+            </div>
+        </div>
+
+        <!-- 摘要 -->
+        <div class="form-group">
+            <label>摘要</label>
+            <textarea id="excerpt" rows="3" placeholder="简短介绍..."></textarea>
+        </div>
+
+        <!-- 富文本编辑器 -->
+        <label>正文</label>
+        <div id="editor-container"></div>
+
+        <!-- 底部按钮组 -->
+        <div class="action-buttons">
+            <button class="btn" id="saveDraftBtn">保存草稿</button>
+            <button class="btn btn-primary" id="publishBtn">发表文章</button>
+        </div>
+        <div id="message" class="message" style="margin-top:1rem;"></div>
+    </div>
+</div>
+
+<script>
+    // ---------- 全局变量 ----------
+    const slugHidden = document.getElementById('slug');
+    const titleInput = document.getElementById('title');
+    const tagsInput = document.getElementById('tags');
+    const excerptInput = document.getElementById('excerpt');
+    const saveDraftBtn = document.getElementById('saveDraftBtn');
+    const publishBtn = document.getElementById('publishBtn');
+    const messageDiv = document.getElementById('message');
+
+    let currentPost = null; // { slug, is_published }
+    let quill;              // Quill 编辑器实例
+
+    // ---------- 工具函数：显示消息 ----------
+    function showMessage(text, type) {
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = 'block';
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    // ---------- 初始化 Quill 编辑器 ----------
+    quill = new Quill('#editor-container', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'script': 'sub'}, { 'script': 'super' }],
+                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                [{ 'size': ['small', false, 'large', 'huge'] }],
+                [{ 'color': [] }, { 'background': [] }],
+                [{ 'align': [] }],
+                ['link', 'image'],
+                ['clean']
+            ]
+        },
+        placeholder: '在这里写文章...'
+    });
+
+    // ---------- 从 URL 获取 slug 参数 ----------
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug');
+
+    // ---------- 如果存在 slug，则加载文章 ----------
+    async function loadPost() {
+        if (!slug) return; // 新建文章，无需加载
+        try {
+            const response = await fetch(`/api/post/${slug}`);
+            if (!response.ok) throw new Error('加载失败');
+            const post = await response.json();
+
+            slugHidden.value = post.slug;
+            titleInput.value = post.title;
+            tagsInput.value = post.tags || '';
+            excerptInput.value = post.excerpt || '';
+            quill.root.innerHTML = post.content || '';
+
+            currentPost = { slug: post.slug, is_published: post.is_published };
+            showMessage('文章已加载', 'success');
+        } catch (error) {
+            showMessage('加载失败', 'error');
+        }
+    }
+
+    // ---------- 清空表单 ----------
+    function clearForm() {
+        slugHidden.value = '';
+        titleInput.value = '';
+        tagsInput.value = '';
+        excerptInput.value = '';
+        quill.root.innerHTML = '';
+        currentPost = null;
+    }
+
+    // ---------- 保存草稿 ----------
+    saveDraftBtn.addEventListener('click', async () => {
+        // 准备表单数据
+        const formData = new FormData();
+        formData.append('slug', slugHidden.value);  // 可能为空
+        formData.append('title', titleInput.value);
+        formData.append('content', quill.root.innerHTML);
+        formData.append('excerpt', excerptInput.value);
+        formData.append('tags', tagsInput.value);
+
+        saveDraftBtn.disabled = true;
+        saveDraftBtn.textContent = '保存中...';
+
+        try {
+            const response = await fetch('/api/admin/post', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage('草稿保存成功', 'success');
+                if (result.slug) {
+                    slugHidden.value = result.slug;
+                    currentPost = { slug: result.slug, is_published: currentPost ? currentPost.is_published : false };
+                }
+            } else {
+                showMessage(result.error || '保存失败', 'error');
+            }
+        } catch (error) {
+            showMessage('保存失败，请重试', 'error');
+        } finally {
+            saveDraftBtn.disabled = false;
+            saveDraftBtn.textContent = '保存草稿';
+        }
+    });
+
+    // ---------- 发表文章 ----------
+    publishBtn.addEventListener('click', async () => {
+        if (!currentPost || !currentPost.slug) {
+            // 如果是新建文章，先保存草稿获得 slug，再发表
+            showMessage('请先保存草稿', 'error');
+            return;
+        }
+        if (currentPost.is_published) {
+            showMessage('文章已发表，无需重复操作', 'error');
+            return;
+        }
+        if (!confirm('确定要发表这篇文章吗？')) return;
+
+        publishBtn.disabled = true;
+        publishBtn.textContent = '发表中...';
+
+        try {
+            const response = await fetch('/api/admin/post/publish', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slug: currentPost.slug })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                showMessage('发表成功', 'success');
+                currentPost.slug = result.newSlug;
+                currentPost.is_published = true;
+                slugHidden.value = result.newSlug;
+                publishBtn.disabled = true;
+                publishBtn.style.opacity = 0.5;
+                publishBtn.title = '文章已发表';
+                // 可选：停留2秒后跳转回管理页
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1500);
+            } else {
+                showMessage(result.error || '发表失败', 'error');
+                publishBtn.disabled = false;
+            }
+        } catch (error) {
+            showMessage('发表失败', 'error');
+            publishBtn.disabled = false;
+        } finally {
+            publishBtn.textContent = '发表文章';
+        }
+    });
+
+    // ---------- 如果已有 slug，加载文章 ----------
+    if (slug) {
+        loadPost();
+    }
+
+    // ---------- 可选：自动保存草稿功能（可忽略） ----------
+    // 如果用户离开页面时未保存，可以提示，但这里不强制。
+</script>
+</body>
+</html>
