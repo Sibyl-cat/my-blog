@@ -79,3 +79,27 @@ export async function getCurrentUserId(request, env) {
     if (results.length === 0) return null;
     return results[0].user_id;
 }
+
+/**
+ * 清理用户会话，只保留最新的 keepCount 个
+ * @param {any} env - 环境变量（含 DB 绑定）
+ * @param {number} userId - 用户 ID
+ * @param {number} keepCount - 保留的会话数，默认 3
+ */
+export async function cleanUserSessions(env, userId, keepCount = 3) {
+    // 查询该用户的所有会话，按 created_at 降序（最新的在前）
+    const { results } = await env.DB.prepare(
+        'SELECT id FROM sessions WHERE user_id = ? ORDER BY created_at DESC'
+    ).bind(userId).all();
+
+    if (results.length > keepCount) {
+        // 需要删除的会话 ID 列表（从第 keepCount 个之后）
+        const toDelete = results.slice(keepCount).map(row => row.id);
+        for (const id of toDelete) {
+            await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(id).run();
+        }
+    }
+}
+
+// 导出所有工具函数
+export { hashPassword, verifyPassword, getCurrentUserId, cleanUserSessions };
