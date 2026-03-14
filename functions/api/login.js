@@ -1,5 +1,5 @@
 // /functions/api/login.js
-import { verifyPassword } from './utils/auth';
+import { verifyPassword, cleanUserSessions } from './utils/auth';
 
 export async function onRequest(context) {
     const { request, env } = context;
@@ -38,11 +38,15 @@ export async function onRequest(context) {
         // 创建会话
         const sessionId = crypto.randomUUID();
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7天有效期
+        const now = new Date().toISOString(); // 用于 created_at
 
-        // 将会话存入数据库（包含用户角色，方便中间件快速判断）
+        // 将会话存入数据库（包含用户角色和创建时间）
         await env.DB.prepare(
-            'INSERT INTO sessions (id, user_id, role, expires_at) VALUES (?, ?, ?, ?)'
-        ).bind(sessionId, user.id, user.role, expiresAt.toISOString()).run();
+            'INSERT INTO sessions (id, user_id, role, expires_at, created_at) VALUES (?, ?, ?, ?, ?)'
+        ).bind(sessionId, user.id, user.role, expiresAt.toISOString(), now).run();
+
+        // 清理多余会话，只保留最新的3个
+        await cleanUserSessions(env, user.id, 3);
 
         // 设置 Cookie
         const headers = new Headers({
