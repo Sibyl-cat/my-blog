@@ -78,6 +78,8 @@ export async function onRequest(context) {
     const isProtectedPage = 
         path === '/admin.html' ||
         path === '/admin' ||                  // 文章管理页
+        path === '/editor.html' || 
+        path === '/editor' || 
         path.startsWith('/admin/') ||          // 其他 admin 子路径
         path === '/users.html' ||              // 用户管理页
         path === '/users';                      // 可能的用户管理页别名
