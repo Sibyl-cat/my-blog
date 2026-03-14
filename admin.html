@@ -284,57 +284,59 @@
     </style>
 </head>
 <body>
-    <!-- 二级页面组件化导航栏 -->
-    <blog-navbar-secondary></blog-navbar-secondary>
-
-    <!-- 全局侧边栏组件 -->
-    <blog-sidebar></blog-sidebar>
-    <div class="admin-container">    
-        <!-- 左侧：文章列表 -->
-        <div class="panel left-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h2 style="margin-bottom: 0;"><i class="fas fa-list"></i> 文章列表</h2>
-                <a href="/users.html" class="btn btn-user" id="userManagementBtn" style="display: none;">
-                    <i class="fas fa-users"></i> 用户管理
-                </a>
+    <div class="blog-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+    
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+        <div class="admin-container">    
+            <!-- 左侧：文章列表 -->
+            <div class="panel left-panel">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h2 style="margin-bottom: 0;"><i class="fas fa-list"></i> 文章列表</h2>
+                    <a href="/users.html" class="btn btn-user" id="userManagementBtn" style="display: none;">
+                        <i class="fas fa-users"></i> 用户管理
+                    </a>
+                </div>
+    
+                <!-- 作者问候语 -->
+                <div class="welcome-message glass">
+                    <i class="fas fa-user-circle"></i> 你好，<span id="username">加载中...</span>！
+                </div>
+    
+                <!-- 修复模式开关容器（初始隐藏） -->
+                <div id="maintenance-switch-container" class="switch-container" style="display: none;">
+                    <span class="switch-label"><i class="fas fa-tools"></i> 修复模式</span>
+                    <label class="switch">
+                        <input type="checkbox" id="maintenanceToggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span id="maintenance-status" style="color:#666; font-size:0.9rem;"></span>
+                </div>
+    
+                <div class="post-list">
+                    <h3 style="color:#FB7299; margin-bottom:0.5rem;">已发表</h3>
+                    <div id="published-posts" style="margin-bottom:1.5rem;"></div>
+                    <h3 style="color:#FB7299; margin-bottom:0.5rem;">草稿箱</h3>
+                    <div id="draft-posts"></div>
+                </div>
+    
+                <div class="logout-container">
+                    <button id="logoutBtnLeft" class="btn" style="width: 100%; background: rgba(255,255,255,0.3); border: 1px solid #FB7299;">
+                        <i class="fas fa-sign-out-alt"></i> 注销
+                    </button>
+                </div>
             </div>
-
-            <!-- 作者问候语 -->
-            <div class="welcome-message glass">
-                <i class="fas fa-user-circle"></i> 你好，<span id="username">加载中...</span>！
+    
+            <!-- 右侧：占位面板（提示新建文章） -->
+            <div class="panel right-panel">
+                <p>选择文章进行编辑</p>
+                <p>或者</p>
+                <a href="editor.html" class="new-link"><i class="fas fa-plus"></i> 新建文章</a>
+                <p>再或者</p>
+                <a href="index.html" class="btn" style="background: transparent; border: 1px solid #FB7299;">返回首页</a>
             </div>
-
-            <!-- 修复模式开关容器（初始隐藏） -->
-            <div id="maintenance-switch-container" class="switch-container" style="display: none;">
-                <span class="switch-label"><i class="fas fa-tools"></i> 修复模式</span>
-                <label class="switch">
-                    <input type="checkbox" id="maintenanceToggle">
-                    <span class="slider round"></span>
-                </label>
-                <span id="maintenance-status" style="color:#666; font-size:0.9rem;"></span>
-            </div>
-
-            <div class="post-list">
-                <h3 style="color:#FB7299; margin-bottom:0.5rem;">已发表</h3>
-                <div id="published-posts" style="margin-bottom:1.5rem;"></div>
-                <h3 style="color:#FB7299; margin-bottom:0.5rem;">草稿箱</h3>
-                <div id="draft-posts"></div>
-            </div>
-
-            <div class="logout-container">
-                <button id="logoutBtnLeft" class="btn" style="width: 100%; background: rgba(255,255,255,0.3); border: 1px solid #FB7299;">
-                    <i class="fas fa-sign-out-alt"></i> 注销
-                </button>
-            </div>
-        </div>
-
-        <!-- 右侧：占位面板（提示新建文章） -->
-        <div class="panel right-panel">
-            <p>选择文章进行编辑</p>
-            <p>或者</p>
-            <a href="editor.html" class="new-link"><i class="fas fa-plus"></i> 新建文章</a>
-            <p>再或者</p>
-            <a href="index.html" class="btn" style="background: transparent; border: 1px solid #FB7299;">返回首页</a>
         </div>
     </div>
 
