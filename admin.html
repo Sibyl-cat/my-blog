@@ -21,11 +21,13 @@
             padding: 2rem;
         }
         .admin-container {
-            max-width: 1400px;
-            margin: 0 auto;
+            width: 100%;               /* 占满父容器宽度 */
+            max-width: none;           /* 移除最大宽度限制 */
+            margin: 0 auto;            /* 仍可保留居中，但宽度100%时居中无意义，可删除 */
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
+            min-height: calc(100vh - 4rem); /* 视口高度减去 body 的内边距，使容器撑满 */
         }
         .panel {
             background: rgba(255, 255, 255, 0.25);
