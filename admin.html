@@ -282,12 +282,12 @@
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <!-- 二级页面组件化导航栏 -->
-        <blog-navbar-secondary></blog-navbar-secondary>
+    <!-- 二级页面组件化导航栏 -->
+    <blog-navbar-secondary></blog-navbar-secondary>
 
-        <!-- 全局侧边栏组件 -->
-        <blog-sidebar></blog-sidebar>
+    <!-- 全局侧边栏组件 -->
+    <blog-sidebar></blog-sidebar>
+    <div class="admin-container">    
         <!-- 左侧：文章列表 -->
         <div class="panel left-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -328,11 +328,11 @@
 
         <!-- 右侧：占位面板（提示新建文章） -->
         <div class="panel right-panel">
-            <p>选择文章进行编辑</p>
-            <p>或者</p>
+            <p style="font-size: 1.2rem; color: #666;">选择文章进行编辑</p>
+            <p style="color: #999;">或者</p>
             <a href="editor.html" class="new-link"><i class="fas fa-plus"></i> 新建文章</a>
-            <p>再或者</p>
-            <a href="index.html">返回首页</a>
+            <p style="margin-top: 2rem; color: #999;">再或者</p>
+            <a href="index.html" class="btn" style="background: transparent; border: 1px solid #FB7299;">返回首页</a>
         </div>
     </div>
 
