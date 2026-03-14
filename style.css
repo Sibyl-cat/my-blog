@@ -28,7 +28,7 @@ body::before {
   width: 100%;
   height: 100%;
   background: 
-    linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)), /* 半透明白色叠加 */
+    linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1)), /* 半透明白色叠加 */
     url('images/wallpaper-desktop.jpg') no-repeat center center fixed;
   background-size: cover;
   filter: blur(8px);               /* 高斯模糊，可调整 */
