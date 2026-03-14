@@ -6,7 +6,7 @@
     <title>文章管理 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* 原有样式保持不变，仅添加开关相关样式 */
+        /* ========== 原有样式保持不变 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -78,6 +78,8 @@
             transition: all 0.2s;
             background: rgba(255, 255, 255, 0.5);
             border: 1px solid rgba(251, 114, 153, 0.3);
+            text-decoration: none;
+            color: #2a2a2a;
         }
         .btn:hover {
             background: #FB7299;
@@ -90,27 +92,6 @@
         .btn-danger:hover {
             background: #ff4d4f;
             color: white;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2a2a2a;
-            font-weight: 500;
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 0.8rem;
-            border: 1px solid rgba(251, 114, 153, 0.3);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
-        }
-        textarea {
-            min-height: 120px;
-            resize: vertical;
         }
         .message {
             margin-top: 1rem;
@@ -162,20 +143,6 @@
             font-weight: 600;
             color: #FB7299;
         }
-        .action-buttons {
-            display: flex;
-            gap: 0.8rem;
-            margin-top: 1.5rem;
-        }
-        .action-buttons .btn,
-        .action-buttons label.btn {
-            flex: 1;
-            min-width: 0;
-            padding: 0.6rem 0.3rem;
-            font-size: 1rem;
-            margin: 0;
-            box-sizing: border-box;
-        }
         .btn-user {
             background: rgba(251,114,153,0.15);
             border: 1px dashed #FB7299;
@@ -188,25 +155,6 @@
             border-color: #FB7299;
             text-decoration: none;
         }
-        .suggested-tag {
-            background: rgba(251,114,153,0.1);
-            border: 1px solid #FB7299;
-            color: #FB7299;
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.9rem;
-            display: inline-block;
-        }
-        .suggested-tag:hover {
-            background: rgba(251,114,153,0.2);
-        }
-        .suggested-tag.selected {
-            background: #FB7299;
-            color: white;
-        }
-
         /* 开关样式 */
         .switch-container {
             display: flex;
@@ -258,14 +206,38 @@
         input:checked + .slider {
             background-color: #FB7299;
         }
-        input:focus + .slider {
-            box-shadow: 0 0 1px #FB7299;
-        }
         input:checked + .slider:before {
             transform: translateX(26px);
         }
+        /* 右侧面板占位样式 */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .right-panel p {
+            font-size: 1.5rem;
+            color: #FB7299;
+            margin-bottom: 1rem;
+        }
+        .right-panel .new-link {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #FB7299;
+            color: white;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .right-panel .new-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(251,114,153,0.3);
+        }
 
-        /* 手机端适配 */
+        /* 移动端适配 */
         @media (max-width: 768px) {
             .admin-container {
                 grid-template-columns: 1fr;
@@ -286,12 +258,6 @@
                 padding: 0.5rem 0.8rem;
                 font-size: 0.9rem;
             }
-            .form-group input,
-            .form-group textarea,
-            .form-group select {
-                padding: 0.7rem;
-                font-size: 1rem;
-            }
             .logout-container {
                 margin-top: 0.8rem;
                 padding-top: 0.8rem;
@@ -299,23 +265,16 @@
             #logoutBtnLeft {
                 padding: 0.8rem;
             }
-            .action-buttons .btn,
-            .action-buttons label.btn {
-                padding: 0.5rem 0.2rem;
-                font-size: 0.9rem;
-            }
-            .switch-container {
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
         }
         @media (max-width: 400px) {
-            .action-buttons {
-                flex-wrap: wrap;
+            .post-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
             }
-            .action-buttons .btn,
-            .action-buttons label.btn {
-                flex: 1 1 100%;
+            .post-actions {
+                width: 100%;
+                justify-content: flex-end;
             }
         }
     </style>
@@ -359,29 +318,23 @@
                 </button>
             </div>
         </div>
+
+        <!-- 右侧：占位面板（提示新建文章） -->
+        <div class="panel right-panel">
+            <p>✨ 选择左侧文章进行编辑</p>
+            <p>或者</p>
+            <a href="editor.html" class="new-link"><i class="fas fa-plus"></i> 新建文章</a>
+        </div>
     </div>
 
     <script>
         // ==================== 全局变量 ====================
         const publishedContainer = document.getElementById('published-posts');
         const draftContainer = document.getElementById('draft-posts');
-        const form = document.getElementById('post-form');
-        const slugHidden = document.getElementById('slug');
-        const titleInput = document.getElementById('title');
-        const contentInput = document.getElementById('content');
-        const excerptInput = document.getElementById('excerpt');
-        const tagsInput = document.getElementById('tags');
-        const messageDiv = document.getElementById('message');
+        const messageDiv = document.getElementById('message'); // 可能没有，但保留
         const usernameSpan = document.getElementById('username');
-        const newPostBtn = document.getElementById('newPostBtn');
-        const uploadMd = document.getElementById('uploadMd');
-        const uploadLabel = document.getElementById('uploadLabel');
-        const saveDraftBtn = document.getElementById('saveDraftBtn');
-        const publishBtn = document.getElementById('publishBtn');
         const logoutBtn = document.getElementById('logoutBtnLeft');
         const userManagementBtn = document.getElementById('userManagementBtn');
-        const suggestTagsBtn = document.getElementById('suggestTagsBtn');
-        const suggestedTagsDiv = document.getElementById('suggested-tags');
 
         // 修复模式开关相关
         const maintenanceContainer = document.getElementById('maintenance-switch-container');
@@ -389,10 +342,10 @@
         const maintenanceStatus = document.getElementById('maintenance-status');
 
         let currentUserRole = null;
-        let currentPost = null; // { slug, is_published }
 
-        // ==================== 工具函数：显示消息 ====================
+        // ==================== 工具函数：显示消息（可选，用于删除等操作）====================
         function showMessage(text, type) {
+            if (!messageDiv) return;
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
@@ -414,26 +367,6 @@
                     // 控制用户管理按钮（仅admin可见）
                     if (userManagementBtn) {
                         userManagementBtn.style.display = user.role === 'admin' ? 'inline-block' : 'none';
-                    }
-
-                    // 根据角色控制右侧按钮组
-                    if (user.role === 'superadmin') {
-                        // superadmin 只保留保存按钮
-                        if (newPostBtn) newPostBtn.style.display = 'none';
-                        if (uploadLabel) uploadLabel.style.display = 'none';
-                        if (uploadMd) uploadMd.style.display = 'none';
-                        if (publishBtn) publishBtn.style.display = 'none';
-                        if (saveDraftBtn) {
-                            saveDraftBtn.style.width = '100%';
-                            saveDraftBtn.style.display = '';
-                        }
-                    } else {
-                        // 其他角色显示所有按钮
-                        if (newPostBtn) newPostBtn.style.display = '';
-                        if (uploadLabel) uploadLabel.style.display = '';
-                        if (uploadMd) uploadMd.style.display = 'none';
-                        if (publishBtn) publishBtn.style.display = '';
-                        if (saveDraftBtn) saveDraftBtn.style.width = '';
                     }
 
                     // 处理修复模式开关（仅 admin/superadmin 可见）
@@ -459,11 +392,7 @@
                 if (!res.ok) throw new Error('获取状态失败');
                 const data = await res.json();
                 maintenanceToggle.checked = data.enabled;
-                if (data.enabled) {
-                    maintenanceStatus.textContent = '已开启';
-                } else {
-                    maintenanceStatus.textContent = '已关闭';
-                }
+                maintenanceStatus.textContent = data.enabled ? '已开启' : '已关闭';
             } catch (err) {
                 console.error('获取修复模式状态失败', err);
                 maintenanceStatus.textContent = '状态未知';
@@ -484,10 +413,8 @@
                     if (data.success) {
                         showMessage(enable ? '修复模式已开启' : '修复模式已关闭', 'success');
                         maintenanceStatus.textContent = enable ? '已开启' : '已关闭';
-                        // 可选：如果开启修复模式，提示用户需要重新加载生效？但中间件会立即生效
                     } else {
                         showMessage('操作失败：' + (data.error || '未知错误'), 'error');
-                        // 回滚开关状态
                         maintenanceToggle.checked = !enable;
                     }
                 } catch (err) {
@@ -513,7 +440,7 @@
                 }
 
                 posts.forEach(post => {
-                    // 移除所有 slug 和作者显示，只保留标题
+                    // 只显示标题，不显示作者或slug
                     const html = `
                         <div class="post-item" data-slug="${post.slug}" data-published="${post.is_published}">
                             <div style="flex: 1;">
@@ -540,39 +467,6 @@
             }
         }
 
-        // ==================== 编辑文章 ====================
-        window.editPost = async function(slug) {
-            try {
-                const response = await fetch(`/api/post/${slug}`);
-                if (!response.ok) throw new Error('加载失败');
-                const post = await response.json();
-
-                slugHidden.value = post.slug;
-                titleInput.value = post.title;
-                contentInput.value = post.content || '';
-                excerptInput.value = post.excerpt || '';
-                tagsInput.value = post.tags || '';
-
-                currentPost = { slug: post.slug, is_published: post.is_published };
-
-                // 控制发表按钮（已发表文章禁用发表）
-                if (publishBtn) {
-                    if (post.is_published) {
-                        publishBtn.disabled = true;
-                        publishBtn.style.opacity = 0.5;
-                        publishBtn.title = '文章已发表，无需再次发表';
-                    } else {
-                        publishBtn.disabled = false;
-                        publishBtn.style.opacity = 1;
-                        publishBtn.title = '发表此草稿';
-                    }
-                }
-                showMessage('已加载文章', 'success');
-            } catch (error) {
-                showMessage('加载失败', 'error');
-            }
-        };
-
         // ==================== 删除文章 ====================
         window.deletePost = async function(slug) {
             if (!confirm(`确定要删除文章 "${slug}" 吗？`)) return;
@@ -590,9 +484,6 @@
                 if (result.success) {
                     showMessage('删除成功', 'success');
                     loadPosts();
-                    if (slugHidden.value === slug) {
-                        clearForm();
-                    }
                 } else {
                     showMessage(result.error || '删除失败', 'error');
                 }
@@ -600,198 +491,6 @@
                 showMessage('删除失败', 'error');
             }
         };
-
-        // ==================== 清空表单 ====================
-        function clearForm() {
-            slugHidden.value = '';
-            titleInput.value = '';
-            contentInput.value = '';
-            excerptInput.value = '';
-            tagsInput.value = '';
-            currentPost = null;
-
-            if (publishBtn) {
-                publishBtn.disabled = false;
-                publishBtn.style.opacity = 1;
-                publishBtn.title = '发表此草稿';
-            }
-        }
-
-        // ==================== 新建按钮 ====================
-        newPostBtn.addEventListener('click', () => {
-            if (confirm('新建文章将清空当前表单，确定吗？')) {
-                clearForm();
-            }
-        });
-
-        // ==================== 上传MD文件 ====================
-        uploadMd.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const allowedExts = ['.md', '.markdown'];
-            const fileName = file.name;
-            const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
-            if (!allowedExts.includes(ext) && file.type !== 'text/markdown') {
-                alert('只支持上传 .md 或 .markdown 文件');
-                e.target.value = '';
-                return;
-            }
-
-            const maxSize = 1 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert('文件大小不能超过 1MB');
-                e.target.value = '';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                contentInput.value = event.target.result;
-                showMessage('文件已加载到正文', 'success');
-            };
-            reader.onerror = () => alert('文件读取失败');
-            reader.readAsText(file, 'UTF-8');
-            e.target.value = '';
-        });
-
-        // ==================== 保存草稿 ====================
-        saveDraftBtn.addEventListener('click', async () => {
-            const formData = new FormData(form);
-            saveDraftBtn.disabled = true;
-            saveDraftBtn.textContent = '保存中...';
-
-            try {
-                const response = await fetch('/api/admin/post', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    showMessage('草稿保存成功', 'success');
-                    if (result.slug) {
-                        slugHidden.value = result.slug;
-                        currentPost = {
-                            slug: result.slug,
-                            is_published: currentPost ? currentPost.is_published : false
-                        };
-                    }
-                    await loadPosts();
-                } else {
-                    showMessage(result.error || '保存失败', 'error');
-                }
-            } catch (error) {
-                showMessage('保存失败，请稍后重试', 'error');
-            } finally {
-                saveDraftBtn.disabled = false;
-                saveDraftBtn.textContent = '保存';
-            }
-        });
-
-        // ==================== 发表文章 ====================
-        publishBtn.addEventListener('click', async () => {
-            if (!currentPost) {
-                showMessage('请先选择或创建一篇文章', 'error');
-                return;
-            }
-            if (currentPost.is_published) {
-                showMessage('文章已发表，无需重复操作', 'error');
-                return;
-            }
-            if (!confirm('确定要发表这篇文章吗？发表后将生成正式链接并出现在首页。')) return;
-
-            publishBtn.disabled = true;
-            publishBtn.textContent = '发表中...';
-
-            try {
-                const response = await fetch('/api/admin/post/publish', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ slug: currentPost.slug })
-                });
-                const result = await response.json();
-
-                if (result.success) {
-                    showMessage('文章发表成功', 'success');
-                    currentPost.slug = result.newSlug;
-                    currentPost.is_published = true;
-                    slugHidden.value = result.newSlug;
-                    publishBtn.disabled = true;
-                    publishBtn.style.opacity = 0.5;
-                    publishBtn.title = '文章已发表';
-                    await loadPosts();
-                } else {
-                    showMessage(result.error || '发表失败', 'error');
-                    publishBtn.disabled = false;
-                }
-            } catch (error) {
-                showMessage('发表失败，请稍后重试', 'error');
-                publishBtn.disabled = false;
-            } finally {
-                publishBtn.textContent = '发表';
-            }
-        });
-
-        // ==================== 标签推荐功能 ====================
-        suggestTagsBtn.addEventListener('click', async () => {
-            const title = titleInput.value;
-            const content = contentInput.value;
-            if (!title && !content) {
-                alert('请先填写标题或内容以便推荐标签');
-                return;
-            }
-            try {
-                const res = await fetch('/api/suggest-tags', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, content })
-                });
-                const tags = await res.json();
-                if (!Array.isArray(tags)) return;
-
-                const limited = tags.slice(0, 5);
-                suggestedTagsDiv.innerHTML = '';
-
-                limited.forEach(tag => {
-                    const span = document.createElement('span');
-                    span.className = 'suggested-tag';
-                    span.dataset.tag = tag;
-                    span.textContent = '#' + tag;
-                    span.addEventListener('click', () => updateTagSelection(tag));
-                    suggestedTagsDiv.appendChild(span);
-                });
-
-                // 初始化选中状态
-                const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
-                document.querySelectorAll('.suggested-tag').forEach(el => {
-                    if (currentTags.includes(el.dataset.tag)) {
-                        el.classList.add('selected');
-                    }
-                });
-            } catch (err) {
-                console.error('获取推荐标签失败:', err);
-            }
-        });
-
-        function updateTagSelection(tag) {
-            let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
-            const index = currentTags.indexOf(tag);
-            if (index > -1) {
-                currentTags.splice(index, 1);
-            } else {
-                currentTags.push(tag);
-            }
-            tagsInput.value = currentTags.join(', ');
-
-            document.querySelectorAll('.suggested-tag').forEach(el => {
-                if (currentTags.includes(el.dataset.tag)) {
-                    el.classList.add('selected');
-                } else {
-                    el.classList.remove('selected');
-                }
-            });
-        }
 
         // ==================== 注销按钮 ====================
         logoutBtn.addEventListener('click', async () => {
