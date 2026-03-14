@@ -100,6 +100,3 @@ export async function cleanUserSessions(env, userId, keepCount = 3) {
         }
     }
 }
-
-// 导出所有工具函数
-export { hashPassword, verifyPassword, getCurrentUserId, cleanUserSessions };
