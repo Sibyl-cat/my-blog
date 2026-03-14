@@ -149,8 +149,14 @@
         .action-buttons {
             display: flex;
             gap: 1rem;
-            justify-content: flex-end;
             margin-top: 1.5rem;
+        }
+        .action-buttons .btn,
+        .action-buttons label.btn {
+            flex: 1;
+            text-align: center;
+            padding: 0.7rem 0.5rem;
+            box-sizing: border-box;
         }
         .hidden {
             display: none;
@@ -170,6 +176,36 @@
             background: rgba(255,0,0,0.2);
             border: 1px solid #ff0000;
             color: #a80000;
+        }
+        /* 源码编辑区 */
+        #source-container {
+            display: none;
+            margin-bottom: 1rem;
+        }
+        #source-textarea {
+            width: 100%;
+            height: 500px;
+            padding: 1rem;
+            border: 1px solid rgba(251,114,153,0.3);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.5);
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+        .source-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .source-toggle label {
+            cursor: pointer;
+            color: #FB7299;
+        }
+        .source-toggle input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.3rem;
         }
         @media (max-width: 768px) {
             .editor-card {
@@ -239,17 +275,34 @@
         <label>正文</label>
         <div id="editor-container"></div>
 
+        <!-- 源码模式切换 -->
+        <div class="source-toggle">
+            <label>
+                <input type="checkbox" id="sourceModeCheckbox"> 源码模式
+            </label>
+            <span style="color:#666;">（勾选后可直接编辑HTML源码）</span>
+        </div>
+        
+        <!-- 源码编辑区（初始隐藏） -->
+        <div id="source-container">
+            <textarea id="source-textarea" placeholder="HTML 源码..."></textarea>
+        </div>
+
         <!-- 底部按钮组 -->
         <div class="action-buttons">
+            <label for="uploadMd" class="btn" style="cursor: pointer;">
+                <i class="fas fa-upload"></i> 上传MD
+            </label>
             <button class="btn" id="saveDraftBtn">保存草稿</button>
             <button class="btn btn-primary" id="publishBtn">发表文章</button>
         </div>
+        <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
         <div id="message" class="message"></div>
     </div>
 </div>
 
 <script>
-    // ---------- 全局变量 ----------
+    // ========== 全局变量 ==========
     let quill;                      // Quill 编辑器实例
     let currentPost = null;         // 当前文章 { slug, is_published }
 
@@ -263,8 +316,11 @@
     const uploadMd = document.getElementById('uploadMd');
     const suggestTagsBtn = document.getElementById('suggestTagsBtn');
     const suggestedTagsDiv = document.getElementById('suggested-tags');
+    const sourceModeCheckbox = document.getElementById('sourceModeCheckbox');
+    const sourceContainer = document.getElementById('source-container');
+    const sourceTextarea = document.getElementById('source-textarea');
 
-    // ---------- 工具函数：显示消息 ----------
+    // ========== 工具函数：显示消息 ==========
     function showMessage(text, type) {
         messageDiv.textContent = text;
         messageDiv.className = `message ${type}`;
@@ -274,7 +330,7 @@
         }, 3000);
     }
 
-    // ---------- 初始化 Quill (确保在 DOM 加载后) ----------
+    // ========== 初始化 Quill (确保在 DOM 加载后) ==========
     document.addEventListener('DOMContentLoaded', function() {
         quill = new Quill('#editor-container', {
             theme: 'snow',
@@ -301,9 +357,24 @@
         if (slug) {
             loadPost(slug);
         }
+
+        // 源码模式切换事件
+        sourceModeCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                // 进入源码模式：将 Quill 内容同步到 textarea，隐藏 Quill，显示 textarea
+                sourceTextarea.value = quill.root.innerHTML;
+                document.getElementById('editor-container').style.display = 'none';
+                sourceContainer.style.display = 'block';
+            } else {
+                // 退出源码模式：将 textarea 内容写回 Quill，隐藏 textarea，显示 Quill
+                quill.root.innerHTML = sourceTextarea.value;
+                sourceContainer.style.display = 'none';
+                document.getElementById('editor-container').style.display = 'block';
+            }
+        });
     });
 
-    // ---------- 加载文章内容 ----------
+    // ========== 加载文章内容 ==========
     async function loadPost(slug) {
         try {
             const response = await fetch(`/api/post/${slug}`);
@@ -314,7 +385,12 @@
             titleInput.value = post.title;
             tagsInput.value = post.tags || '';
             excerptInput.value = post.excerpt || '';
-            quill.root.innerHTML = post.content || '';   // 设置内容到编辑器
+            quill.root.innerHTML = post.content || '';
+
+            // 如果当前处于源码模式，同步 textarea 内容
+            if (sourceModeCheckbox && sourceModeCheckbox.checked) {
+                sourceTextarea.value = quill.root.innerHTML;
+            }
 
             currentPost = { slug: post.slug, is_published: post.is_published };
             showMessage('文章已加载', 'success');
@@ -324,22 +400,26 @@
         }
     }
 
-    // ---------- 清空表单（可选，但保留以备后用）----------
+    // ========== 清空表单（可选）==========
     function clearForm() {
         slugHidden.value = '';
         titleInput.value = '';
         tagsInput.value = '';
         excerptInput.value = '';
         quill.root.innerHTML = '';
+        if (sourceTextarea) sourceTextarea.value = '';
         currentPost = null;
     }
 
-    // ---------- 保存草稿 ----------
+    // ========== 保存草稿 ==========
     saveDraftBtn.addEventListener('click', async () => {
+        // 根据源码模式获取内容
+        const content = sourceModeCheckbox.checked ? sourceTextarea.value : quill.root.innerHTML;
+
         const formData = new FormData();
         formData.append('slug', slugHidden.value);
         formData.append('title', titleInput.value);
-        formData.append('content', quill.root.innerHTML);
+        formData.append('content', content);
         formData.append('excerpt', excerptInput.value);
         formData.append('tags', tagsInput.value);
 
@@ -370,7 +450,7 @@
         }
     });
 
-    // ---------- 发表文章 ----------
+    // ========== 发表文章 ==========
     publishBtn.addEventListener('click', async () => {
         if (!currentPost || !currentPost.slug) {
             showMessage('请先保存草稿', 'error');
@@ -400,7 +480,7 @@
                 slugHidden.value = result.newSlug;
                 publishBtn.disabled = true;
                 publishBtn.style.opacity = 0.5;
-                // 可选：2秒后返回管理页
+                // 2秒后返回管理页
                 setTimeout(() => {
                     window.location.href = 'admin.html';
                 }, 1500);
@@ -416,7 +496,7 @@
         }
     });
 
-    // ---------- 上传 MD 文件 ----------
+    // ========== 上传 MD 文件 ==========
     uploadMd.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -440,9 +520,14 @@
         const reader = new FileReader();
         reader.onload = (event) => {
             const content = event.target.result;
-            // 使用 marked 解析 markdown 为 HTML，然后填充到编辑器
+            // 使用 marked 解析 markdown 为 HTML
             const html = marked.parse(content);
-            quill.root.innerHTML = html;
+            // 根据当前模式更新内容
+            if (sourceModeCheckbox.checked) {
+                sourceTextarea.value = html;
+            } else {
+                quill.root.innerHTML = html;
+            }
             showMessage('文件已加载到正文', 'success');
         };
         reader.onerror = () => alert('文件读取失败');
@@ -450,11 +535,11 @@
         e.target.value = '';
     });
 
-    // ---------- 标签推荐功能 ----------
+    // ========== 标签推荐功能 ==========
     suggestTagsBtn.addEventListener('click', async () => {
         const title = titleInput.value;
-        // 获取编辑器纯文本内容 (或者用 quill.getText() 获取纯文本)
-        const content = quill.getText(); // 纯文本
+        // 获取纯文本内容（用于推荐）
+        const content = quill.getText();
         if (!title && !content) {
             alert('请先填写标题或内容以便推荐标签');
             return;
