@@ -1,5 +1,5 @@
 // /functions/api/maintenance-login.js
-import { verifyPassword } from './utils/auth';
+import { verifyPassword, cleanUserSessions } from './utils/auth';
 
 export async function onRequest(context) {
     const { request, env } = context;
@@ -36,6 +36,9 @@ export async function onRequest(context) {
         await env.DB.prepare(
             'INSERT INTO sessions (id, user_id, role, expires_at) VALUES (?, ?, ?, ?)'
         ).bind(sessionId, user.id, user.role, expiresAt.toISOString()).run();
+
+        // 清理多余会话，只保留最新的3个
+        await cleanUserSessions(env, user.id, 3);
 
         const headers = new Headers({
             'Set-Cookie': `session_id=${sessionId}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`,
