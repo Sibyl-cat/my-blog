@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章编辑 · 小电视の日常</title>
-    <!-- 引入 Font Awesome 和 全局样式 -->
+    <!-- 引入 Font Awesome 和全局样式 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <!-- 引入 Quill 富文本编辑器 -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <!-- 引入 Quill 富文本编辑器 (备用 CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.min.js"></script>
+    <!-- 引入 marked 用于解析 MD 上传 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         /* 页面特有样式 */
         body {
@@ -72,9 +74,65 @@
             background: rgba(255,255,255,0.5);
             font-size: 1rem;
         }
+        /* 上传 MD 区域 */
+        .upload-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(251,114,153,0.3);
+            color: #2a2a2a;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+        .btn:hover {
+            background: #FB7299;
+            color: white;
+        }
+        .btn-primary {
+            background: #FB7299;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #ff8aa5;
+            transform: scale(1.02);
+        }
+        /* 标签推荐样式 */
+        .suggested-tag {
+            background: rgba(251,114,153,0.1);
+            border: 1px solid #FB7299;
+            color: #FB7299;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin: 0.2rem;
+        }
+        .suggested-tag:hover {
+            background: rgba(251,114,153,0.2);
+        }
+        .suggested-tag.selected {
+            background: #FB7299;
+            color: white;
+        }
         /* Quill 编辑器样式调整 */
         #editor-container {
-            height: 500px; /* 固定高度，可根据需要调整 */
+            height: 500px;
             margin-bottom: 1rem;
         }
         .ql-container {
@@ -94,31 +152,24 @@
             justify-content: flex-end;
             margin-top: 1.5rem;
         }
-        .btn {
-            padding: 0.7rem 2rem;
-            border: none;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            background: rgba(255,255,255,0.5);
-            border: 1px solid rgba(251,114,153,0.3);
-        }
-        .btn-primary {
-            background: #FB7299;
-            color: white;
-            border: none;
-        }
-        .btn-primary:hover {
-            background: #ff8aa5;
-            transform: scale(1.02);
-        }
-        .btn:hover {
-            background: #FB7299;
-            color: white;
-        }
         .hidden {
             display: none;
+        }
+        .message {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 12px;
+            display: none;
+        }
+        .message.success {
+            background: rgba(0,200,0,0.2);
+            border: 1px solid #00a800;
+            color: #006400;
+        }
+        .message.error {
+            background: rgba(255,0,0,0.2);
+            border: 1px solid #ff0000;
+            color: #a80000;
         }
         @media (max-width: 768px) {
             .editor-card {
@@ -163,10 +214,25 @@
             </div>
         </div>
 
+        <!-- 标签推荐区域 -->
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <button type="button" id="suggestTagsBtn" class="btn">✨ 推荐标签</button>
+            <div id="suggested-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1;"></div>
+        </div>
+
         <!-- 摘要 -->
         <div class="form-group">
             <label>摘要</label>
             <textarea id="excerpt" rows="3" placeholder="简短介绍..."></textarea>
+        </div>
+
+        <!-- 上传MD区域 -->
+        <div class="upload-area">
+            <label for="uploadMd" class="btn" style="cursor: pointer;">
+                <i class="fas fa-upload"></i> 上传 MD 文件
+            </label>
+            <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
+            <span style="color: #666;">支持 .md 文件，将自动填充到编辑器</span>
         </div>
 
         <!-- 富文本编辑器 -->
@@ -178,12 +244,15 @@
             <button class="btn" id="saveDraftBtn">保存草稿</button>
             <button class="btn btn-primary" id="publishBtn">发表文章</button>
         </div>
-        <div id="message" class="message" style="margin-top:1rem;"></div>
+        <div id="message" class="message"></div>
     </div>
 </div>
 
 <script>
     // ---------- 全局变量 ----------
+    let quill;                      // Quill 编辑器实例
+    let currentPost = null;         // 当前文章 { slug, is_published }
+
     const slugHidden = document.getElementById('slug');
     const titleInput = document.getElementById('title');
     const tagsInput = document.getElementById('tags');
@@ -191,9 +260,9 @@
     const saveDraftBtn = document.getElementById('saveDraftBtn');
     const publishBtn = document.getElementById('publishBtn');
     const messageDiv = document.getElementById('message');
-
-    let currentPost = null; // { slug, is_published }
-    let quill;              // Quill 编辑器实例
+    const uploadMd = document.getElementById('uploadMd');
+    const suggestTagsBtn = document.getElementById('suggestTagsBtn');
+    const suggestedTagsDiv = document.getElementById('suggested-tags');
 
     // ---------- 工具函数：显示消息 ----------
     function showMessage(text, type) {
@@ -205,33 +274,37 @@
         }, 3000);
     }
 
-    // ---------- 初始化 Quill 编辑器 ----------
-    quill = new Quill('#editor-container', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                ['bold', 'italic', 'underline', 'strike'],
-                ['blockquote', 'code-block'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'script': 'sub'}, { 'script': 'super' }],
-                [{ 'indent': '-1'}, { 'indent': '+1' }],
-                [{ 'size': ['small', false, 'large', 'huge'] }],
-                [{ 'color': [] }, { 'background': [] }],
-                [{ 'align': [] }],
-                ['link', 'image'],
-                ['clean']
-            ]
-        },
-        placeholder: '在这里写文章...'
+    // ---------- 初始化 Quill (确保在 DOM 加载后) ----------
+    document.addEventListener('DOMContentLoaded', function() {
+        quill = new Quill('#editor-container', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'align': [] }],
+                    ['link', 'image'],
+                    ['clean']
+                ]
+            },
+            placeholder: '在这里写文章...'
+        });
+
+        // 从 URL 获取 slug 参数并加载文章
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        if (slug) {
+            loadPost(slug);
+        }
     });
 
-    // ---------- 从 URL 获取 slug 参数 ----------
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
-
-    // ---------- 如果存在 slug，则加载文章 ----------
-    async function loadPost() {
-        if (!slug) return; // 新建文章，无需加载
+    // ---------- 加载文章内容 ----------
+    async function loadPost(slug) {
         try {
             const response = await fetch(`/api/post/${slug}`);
             if (!response.ok) throw new Error('加载失败');
@@ -241,16 +314,17 @@
             titleInput.value = post.title;
             tagsInput.value = post.tags || '';
             excerptInput.value = post.excerpt || '';
-            quill.root.innerHTML = post.content || '';
+            quill.root.innerHTML = post.content || '';   // 设置内容到编辑器
 
             currentPost = { slug: post.slug, is_published: post.is_published };
             showMessage('文章已加载', 'success');
         } catch (error) {
+            console.error('加载失败:', error);
             showMessage('加载失败', 'error');
         }
     }
 
-    // ---------- 清空表单 ----------
+    // ---------- 清空表单（可选，但保留以备后用）----------
     function clearForm() {
         slugHidden.value = '';
         titleInput.value = '';
@@ -262,9 +336,8 @@
 
     // ---------- 保存草稿 ----------
     saveDraftBtn.addEventListener('click', async () => {
-        // 准备表单数据
         const formData = new FormData();
-        formData.append('slug', slugHidden.value);  // 可能为空
+        formData.append('slug', slugHidden.value);
         formData.append('title', titleInput.value);
         formData.append('content', quill.root.innerHTML);
         formData.append('excerpt', excerptInput.value);
@@ -300,7 +373,6 @@
     // ---------- 发表文章 ----------
     publishBtn.addEventListener('click', async () => {
         if (!currentPost || !currentPost.slug) {
-            // 如果是新建文章，先保存草稿获得 slug，再发表
             showMessage('请先保存草稿', 'error');
             return;
         }
@@ -328,8 +400,7 @@
                 slugHidden.value = result.newSlug;
                 publishBtn.disabled = true;
                 publishBtn.style.opacity = 0.5;
-                publishBtn.title = '文章已发表';
-                // 可选：停留2秒后跳转回管理页
+                // 可选：2秒后返回管理页
                 setTimeout(() => {
                     window.location.href = 'admin.html';
                 }, 1500);
@@ -345,13 +416,100 @@
         }
     });
 
-    // ---------- 如果已有 slug，加载文章 ----------
-    if (slug) {
-        loadPost();
-    }
+    // ---------- 上传 MD 文件 ----------
+    uploadMd.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    // ---------- 可选：自动保存草稿功能（可忽略） ----------
-    // 如果用户离开页面时未保存，可以提示，但这里不强制。
+        const allowedExts = ['.md', '.markdown'];
+        const fileName = file.name;
+        const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+        if (!allowedExts.includes(ext) && file.type !== 'text/markdown') {
+            alert('只支持上传 .md 或 .markdown 文件');
+            e.target.value = '';
+            return;
+        }
+
+        const maxSize = 1 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('文件大小不能超过 1MB');
+            e.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const content = event.target.result;
+            // 使用 marked 解析 markdown 为 HTML，然后填充到编辑器
+            const html = marked.parse(content);
+            quill.root.innerHTML = html;
+            showMessage('文件已加载到正文', 'success');
+        };
+        reader.onerror = () => alert('文件读取失败');
+        reader.readAsText(file, 'UTF-8');
+        e.target.value = '';
+    });
+
+    // ---------- 标签推荐功能 ----------
+    suggestTagsBtn.addEventListener('click', async () => {
+        const title = titleInput.value;
+        // 获取编辑器纯文本内容 (或者用 quill.getText() 获取纯文本)
+        const content = quill.getText(); // 纯文本
+        if (!title && !content) {
+            alert('请先填写标题或内容以便推荐标签');
+            return;
+        }
+        try {
+            const res = await fetch('/api/suggest-tags', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content })
+            });
+            const tags = await res.json();
+            if (!Array.isArray(tags)) return;
+
+            const limited = tags.slice(0, 5);
+            suggestedTagsDiv.innerHTML = '';
+
+            limited.forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'suggested-tag';
+                span.dataset.tag = tag;
+                span.textContent = '#' + tag;
+                span.addEventListener('click', () => updateTagSelection(tag));
+                suggestedTagsDiv.appendChild(span);
+            });
+
+            // 初始化选中状态
+            const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
+            document.querySelectorAll('.suggested-tag').forEach(el => {
+                if (currentTags.includes(el.dataset.tag)) {
+                    el.classList.add('selected');
+                }
+            });
+        } catch (err) {
+            console.error('获取推荐标签失败:', err);
+        }
+    });
+
+    function updateTagSelection(tag) {
+        let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
+        const index = currentTags.indexOf(tag);
+        if (index > -1) {
+            currentTags.splice(index, 1);
+        } else {
+            currentTags.push(tag);
+        }
+        tagsInput.value = currentTags.join(', ');
+
+        document.querySelectorAll('.suggested-tag').forEach(el => {
+            if (currentTags.includes(el.dataset.tag)) {
+                el.classList.add('selected');
+            } else {
+                el.classList.remove('selected');
+            }
+        });
+    }
 </script>
 </body>
 </html>
