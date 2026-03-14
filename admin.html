@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章管理 · 小电视の日常</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="./components.js"></script>
     <style>
         /* ========== 原有样式保持不变 ========== */
         * {
@@ -281,6 +282,11 @@
 </head>
 <body>
     <div class="admin-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
         <!-- 左侧：文章列表 -->
         <div class="panel left-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -306,9 +312,9 @@
             </div>
 
             <div class="post-list">
-                <h3 style="color:#FB7299; margin-bottom:0.5rem;">📄 已发表</h3>
+                <h3 style="color:#FB7299; margin-bottom:0.5rem;">已发表</h3>
                 <div id="published-posts" style="margin-bottom:1.5rem;"></div>
-                <h3 style="color:#FB7299; margin-bottom:0.5rem;">📝 草稿箱</h3>
+                <h3 style="color:#FB7299; margin-bottom:0.5rem;">草稿箱</h3>
                 <div id="draft-posts"></div>
             </div>
 
@@ -324,6 +330,8 @@
             <p>选择文章进行编辑</p>
             <p>或者</p>
             <a href="editor.html" class="new-link"><i class="fas fa-plus"></i> 新建文章</a>
+            <p>再或者</p>
+            <a href="index.html">返回首页</a>
         </div>
     </div>
 
