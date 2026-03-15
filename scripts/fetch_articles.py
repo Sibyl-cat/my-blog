@@ -18,7 +18,7 @@ USERNAME = os.environ.get('ADMIN_USERNAME')
 PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
 # 如果需要先登录获取 session_id，请先定义登录接口
-LOGIN_API_URL = 'https://sibylpetalsunny081209.cc/api/login'   # 你的登录 API 地址
+LOGIN_API_URL = 'https://sibylpetal.sunny081209.cc/api/login'   # 你的登录 API 地址
 
 # 为了避免重复发布相同的文章，可以记录已处理的文章链接（可选）
 # 这里为了简化，每次运行都会尝试创建新文章（API 可能根据 slug 防重）
