@@ -774,6 +774,9 @@ body::before {
     margin-bottom: 1rem;
     font-size: 2rem;
 }
+.modal-card:hover {
+    background: rgba(255, 255, 255, 0.9); /* 与平时背景一致，根据实际情况调整 */
+}
 .modal-content {
     text-align: left;
     color: #333;
