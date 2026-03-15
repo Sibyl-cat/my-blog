@@ -752,7 +752,6 @@ body::before {
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    transition: opacity 0.3s;
 }
 .modal-overlay.show {
     display: flex;
