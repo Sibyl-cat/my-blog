@@ -12,6 +12,23 @@
 </head>
 
 <body>
+  <!-- 入站须知弹窗（默认隐藏） -->
+  <div id="entryModal" class="modal-overlay">
+      <div class="modal-card glass">
+          <h2>入站须知</h2>
+          <div class="modal-content">
+              <p>欢迎来到小电视の日常！在开始浏览之前，请仔细阅读以下内容：</p>
+              <ul>
+                  <li>本站为共创博客，所有内容均为作者们原创或整理，转载请注明出处。</li>
+                  <li>请遵守网络文明，不要发表不当言论。</li>
+                  <li>如发现 bug 或有建议，欢迎通过“关于”页联系我。</li>
+                  <li>祝您冲浪愉快！</li>
+              </ul>
+              <p style="margin-top: 1rem;">阅读并同意后，点击下方按钮关闭本窗口。</p>
+          </div>
+          <button id="agreeBtn" class="btn btn-primary">我已阅读并同意</button>
+      </div>
+  </div>
 
   <!-- 导航栏 · 毛玻璃 + 粉色调 -->
   <nav class="navbar glass">
@@ -198,6 +215,50 @@
     }
 
     document.addEventListener('DOMContentLoaded', loadStats);
+
+    (function() {
+        const modal = document.getElementById('entryModal');
+        const agreeBtn = document.getElementById('agreeBtn');
+
+        // 检查 localStorage 中是否有同意记录
+        const hasAgreed = localStorage.getItem('entryAgreed');
+
+        // 如果从未同意过，显示弹窗
+        if (!hasAgreed) {
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';  // 禁止背景滚动
+        } else {
+            // 已同意，直接预加载资源（可选）
+            preloadResources();
+        }
+
+        // 同意按钮点击事件
+        agreeBtn.addEventListener('click', function() {
+            // 存储同意标记（可选设置有效期，这里存储时间戳）
+            localStorage.setItem('entryAgreed', JSON.stringify({ timestamp: Date.now() }));
+
+            // 隐藏弹窗
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+            // 开始预加载
+            preloadResources();
+        });
+
+        // 预加载函数（在空闲时加载关键资源）
+        function preloadResources() {
+            // 使用 requestIdleCallback 或在空闲时加载非关键资源
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    // 可以在这里预加载其他页面的资源，比如 Quill 编辑器需要的文件
+                    // 例如：<link rel="preload" as="style" href="...">
+                });
+            } else {
+                setTimeout(() => {
+                    // 降级
+                }, 1000);
+            }
+        }
+    })();
   </script>
 </body>
 
