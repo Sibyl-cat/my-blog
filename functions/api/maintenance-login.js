@@ -32,11 +32,11 @@ export async function onRequest(context) {
 
         const sessionId = crypto.randomUUID();
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
+        const now = new Date().toISOString(); // 当前时间作为 created_at
+        
         await env.DB.prepare(
-            'INSERT INTO sessions (id, user_id, role, expires_at) VALUES (?, ?, ?, ?)'
-        ).bind(sessionId, user.id, user.role, expiresAt.toISOString()).run();
-
+            'INSERT INTO sessions (id, user_id, role, expires_at, created_at) VALUES (?, ?, ?, ?, ?)'
+        ).bind(sessionId, user.id, user.role, expiresAt.toISOString(), now).run();
         // 清理多余会话，只保留最新的3个
         await cleanUserSessions(env, user.id, 3);
 
