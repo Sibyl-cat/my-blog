@@ -339,6 +339,18 @@
             </div>
         </div>
     </div>
+        <!-- 模式选择弹窗 -->
+    <div id="modeSelector" class="modal-overlay" style="display: none;">
+        <div class="modal-card glass">
+            <h2>选择编辑模式</h2>
+            <p>请选择您喜欢的文章编辑方式：</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin: 2rem 0;">
+                <button id="chooseRichMode" class="btn btn-primary">富文本模式</button>
+                <button id="chooseCodeMode" class="btn">Markdown/代码模式</button>
+            </div>
+            <button class="close-modal" onclick="document.getElementById('modeSelector').style.display='none'">取消</button>
+        </div>
+    </div>
 
     <script>
         // ==================== 全局变量 ====================
