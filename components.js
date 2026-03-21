@@ -221,19 +221,39 @@ class UserMenu extends HTMLElement {
                 }
                /* 移动端适配 */
                 @media (max-width: 768px) {
-                    .user-bubble {
-                        width: 260px;
-                        right: -10px;     /* 避免右侧溢出 */
-                        top: 48px;
-                    }
                     .user-avatar {
-                        width: 36px;
-                        height: 36px;
+                        width: 32px;
+                        height: 32px;
                     }
                     .user-avatar i {
                         font-size: 1.2rem;
                     }
-                }
+                    .user-bubble {
+                        width: 240px;
+                        right: -5px;
+                        top: 48px;
+                    }
+                    .user-bubble-header {
+                        gap: 0.5rem;
+                    }
+                    .user-bubble-avatar {
+                        width: 48px;
+                        height: 48px;
+                    }
+                    .user-bubble-avatar i {
+                        font-size: 2rem;
+                    }
+                    .user-bubble-name {
+                        font-size: 1rem;
+                    }
+                    .user-bubble-role {
+                        font-size: 0.7rem;
+                    }
+                    .user-bubble-menu a, .user-bubble-menu button {
+                        padding: 0.4rem 0.6rem;
+                        font-size: 0.85rem;
+                    }
+}
             </style>
             <div class="user-avatar" id="avatarTrigger">
                 <i class="fas fa-user-circle"></i>
