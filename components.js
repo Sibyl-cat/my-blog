@@ -19,7 +19,7 @@ class BlogSidebar extends HTMLElement {
                 <li><a href="./about.html"><i class="fas fa-code"></i> 关于</a></li>
             </ul>
             <div class="sidebar-footer">
-                <p>© 2025 小电视の日常</p>
+                <p>© 2026 星辰空间站</p>
             </div>
         </div>
         <!-- 遮罩层 -->
@@ -67,7 +67,7 @@ class BlogNavbarSecondary extends HTMLElement {
                 <div class="logo" style="display: flex; align-items: center; gap: 12px;">
                     <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;" title="打开侧边栏"></i>
                     <a href="./index.html" style="text-decoration: none; color: inherit; cursor: pointer;" title="返回首页">
-                        <span>小电视の日常</span>
+                        <span>星辰空间站</span>
                     </a>
                 </div>
             </div>
