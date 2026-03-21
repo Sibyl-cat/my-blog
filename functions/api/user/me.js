@@ -10,17 +10,14 @@ export async function onRequest(context) {
     }
 
     const { results } = await env.DB.prepare(
-        'SELECT username, role FROM users WHERE id = ?'  // 同时查询 role
+        'SELECT username, role, created_at FROM users WHERE id = ?'
     ).bind(userId).all();
-    
+
     if (results.length === 0) {
         return new Response(JSON.stringify({ error: '用户不存在' }), { status: 404 });
     }
 
-    return new Response(JSON.stringify({
-        username: results[0].username,
-        role: results[0].role 
-    }), {
+    return new Response(JSON.stringify(results[0]), {
         headers: { 'Content-Type': 'application/json' }
     });
 }
