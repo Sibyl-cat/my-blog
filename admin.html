@@ -395,7 +395,7 @@
                 <button id="chooseRichMode" class="btn btn-primary">富文本模式</button>
                 <button id="chooseCodeMode" class="btn">Markdown/代码模式</button>
             </div>
-            <button class="close-modal" onclick="document.getElementById('modeSelector').style.display='none'">取消</button>
+            <button id="closeModalBtn" class="close-modal">取消</button>
         </div>
     </div>
 
@@ -595,35 +595,38 @@
 
         if (newPostLink) {
             newPostLink.addEventListener('click', (e) => {
-                e.preventDefault(); // 阻止默认跳转
+                e.preventDefault();
                 modeSelector.style.display = 'flex';
             });
         }
 
-        // 关闭弹窗函数
         function closeModal() {
             modeSelector.style.display = 'none';
         }
 
-        // 点击遮罩层关闭弹窗
-        modeSelector.addEventListener('click', (e) => {
-            if (e.target === modeSelector) {
-                closeModal();
-            }
-        });
+        if (modeSelector) {
+            modeSelector.addEventListener('click', (e) => {
+                if (e.target === modeSelector) {
+                    closeModal();
+                }
+            });
+        }
 
-        // 关闭按钮关闭弹窗
-        closeModalBtn.addEventListener('click', closeModal);
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeModal);
+        }
 
-        // 富文本模式选择
-        chooseRichMode.addEventListener('click', () => {
-            window.location.href = 'editor.html?mode=rich';
-        });
+        if (chooseRichMode) {
+            chooseRichMode.addEventListener('click', () => {
+                window.location.href = 'editor.html?mode=rich';
+            });
+        }
 
-        // 代码模式选择
-        chooseCodeMode.addEventListener('click', () => {
-            window.location.href = 'editor.html?mode=markdown';
-        });
+        if (chooseCodeMode) {
+            chooseCodeMode.addEventListener('click', () => {
+                window.location.href = 'editor.html?mode=markdown';
+            });
+        }
     </script>
 </body>
 </html>
