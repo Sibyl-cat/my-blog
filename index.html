@@ -9,6 +9,24 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="style.css">
   <script src="./components.js"></script>
+  <style>
+    /* 仅在本页生效：移除页脚的毛玻璃、边框、阴影 */
+    .footer {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    /* 可选：调整文字颜色，确保在透明背景上清晰 */
+    .footer .copyright,
+    .footer .social-links a {
+        color: #333; /* 或保持原色，根据背景调整 */
+    }
+    .footer .copyright a {
+        color: #666;
+    }
+</style>
 </head>
 
 <body>
