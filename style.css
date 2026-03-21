@@ -855,7 +855,8 @@ body::before {
     .navbar {
         flex-direction: row;           /* 保持水平排列 */
         justify-content: space-between; /* 左右两端对齐 */
-        padding: 0.8rem 1rem;
+        padding: 0.6rem 1rem;
+        gap: 0.5rem;
     }
     .nav-links {
         display: none;                 /* 隐藏原有导航链接 */
@@ -863,10 +864,18 @@ body::before {
     /* 左侧 logo 区域自动占满剩余空间，右侧头像不换行 */
     .navbar > div:first-child {
         flex: 1;
+        min-width: 0;
     }
     .navbar user-menu {
         flex-shrink: 0;                /* 防止被压缩 */
         margin-left: auto;
+    }
+    .logo {
+        gap: 6px;                      /* 减小图标与文字间距 */
+        font-size: 1.2rem;             /* 适当缩小字体 */
+    }
+    .logo i {
+        font-size: 1.5rem;
     }
 
     .sidebar {
