@@ -73,7 +73,7 @@ body::before {
 
 /* ========== 导航栏 ========== */
 .navbar {
-  position: relative;
+ 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -85,6 +85,8 @@ body::before {
   border-radius: 60px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   animation: slideDown 0.7s ease-out;
+  position: relative;
+  z-index: 100;
 }
 
 @keyframes slideDown {
