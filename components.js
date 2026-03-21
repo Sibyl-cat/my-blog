@@ -133,7 +133,7 @@ class UserMenu extends HTMLElement {
                 }
                 .user-bubble {
                     position: absolute;
-                    top: 50px;
+                    top: 50px;           /* 根据头像高度微调 */
                     right: 0;
                     width: 280px;
                     background: rgba(255,255,255,0.95);
@@ -142,7 +142,7 @@ class UserMenu extends HTMLElement {
                     border: 1px solid rgba(251,114,153,0.3);
                     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
                     padding: 1rem;
-                    z-index: 1001;
+                    z-index: 1001;       /* 确保高于侧边栏（1000） */
                     opacity: 0;
                     visibility: hidden;
                     transform: translateY(-10px);
@@ -152,6 +152,7 @@ class UserMenu extends HTMLElement {
                     opacity: 1;
                     visibility: visible;
                     transform: translateY(0);
+                }
                 }
                 .user-bubble-header {
                     display: flex;
@@ -218,10 +219,19 @@ class UserMenu extends HTMLElement {
                     background: rgba(251,114,153,0.2);
                     margin: 0.5rem 0;
                 }
+               /* 移动端适配 */
                 @media (max-width: 768px) {
                     .user-bubble {
                         width: 260px;
-                        right: -10px;
+                        right: -10px;     /* 避免右侧溢出 */
+                        top: 48px;
+                    }
+                    .user-avatar {
+                        width: 36px;
+                        height: 36px;
+                    }
+                    .user-avatar i {
+                        font-size: 1.2rem;
                     }
                 }
             </style>
@@ -241,7 +251,7 @@ class UserMenu extends HTMLElement {
                 let roleText = '';
                 if (user.role === 'admin') roleText = '管理员';
                 else if (user.role === 'superadmin') roleText = '超级管理员';
-                else roleText = '普通用户';
+                else roleText = '用户';
 
                 bubble.innerHTML = `
                     <div class="user-bubble-header">
