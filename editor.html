@@ -208,6 +208,28 @@
             width: auto;
             margin-right: 0.3rem;
         }
+        /* Markdown 编辑器样式 */
+        #markdown-editor-container {
+            margin-bottom: 1rem;
+        }
+        #markdown-textarea {
+            width: 100%;
+            height: 500px;
+            padding: 1rem;
+            border: 1px solid rgba(251,114,153,0.3);
+            border-radius: 20px;
+            background: rgba(255,255,255,0.5);
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+        .md-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: none;
+        }
         @media (max-width: 768px) {
             .editor-card {
                 padding: 1.5rem;
@@ -263,24 +285,36 @@
             <textarea id="excerpt" rows="3" placeholder="简短介绍..."></textarea>
         </div>
 
-        <!-- 富文本编辑器 -->
-        <label>正文</label>
-        <div id="editor-container"></div>
-
-        <!-- 源码模式切换 -->
-        <div class="source-toggle">
-            <label>
-                <input type="checkbox" id="sourceModeCheckbox"> 源码模式
-            </label>
-            <span style="color:#666;">（勾选后可直接编辑HTML源码）</span>
+        <!-- 富文本编辑器容器 -->
+        <div id="rich-editor-container">
+            <label>正文</label>
+            <div id="editor-container"></div>
+    
+            <!-- 源码模式切换 -->
+            <div class="source-toggle">
+                <label>
+                    <input type="checkbox" id="sourceModeCheckbox"> 源码模式
+                </label>
+                <span style="color:#666;">（勾选后可直接编辑HTML源码）</span>
+            </div>
+    
+    
+            
+            <!-- 源码编辑区（初始隐藏） -->
+            <div id="source-container">
+                <textarea id="source-textarea" placeholder="HTML 源码..."></textarea>
+            </div>
         </div>
-
-
-        
-        <!-- 源码编辑区（初始隐藏） -->
-        <div id="source-container">
-            <textarea id="source-textarea" placeholder="HTML 源码..."></textarea>
+        <!-- Markdown 编辑器容器（初始隐藏） -->
+        <div id="markdown-editor-container" style="display: none;">
+            <label>正文 (Markdown)</label>
+            <textarea id="markdown-textarea" placeholder="在此输入 Markdown 格式的文章..."></textarea>
+            <div style="margin-top: 0.5rem;">
+                <button id="previewMdBtn" class="btn" style="padding: 0.3rem 1rem;">预览</button>
+            </div>
+            <div id="markdown-preview" class="md-preview"></div>
         </div>
+ 
 
         <!-- 底部按钮组 -->
         <div class="action-buttons">
@@ -299,6 +333,8 @@
     // ========== 全局变量 ==========
     let quill;                      // Quill 编辑器实例
     let currentPost = null;         // 当前文章 { slug, is_published }
+    let currentMode = 'rich';       // 当前编辑模式: 'rich' 或 'markdown'
+
 
     const slugHidden = document.getElementById('slug');
     const titleInput = document.getElementById('title');
@@ -313,6 +349,12 @@
     const sourceModeCheckbox = document.getElementById('sourceModeCheckbox');
     const sourceContainer = document.getElementById('source-container');
     const sourceTextarea = document.getElementById('source-textarea');
+    const richContainer = document.getElementById('rich-editor-container');
+    const markdownContainer = document.getElementById('markdown-editor-container');
+    const markdownTextarea = document.getElementById('markdown-textarea');
+    const previewMdBtn = document.getElementById('previewMdBtn');
+    const markdownPreview = document.getElementById('markdown-preview');
+
 
     // ========== 工具函数：显示消息 ==========
     function showMessage(text, type) {
@@ -324,51 +366,70 @@
         }, 3000);
     }
 
-    // ========== 初始化 Quill (确保在 DOM 加载后) ==========
-    document.addEventListener('DOMContentLoaded', function() {
-        quill = new Quill('#editor-container', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline', 'strike'],
-                    ['blockquote', 'code-block'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'script': 'sub'}, { 'script': 'super' }],
-                    [{ 'indent': '-1'}, { 'indent': '+1' }],
-                    [{ 'size': ['small', false, 'large', 'huge'] }],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'align': [] }],
-                    ['link', 'image'],
-                    ['clean']
-                ]
-            },
-            placeholder: '在这里写文章...'
-        });
-
-        // 从 URL 获取 slug 参数并加载文章
-        const urlParams = new URLSearchParams(window.location.search);
-        const slug = urlParams.get('slug');
-        if (slug) {
-            loadPost(slug);
+    // ========== 获取当前内容（根据模式） ==========
+    function getCurrentContent() {
+        if (currentMode === 'rich') {
+            // 富文本模式：如果源码模式开启，则取源码 textarea，否则取 Quill
+            return sourceModeCheckbox.checked ? sourceTextarea.value : quill.root.innerHTML;
+        } else {
+            // Markdown 模式：直接取 textarea 的值
+            return markdownTextarea.value;
         }
+    }
 
-        // 源码模式切换事件
-        sourceModeCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                // 进入源码模式：将 Quill 内容同步到 textarea，隐藏 Quill，显示 textarea
-                sourceTextarea.value = quill.root.innerHTML;
-                document.getElementById('editor-container').style.display = 'none';
-                sourceContainer.style.display = 'block';
-            } else {
-                // 退出源码模式：将 textarea 内容写回 Quill，隐藏 textarea，显示 Quill
-                quill.root.innerHTML = sourceTextarea.value;
-                sourceContainer.style.display = 'none';
-                document.getElementById('editor-container').style.display = 'block';
+    // ========== 设置内容（根据模式） ==========
+    function setContent(content) {
+        if (currentMode === 'rich') {
+            quill.root.innerHTML = content || '';
+            if (sourceModeCheckbox.checked) {
+                sourceTextarea.value = content || '';
             }
-        });
-    });
+        } else {
+            markdownTextarea.value = content || '';
+        }
+    }
 
-        
+    // ========== 初始化编辑器模式 ==========
+    function initMode(mode) {
+        currentMode = mode;
+        if (mode === 'rich') {
+            richContainer.style.display = 'block';
+            markdownContainer.style.display = 'none';
+            // 确保 Quill 已初始化（如果还未初始化，会在 DOMContentLoaded 中创建）
+            if (!quill) {
+                // 延迟初始化
+                setTimeout(() => initQuill(), 0);
+            }
+        } else {
+            richContainer.style.display = 'none';
+            markdownContainer.style.display = 'block';
+        }
+    }
+
+    // 单独初始化 Quill（在 DOMContentLoaded 中调用）
+    function initQuill() {
+        if (!quill) {
+            quill = new Quill('#editor-container', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote', 'code-block'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'align': [] }],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                },
+                placeholder: '在这里写文章...'
+            });
+        }
+    }
+
     // ========== 加载文章内容 ==========
     async function loadPost(slug) {
         try {
@@ -380,12 +441,25 @@
             titleInput.value = post.title;
             tagsInput.value = post.tags || '';
             excerptInput.value = post.excerpt || '';
-            quill.root.innerHTML = post.content || '';
 
-            // 如果当前处于源码模式，同步 textarea 内容
-            if (sourceModeCheckbox && sourceModeCheckbox.checked) {
-                sourceTextarea.value = quill.root.innerHTML;
+            // 根据内容自动判断模式（如果没有指定 mode 参数）
+            const urlParams = new URLSearchParams(window.location.search);
+            const modeParam = urlParams.get('mode');
+            if (modeParam === 'rich' || modeParam === 'markdown') {
+                initMode(modeParam);
+            } else {
+                // 自动判断：如果内容以 < 开头且包含 >，则视为 HTML，使用富文本模式；否则视为 Markdown
+                const trimmed = (post.content || '').trim();
+                const isLikelyHTML = trimmed.startsWith('<') && trimmed.includes('>');
+                if (isLikelyHTML) {
+                    initMode('rich');
+                } else {
+                    initMode('markdown');
+                }
             }
+
+            // 设置内容
+            setContent(post.content || '');
 
             currentPost = { slug: post.slug, is_published: post.is_published };
             showMessage('文章已加载', 'success');
@@ -395,21 +469,19 @@
         }
     }
 
-    // ========== 清空表单（可选）==========
+    // ========== 清空表单 ==========
     function clearForm() {
         slugHidden.value = '';
         titleInput.value = '';
         tagsInput.value = '';
         excerptInput.value = '';
-        quill.root.innerHTML = '';
-        if (sourceTextarea) sourceTextarea.value = '';
+        setContent('');
         currentPost = null;
     }
 
     // ========== 保存草稿 ==========
     saveDraftBtn.addEventListener('click', async () => {
-        // 根据源码模式获取内容
-        const content = sourceModeCheckbox.checked ? sourceTextarea.value : quill.root.innerHTML;
+        const content = getCurrentContent();
 
         const formData = new FormData();
         formData.append('slug', slugHidden.value);
@@ -475,7 +547,6 @@
                 slugHidden.value = result.newSlug;
                 publishBtn.disabled = true;
                 publishBtn.style.opacity = 0.5;
-                // 2秒后返回管理页
                 setTimeout(() => {
                     window.location.href = 'admin.html';
                 }, 1500);
@@ -515,13 +586,13 @@
         const reader = new FileReader();
         reader.onload = (event) => {
             const content = event.target.result;
-            // 使用 marked 解析 markdown 为 HTML
-            const html = marked.parse(content);
-            // 根据当前模式更新内容
-            if (sourceModeCheckbox.checked) {
-                sourceTextarea.value = html;
+            if (currentMode === 'rich') {
+                // 富文本模式：将 Markdown 转换为 HTML
+                const html = marked.parse(content);
+                setContent(html);
             } else {
-                quill.root.innerHTML = html;
+                // Markdown 模式：直接填充原始 Markdown 文本
+                setContent(content);
             }
             showMessage('文件已加载到正文', 'success');
         };
@@ -533,8 +604,12 @@
     // ========== 标签推荐功能 ==========
     suggestTagsBtn.addEventListener('click', async () => {
         const title = titleInput.value;
-        // 获取纯文本内容（用于推荐）
-        const content = quill.getText();
+        let content = '';
+        if (currentMode === 'rich') {
+            content = quill.getText(); // 获取纯文本
+        } else {
+            content = markdownTextarea.value;
+        }
         if (!title && !content) {
             alert('请先填写标题或内容以便推荐标签');
             return;
@@ -560,7 +635,6 @@
                 suggestedTagsDiv.appendChild(span);
             });
 
-            // 初始化选中状态
             const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
             document.querySelectorAll('.suggested-tag').forEach(el => {
                 if (currentTags.includes(el.dataset.tag)) {
@@ -590,6 +664,54 @@
             }
         });
     }
+
+    // ========== Markdown 预览 ==========
+    if (previewMdBtn) {
+        previewMdBtn.addEventListener('click', () => {
+            const md = markdownTextarea.value;
+            const html = marked.parse(md);
+            markdownPreview.innerHTML = html;
+            markdownPreview.style.display = 'block';
+        });
+    }
+
+    // ========== 富文本源码模式切换 ==========
+    if (sourceModeCheckbox) {
+        sourceModeCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                sourceTextarea.value = quill.root.innerHTML;
+                document.getElementById('editor-container').style.display = 'none';
+                sourceContainer.style.display = 'block';
+            } else {
+                quill.root.innerHTML = sourceTextarea.value;
+                sourceContainer.style.display = 'none';
+                document.getElementById('editor-container').style.display = 'block';
+            }
+        });
+    }
+
+    // ========== 初始化页面 ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        // 初始化 Quill（即使可能用不到，也要创建以便后续切换）
+        initQuill();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+        const mode = urlParams.get('mode');
+
+        if (slug) {
+            // 有 slug，加载文章（内部会根据内容自动判断模式，并覆盖 mode 参数）
+            loadPost(slug);
+        } else {
+            // 新建文章，根据 mode 参数初始化
+            if (mode === 'rich' || mode === 'markdown') {
+                initMode(mode);
+            } else {
+                // 默认富文本
+                initMode('rich');
+            }
+        }
+    });
 </script>
 </body>
 </html>
