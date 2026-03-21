@@ -107,6 +107,7 @@ class UserMenu extends HTMLElement {
                     display: inline-block;
                     position: relative;
                     margin-left: 1rem;
+                    z-index: 1;
                 }
                 .user-avatar {
                     width: 40px;
@@ -119,6 +120,8 @@ class UserMenu extends HTMLElement {
                     cursor: pointer;
                     transition: all 0.2s;
                     border: 2px solid #FB7299;
+                    position: relative;
+                    z-index: 2;
                 }
                 .user-avatar i {
                     font-size: 1.5rem;
@@ -130,7 +133,7 @@ class UserMenu extends HTMLElement {
                 }
                 .user-bubble {
                     position: absolute;
-                    top: 50px;
+                    top: calc(100% + 10px);
                     right: 0;
                     width: 280px;
                     background: rgba(255,255,255,0.95);
@@ -139,7 +142,7 @@ class UserMenu extends HTMLElement {
                     border: 1px solid rgba(251,114,153,0.3);
                     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
                     padding: 1rem;
-                    z-index: 1000;
+                    z-index: 10000;
                     opacity: 0;
                     visibility: hidden;
                     transform: translateY(-10px);
