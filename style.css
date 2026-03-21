@@ -870,13 +870,6 @@ body::before {
         flex-shrink: 0;                /* 防止被压缩 */
         margin-left: auto;
     }
-    .logo {
-        gap: 6px;                      /* 减小图标与文字间距 */
-        font-size: 1.2rem;             /* 适当缩小字体 */
-    }
-    .logo i {
-        font-size: 1.5rem;
-    }
 
     .sidebar {
       width: 240px;
