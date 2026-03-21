@@ -264,6 +264,7 @@ class UserMenu extends HTMLElement {
                         </div>
                     </div>
                     <ul class="user-bubble-menu">
+                        <li><a href="/profile.html"><i class="fas fa-user"></i> 个人主页</a></li>
                         <li><a href="/admin.html"><i class="fas fa-cog"></i> 管理后台</a></li>
                         <li><div class="divider"></div></li>
                         <li><button id="bubbleLogoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</button></li>
