@@ -133,7 +133,7 @@ class UserMenu extends HTMLElement {
                 }
                 .user-bubble {
                     position: absolute;
-                    top: calc(100% + 10px);
+                    top: 50px;
                     right: 0;
                     width: 280px;
                     background: rgba(255,255,255,0.95);
@@ -142,7 +142,7 @@ class UserMenu extends HTMLElement {
                     border: 1px solid rgba(251,114,153,0.3);
                     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
                     padding: 1rem;
-                    z-index: 10000;
+                    z-index: 1001;
                     opacity: 0;
                     visibility: hidden;
                     transform: translateY(-10px);
