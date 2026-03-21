@@ -382,3 +382,69 @@ function escapeHtml(str) {
         return m;
     });
 }
+// ========== 网站运行时长组件 ==========
+class RuntimeDisplay extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        // 首次部署时间：2026年2月25日 9:07 AM
+        this.startTime = new Date(2026, 1, 25, 9, 7, 0);
+    }
+
+    connectedCallback() {
+        this.render();
+        this.startTimer();
+    }
+
+    disconnectedCallback() {
+        if (this.timer) clearInterval(this.timer);
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                :host {
+                    display: inline-block;
+                    font-size: 0.9rem;
+                    color: #333;
+                }
+                .runtime {
+                    white-space: nowrap;
+                }
+                .pink-number {
+                    color: #FB7299;
+                    font-weight: 500;
+                }
+            </style>
+            <span class="runtime" id="runtime">加载中...</span>
+        `;
+    }
+
+    startTimer() {
+        const update = () => {
+            const now = new Date();
+            const diff = now - this.startTime; // 毫秒差
+            if (diff < 0) {
+                this.shadowRoot.getElementById('runtime').textContent = '即将上线';
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            // 构建带颜色分隔的HTML
+            const html = `
+                <span class="pink-number">${days}</span><span style="color: #333;">天</span>
+                <span class="pink-number">${hours}</span><span style="color: #333;">小时</span>
+                <span class="pink-number">${minutes}</span><span style="color: #333;">分</span>
+                <span class="pink-number">${seconds}</span><span style="color: #333;">秒</span>
+            `;
+            this.shadowRoot.getElementById('runtime').innerHTML = html;
+        };
+        update();
+        this.timer = setInterval(update, 1000);
+    }
+}
+
+customElements.define('runtime-display', RuntimeDisplay);
