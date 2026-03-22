@@ -255,6 +255,8 @@ class UserMenu extends HTMLElement {
                     }
 }
             </style>
+            <!-- 引入 Font Awesome 样式，使图标正常显示 -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
             <div class="user-avatar" id="avatarTrigger">
                 <i class="fas fa-user-circle"></i>
             </div>
@@ -297,6 +299,7 @@ async loadUserInfo() {
                 <ul class="user-bubble-menu">
                     <li><a href="/profile.html"><i class="fas fa-user"></i> 个人主页</a></li>
                     <li><button id="uploadAvatarBtn"><i class="fas fa-camera"></i> 上传头像</button></li>
+                    <li><a href="/change-password.html"><i class="fas fa-key"></i> 修改密码</a></li>
                     <li><a href="/admin.html"><i class="fas fa-cog"></i> 管理后台</a></li>
                     <li><div class="divider"></div></li>
                     <li><button id="bubbleLogoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</button></li>
