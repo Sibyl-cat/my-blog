@@ -82,7 +82,9 @@ export async function onRequest(context) {
         path === '/editor' || 
         path.startsWith('/admin/') ||          // 其他 admin 子路径
         path === '/users.html' ||              // 用户管理页
-        path === '/users';                      // 可能的用户管理页别名
+        path === '/users' || 
+        path === '/profile.html' ||
+        path === '/change-password.html';
 
     if (!isProtectedPage) {
         // 非保护页面直接放行（如首页、文章页等）
