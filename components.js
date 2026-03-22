@@ -262,34 +262,87 @@ class UserMenu extends HTMLElement {
         `;
     }
 
-    async loadUserInfo() {
-        const bubble = this.shadowRoot.getElementById('bubble');
-        try {
-            const res = await fetch('/api/user/me');
-            if (res.ok) {
-                const user = await res.json();
-                let roleText = '';
-                if (user.role === 'admin') roleText = '管理员';
-                else if (user.role === 'superadmin') roleText = '超级管理员';
-                else roleText = '用户';
+async loadUserInfo() {
+    const bubble = this.shadowRoot.getElementById('bubble');
+    const avatarElem = this.shadowRoot.getElementById('avatarTrigger');
+    try {
+        const res = await fetch('/api/user/me');
+        if (res.ok) {
+            const user = await res.json();
+            let roleText = '';
+            if (user.role === 'admin') roleText = '管理员';
+            else if (user.role === 'superadmin') roleText = '超级管理员';
+            else roleText = '普通用户';
 
-                bubble.innerHTML = `
-                    <div class="user-bubble-header">
-                        <div class="user-bubble-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="user-bubble-info">
-                            <div class="user-bubble-name">${escapeHtml(user.username)}</div>
-                            <div class="user-bubble-role">${roleText}</div>
-                        </div>
+            // 更新头像显示
+            if (avatarElem) {
+                if (user.avatar) {
+                    avatarElem.innerHTML = `<img src="${user.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                } else {
+                    avatarElem.innerHTML = `<i class="fas fa-user-circle"></i>`;
+                }
+            }
+
+            // 气泡内容
+            bubble.innerHTML = `
+                <div class="user-bubble-header">
+                    <div class="user-bubble-avatar">
+                        ${user.avatar ? `<img src="${user.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-user-circle"></i>'}
                     </div>
-                    <ul class="user-bubble-menu">
-                        <li><a href="/profile.html"><i class="fas fa-user"></i> 个人主页</a></li>
-                        <li><a href="/admin.html"><i class="fas fa-cog"></i> 管理后台</a></li>
-                        <li><div class="divider"></div></li>
-                        <li><button id="bubbleLogoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</button></li>
-                    </ul>
-                `;
+                    <div class="user-bubble-info">
+                        <div class="user-bubble-name">${escapeHtml(user.username)}</div>
+                        <div class="user-bubble-role">${roleText}</div>
+                    </div>
+                </div>
+                <ul class="user-bubble-menu">
+                    <li><a href="/profile.html"><i class="fas fa-user"></i> 个人主页</a></li>
+                    <li><button id="uploadAvatarBtn"><i class="fas fa-camera"></i> 上传头像</button></li>
+                    <li><a href="/admin.html"><i class="fas fa-cog"></i> 管理后台</a></li>
+                    <li><div class="divider"></div></li>
+                    <li><button id="bubbleLogoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</button></li>
+                </ul>
+            `;
+
+            // 绑定上传头像事件
+            const uploadBtn = bubble.querySelector('#uploadAvatarBtn');
+            if (uploadBtn) {
+                uploadBtn.addEventListener('click', () => {
+                    // 创建隐藏文件输入框
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/jpeg,image/png,image/gif,image/webp';
+                    fileInput.onchange = async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        const formData = new FormData();
+                        formData.append('avatar', file);
+                        try {
+                            const uploadRes = await fetch('/api/user/avatar', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const data = await uploadRes.json();
+                            if (uploadRes.ok) {
+                                // 更新头像显示
+                                if (avatarElem) {
+                                    avatarElem.innerHTML = `<img src="${data.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                                }
+                                // 更新气泡内头像
+                                const bubbleAvatar = bubble.querySelector('.user-bubble-avatar');
+                                if (bubbleAvatar) {
+                                    bubbleAvatar.innerHTML = `<img src="${data.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                                }
+                                alert('头像上传成功');
+                            } else {
+                                alert(data.error || '上传失败');
+                            }
+                        } catch (err) {
+                            alert('网络错误');
+                        }
+                    };
+                    fileInput.click();
+                });
+            }
                 const logoutBtn = bubble.querySelector('#bubbleLogoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', async (e) => {
@@ -416,10 +469,12 @@ class RuntimeDisplay extends HTMLElement {
                     font-weight: 500;
                 }
             </style>
-            <span class="runtime" id="runtime">加载中...</span>
-        `;
-    }
-
+            <div class="user-avatar" id="avatarTrigger">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="user-bubble" id="bubble"></div>
+    `;
+}
     startTimer() {
         const update = () => {
             const now = new Date();
