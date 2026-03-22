@@ -442,6 +442,7 @@ class RuntimeDisplay extends HTMLElement {
         this.attachShadow({ mode: 'open' });
         // 首次部署时间：2026年2月25日 9:07 AM
         this.startTime = new Date(2026, 1, 25, 9, 7, 0);
+        this.timer = null;
     }
 
     connectedCallback() {
@@ -450,7 +451,10 @@ class RuntimeDisplay extends HTMLElement {
     }
 
     disconnectedCallback() {
-        if (this.timer) clearInterval(this.timer);
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
     }
 
     render() {
@@ -469,18 +473,20 @@ class RuntimeDisplay extends HTMLElement {
                     font-weight: 500;
                 }
             </style>
-            <div class="user-avatar" id="avatarTrigger">
-            <i class="fas fa-user-circle"></i>
-        </div>
-        <div class="user-bubble" id="bubble"></div>
-    `;
-}
+            <span class="runtime" id="runtime">加载中...</span>
+        `;
+    }
+
     startTimer() {
         const update = () => {
+            // 每次更新时重新获取元素，防止元素被意外移除
+            const runtimeSpan = this.shadowRoot.getElementById('runtime');
+            if (!runtimeSpan) return;
+
             const now = new Date();
-            const diff = now - this.startTime; // 毫秒差
+            const diff = now - this.startTime;
             if (diff < 0) {
-                this.shadowRoot.getElementById('runtime').textContent = '即将上线';
+                runtimeSpan.textContent = '即将上线';
                 return;
             }
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -495,7 +501,7 @@ class RuntimeDisplay extends HTMLElement {
                 <span class="pink-number">${minutes}</span><span style="color: #333;">分</span>
                 <span class="pink-number">${seconds}</span><span style="color: #333;">秒</span>
             `;
-            this.shadowRoot.getElementById('runtime').innerHTML = html;
+            runtimeSpan.innerHTML = html;
         };
         update();
         this.timer = setInterval(update, 1000);
