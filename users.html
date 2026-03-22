@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>用户管理 · 小电视の日常</title>
+    <title>用户管理 · 星辰空间站</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
@@ -131,6 +131,11 @@
             box-shadow: 0 0 0 3px rgba(251, 114, 153, 0.2);
         }
 
+        input:disabled {
+            background: rgba(200, 200, 200, 0.3);
+            cursor: not-allowed;
+        }
+
         .btn-group {
             display: flex;
             gap: 1rem;
@@ -248,51 +253,39 @@
         <!-- 全局侧边栏组件 -->
         <blog-sidebar></blog-sidebar>
 
-    <div class="users-container">
-        <!-- 左侧：用户列表卡片 -->
-        <div class="panel glass">
-            <h2><i class="fas fa-users"></i> 用户列表</h2>
-            <div class="user-list" id="user-list">
-                <!-- 动态加载 -->
+        <div class="users-container">
+            <!-- 左侧：用户列表卡片 -->
+            <div class="panel glass">
+                <h2><i class="fas fa-users"></i> 用户列表</h2>
+                <div class="user-list" id="user-list">
+                    <!-- 动态加载 -->
+                </div>
+                <button class="refresh-btn" id="refreshUsersBtn">
+                    <i class="fas fa-sync-alt"></i> 刷新列表
+                </button>
             </div>
-            <button class="refresh-btn" id="refreshUsersBtn">
-                <i class="fas fa-sync-alt"></i> 刷新列表
-            </button>
-        </div>
 
-        <!-- 右侧：操作卡片 -->
-        <div class="panel glass">
-            <h2><i class="fas fa-user-edit"></i> 用户操作</h2>
-            <form id="userForm">
-                <div class="form-group">
-                    <label><i class="fas fa-user" style="color:#FB7299; margin-right:0.3rem;"></i> 用户名</label>
-                    <input type="text" id="username" placeholder="输入用户名" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-lock" style="color:#FB7299; margin-right:0.3rem;"></i> 密码</label>
-                    <input type="password" id="password" placeholder="修改密码时填写新密码">
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-check-circle" style="color:#FB7299; margin-right:0.3rem;"></i> 确认密码</label>
-                    <input type="password" id="confirmPassword" placeholder="再次输入密码">
-                </div>
-                <div class="btn-group">
-                    <button type="button" id="updateUserBtn" class="btn"><i class="fas fa-key"></i> 修改密码</button>
-                    <button type="button" id="deleteUserBtn" class="btn btn-danger"><i class="fas fa-trash"></i>
-                        删除</button>
-                </div>
-                <div id="message" class="message"></div>
-            </form>
+            <!-- 右侧：操作卡片（仅删除用户） -->
+            <div class="panel glass">
+                <h2><i class="fas fa-user-edit"></i> 用户操作</h2>
+                <form id="userForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-user" style="color:#FB7299; margin-right:0.3rem;"></i> 用户名</label>
+                        <input type="text" id="username" placeholder="选择一个用户" disabled>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" id="deleteUserBtn" class="btn btn-danger"><i class="fas fa-trash"></i> 删除用户</button>
+                    </div>
+                    <div id="message" class="message"></div>
+                </form>
+            </div>
         </div>
     </div>
- </div>
+
     <script>
         // DOM 元素
         const userListDiv = document.getElementById('user-list');
         const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        const confirmInput = document.getElementById('confirmPassword');
-        const updateBtn = document.getElementById('updateUserBtn');
         const deleteBtn = document.getElementById('deleteUserBtn');
         const refreshBtn = document.getElementById('refreshUsersBtn');
         const messageDiv = document.getElementById('message');
@@ -337,8 +330,6 @@
                         item.classList.add('selected');
                         selectedUserId = item.dataset.id;
                         usernameInput.value = item.dataset.username;
-                        passwordInput.value = '';
-                        confirmInput.value = '';
                     });
                 });
             } catch (err) {
@@ -350,47 +341,8 @@
         function clearForm() {
             selectedUserId = null;
             usernameInput.value = '';
-            passwordInput.value = '';
-            confirmInput.value = '';
             document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
         }
-
-
-        // 修改密码
-        updateBtn.addEventListener('click', async () => {
-            if (!selectedUserId) {
-                showMessage('请先选择一个用户', 'error');
-                return;
-            }
-            const password = passwordInput.value;
-            const confirm = confirmInput.value;
-            if (!password) {
-                showMessage('密码不能为空', 'error');
-                return;
-            }
-            if (password !== confirm) {
-                showMessage('两次密码不一致', 'error');
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/admin/user/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: selectedUserId, password })
-                });
-                const result = await res.json();
-                if (res.ok) {
-                    showMessage('密码修改成功', 'success');
-                    passwordInput.value = '';
-                    confirmInput.value = '';
-                } else {
-                    showMessage(result.error || '修改失败', 'error');
-                }
-            } catch (err) {
-                showMessage('请求失败', 'error');
-            }
-        });
 
         // 删除用户
         deleteBtn.addEventListener('click', async () => {
