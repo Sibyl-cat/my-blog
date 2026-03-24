@@ -80,23 +80,27 @@
 
   <div class="blog-container">
 
-    <!-- 个人资料卡 (毛玻璃 + 动效) -->
-    <div class="profile-card glass">
-      <div class="avatar">
-        <i class="fa-solid       fa-circle-user"></i>
-      </div>
-      <div class="profile-info">
-        <h1>星辰空间站 · 星辰大海</h1>
-        <div class="bio">
-          <span><i class="fas fa-calendar-alt"></i> 注册于 2026</span>
-          <span><i class="fas fa-pen-fancy"></i> <span id="totalPosts">29</span> 篇原创</span>
-          <span><i class="fas fa-heart" style="color: #FB7299;"></i> <span id="totalUsers">1.2w</span>个用户</span>
-        </div>
-        <div style="margin-top: 12px; color:#393939;"><i class="fas fa-quote-left" style="color:#FB7299;"></i>
-          分享计算机小白的日常，周末也许会更 ✨</div>
-      </div>
+<!-- 俏皮个人资料卡 -->
+<div class="profile-card glass">
+    <div class="avatar">
+        <i class="fa-regular fa-face-smile-wink"></i>
     </div>
-
+    <div class="profile-info">
+        <h1>   星辰空间站   </h1>
+        <div class="bio">
+            <span><i class="fas fa-calendar-alt"></i> 开张于 2026.02.25</span>
+            <span><i class="fas fa-pen-fancy"></i>    已有 <strong id="totalPosts">0</strong> 篇宝藏</span>
+            <span><i class="fas fa-heart" style="color: #FB7299;"></i>    <strong id="totalUsers">0</strong> 位小伙伴入驻</span>
+        </div>
+        <div style="margin-top: 12px; color:#393939; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <i class="fas fa-quote-left" style="color:#FB7299;"></i>
+            <span>   一起写点有趣的东西吧！</span>
+            <span class="runtime-badge">
+                   已运行 <runtime-display></runtime-display>
+            </span>
+        </div>
+    </div>
+</div>
     <!-- 文章区域 标题 + 卡片网格 -->
     <h2 class="section-title"><i class="fas fa-arrow-trend-up" style="color:#FB7299; margin-right: 12px;"></i>最新放映</h2>
     <div class="article-grid" id="post-grid">
