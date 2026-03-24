@@ -256,7 +256,7 @@ class UserMenu extends HTMLElement {
 }
             </style>
             <!-- 引入 Font Awesome 样式，使图标正常显示 -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <div class="user-avatar" id="avatarTrigger">
                 <i class="fas fa-user-circle"></i>
             </div>
