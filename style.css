@@ -450,57 +450,7 @@ body::before {
   background: rgba(251, 114, 153, 0.7);
 }
 
-/* ========== 页脚 ========== */
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.6rem 2.5rem;
-  border-radius: 60px;
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(12px);
-  margin-top: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  animation: fadeUp 0.8s 0.3s both;
-}
 
-@keyframes fadeUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.social-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.social-links a {
-  color: #2e2e2e;
-  font-size: 1.8rem;
-  transition: all 0.2s;
-}
-
-.social-links a:hover {
-  color: #FB7299;
-  transform: scale(1.2) rotate(4deg);
-}
-
-.copyright {
-  color: #3d3d3d;
-  font-size: 1.1rem;
-}
-
-.copyright i {
-  color: #FB7299;
-  margin: 0 4px;
-}
 
 /* ========== 作者列表页 ========== */
 .authors-grid {
