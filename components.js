@@ -1,34 +1,161 @@
 // components.js - 独立的 Web Components 模块
 
+// ========== 侧边栏组件 ==========
 class BlogSidebar extends HTMLElement {
-    connectedCallback() {
-        this.style.display = 'block';
-        this.innerHTML = `
-        <!-- 侧边栏 (毛玻璃) -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <span class="sidebar-title">导航</span>
-                <button class="close-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
-            </div>
-            <ul class="sidebar-menu">
-                <li><a href="./index.html"><i class="fas fa-house"></i> 首页</a></li>
-                <li><a href="./authors.html"><i class="fas fa-users"></i> 作者</a></li>
-                <li><a href="./register.html"><i class="fas fa-user-plus"></i> 注册</a></li>
-                <li><a href="./tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a></li>
-                <li><a href="./admin.html"><i class="fa-solid fa-blog"></i> 管理</a></li>
-                <li><a href="./about.html"><i class="fas fa-code"></i> 关于</a></li>
-            </ul>
-            <div class="sidebar-footer">
-                <p>© 2026 星辰空间站</p>
-            </div>
-        </div>
-        <!-- 遮罩层 -->
-        <div class="overlay" id="overlay"></div>
-        `;
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
 
-        const sidebar = this.querySelector('#sidebar');
-        const overlay = this.querySelector('#overlay');
-        const closeBtn = this.querySelector('#closeSidebar');
+    connectedCallback() {
+        this.render();
+        this.initSidebar();
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                /* 侧边栏样式 */
+                .sidebar {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 280px;
+                    height: 100vh;
+                    background: rgba(255, 255, 255, 0.6);
+                    backdrop-filter: blur(16px) saturate(180%);
+                    -webkit-backdrop-filter: blur(16px) saturate(180%);
+                    border-right: 1px solid rgba(251, 114, 153, 0.3);
+                    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+                    z-index: 1000;
+                    transform: translateX(-100%);
+                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    display: flex;
+                    flex-direction: column;
+                    padding: 1.5rem 1rem;
+                    color: #2a2a2a;
+                }
+                .sidebar.open {
+                    transform: translateX(0);
+                }
+                .sidebar-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 2rem;
+                    padding-bottom: 0.5rem;
+                    border-bottom: 1px solid rgba(251, 114, 153, 0.3);
+                }
+                .sidebar-title {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: #FB7299;
+                }
+                .close-btn {
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    color: #FB7299;
+                    cursor: pointer;
+                    transition: transform 0.2s;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .close-btn:hover {
+                    background: rgba(251, 114, 153, 0.2);
+                    transform: rotate(90deg);
+                }
+                .sidebar-menu {
+                    list-style: none;
+                    padding: 0;
+                    flex: 1;
+                }
+                .sidebar-menu li {
+                    margin-bottom: 0.5rem;
+                }
+                .sidebar-menu a {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 0.8rem 1rem;
+                    border-radius: 30px;
+                    color: #2a2a2a;
+                    text-decoration: none;
+                    font-size: 1.1rem;
+                    transition: all 0.25s;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid transparent;
+                }
+                .sidebar-menu a:hover {
+                    background: rgba(251, 114, 153, 0.15);
+                    border-color: rgba(251, 114, 153, 0.3);
+                    transform: translateX(6px);
+                    color: #FB7299;
+                }
+                .sidebar-menu i {
+                    width: 24px;
+                    color: #FB7299;
+                    font-size: 1.2rem;
+                }
+                .sidebar-footer {
+                    padding-top: 1rem;
+                    border-top: 1px solid rgba(251, 114, 153, 0.3);
+                    font-size: 0.9rem;
+                    text-align: center;
+                    color: #5a5a5a;
+                }
+                .overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.2);
+                    backdrop-filter: blur(2px);
+                    z-index: 999;
+                    opacity: 0;
+                    visibility: hidden;
+                    transition: opacity 0.3s, visibility 0.3s;
+                }
+                .overlay.active {
+                    opacity: 1;
+                    visibility: visible;
+                }
+                @media (max-width: 680px) {
+                    .sidebar {
+                        width: 240px;
+                    }
+                }
+            </style>
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-title">导航</span>
+                    <button class="close-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
+                </div>
+                <ul class="sidebar-menu">
+                    <li><a href="./index.html"><i class="fas fa-house"></i> 首页</a></li>
+                    <li><a href="./authors.html"><i class="fas fa-users"></i> 作者</a></li>
+                    <li><a href="./register.html"><i class="fas fa-user-plus"></i> 注册</a></li>
+                    <li><a href="./tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a></li>
+                    <li><a href="./admin.html"><i class="fa-solid fa-blog"></i> 管理</a></li>
+                    <li><a href="./about.html"><i class="fas fa-code"></i> 关于</a></li>
+                </ul>
+                <div class="sidebar-footer">
+                    <p>© 2026 星辰空间站</p>
+                </div>
+            </div>
+            <div class="overlay" id="overlay"></div>
+        `;
+    }
+
+    initSidebar() {
+        const sidebar = this.shadowRoot.getElementById('sidebar');
+        const overlay = this.shadowRoot.getElementById('overlay');
+        const closeBtn = this.shadowRoot.getElementById('closeSidebar');
 
         if (!sidebar || !overlay || !closeBtn) return;
 
@@ -57,11 +184,11 @@ class BlogSidebar extends HTMLElement {
 }
 customElements.define('blog-sidebar', BlogSidebar);
 
+// ========== 二级页面精简导航栏 ==========
 class BlogNavbarSecondary extends HTMLElement {
     connectedCallback() {
         this.style.display = 'block';
         this.innerHTML = `
-        <!-- 二级页面专用精简导航栏 -->
         <nav class="navbar glass" style="justify-content: flex-start;">
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div class="logo" style="display: flex; align-items: center; gap: 12px;">
@@ -79,13 +206,11 @@ customElements.define('blog-navbar-secondary', BlogNavbarSecondary);
 
 // 全局事件代理处理侧边栏唤出
 document.addEventListener('click', (e) => {
-    // 只要点到了 id 为 sidebarToggle 的元素或是其子元素
     const toggle = e.target.closest('#sidebarToggle');
     if (toggle && typeof window.openSidebar === 'function') {
         window.openSidebar();
     }
 });
-
 
 // ========== 用户菜单组件（气泡个人主页） ==========
 class UserMenu extends HTMLElement {
@@ -133,7 +258,7 @@ class UserMenu extends HTMLElement {
                 }
                 .user-bubble {
                     position: absolute;
-                    top: 50px;           /* 根据头像高度微调 */
+                    top: 50px;
                     right: 0;
                     width: 280px;
                     background: rgba(255,255,255,0.95);
@@ -142,7 +267,7 @@ class UserMenu extends HTMLElement {
                     border: 1px solid rgba(251,114,153,0.3);
                     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
                     padding: 1rem;
-                    z-index: 1001;       /* 确保高于侧边栏（1000） */
+                    z-index: 1001;
                     opacity: 0;
                     visibility: hidden;
                     transform: translateY(-10px);
@@ -152,7 +277,6 @@ class UserMenu extends HTMLElement {
                     opacity: 1;
                     visibility: visible;
                     transform: translateY(0);
-                }
                 }
                 .user-bubble-header {
                     display: flex;
@@ -219,7 +343,6 @@ class UserMenu extends HTMLElement {
                     background: rgba(251,114,153,0.2);
                     margin: 0.5rem 0;
                 }
-               /* 移动端适配 */
                 @media (max-width: 768px) {
                     .user-avatar {
                         width: 32px;
@@ -253,9 +376,8 @@ class UserMenu extends HTMLElement {
                         padding: 0.4rem 0.6rem;
                         font-size: 0.85rem;
                     }
-}
+                }
             </style>
-            <!-- 引入 Font Awesome 样式，使图标正常显示 -->
             <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <div class="user-avatar" id="avatarTrigger">
                 <i class="fas fa-user-circle"></i>
@@ -264,88 +386,82 @@ class UserMenu extends HTMLElement {
         `;
     }
 
-async loadUserInfo() {
-    const bubble = this.shadowRoot.getElementById('bubble');
-    const avatarElem = this.shadowRoot.getElementById('avatarTrigger');
-    try {
-        const res = await fetch('/api/user/me');
-        if (res.ok) {
-            const user = await res.json();
-            let roleText = '';
-            if (user.role === 'admin') roleText = '管理员';
-            else if (user.role === 'superadmin') roleText = '超级管理员';
-            else roleText = '普通用户';
+    async loadUserInfo() {
+        const bubble = this.shadowRoot.getElementById('bubble');
+        const avatarElem = this.shadowRoot.getElementById('avatarTrigger');
+        try {
+            const res = await fetch('/api/user/me');
+            if (res.ok) {
+                const user = await res.json();
+                let roleText = '';
+                if (user.role === 'admin') roleText = '管理员';
+                else if (user.role === 'superadmin') roleText = '超级管理员';
+                else roleText = '普通用户';
 
-            // 更新头像显示
-            if (avatarElem) {
-                if (user.avatar) {
-                    avatarElem.innerHTML = `<img src="${user.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
-                } else {
-                    avatarElem.innerHTML = `<i class="fas fa-user-circle"></i>`;
+                if (avatarElem) {
+                    if (user.avatar) {
+                        avatarElem.innerHTML = `<img src="${user.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                    } else {
+                        avatarElem.innerHTML = `<i class="fas fa-user-circle"></i>`;
+                    }
                 }
-            }
 
-            // 气泡内容
-            bubble.innerHTML = `
-                <div class="user-bubble-header">
-                    <div class="user-bubble-avatar">
-                        ${user.avatar ? `<img src="${user.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-user-circle"></i>'}
+                bubble.innerHTML = `
+                    <div class="user-bubble-header">
+                        <div class="user-bubble-avatar">
+                            ${user.avatar ? `<img src="${user.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">` : '<i class="fas fa-user-circle"></i>'}
+                        </div>
+                        <div class="user-bubble-info">
+                            <div class="user-bubble-name">${escapeHtml(user.username)}</div>
+                            <div class="user-bubble-role">${roleText}</div>
+                        </div>
                     </div>
-                    <div class="user-bubble-info">
-                        <div class="user-bubble-name">${escapeHtml(user.username)}</div>
-                        <div class="user-bubble-role">${roleText}</div>
-                    </div>
-                </div>
-                <ul class="user-bubble-menu">
-                    <li><a href="/profile.html"><i class="fas fa-user"></i> 个人主页</a></li>
-                    <li><button id="uploadAvatarBtn"><i class="fas fa-camera"></i> 上传头像</button></li>
-                    <li><a href="/change-password.html"><i class="fas fa-key"></i> 修改密码</a></li>
-                    <li><a href="/admin.html"><i class="fas fa-cog"></i> 管理后台</a></li>
-                    <li><div class="divider"></div></li>
-                    <li><button id="bubbleLogoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</button></li>
-                </ul>
-            `;
+                    <ul class="user-bubble-menu">
+                        <li><a href="/profile.html"><i class="fas fa-user"></i> 个人主页</a></li>
+                        <li><button id="uploadAvatarBtn"><i class="fas fa-camera"></i> 上传头像</button></li>
+                        <li><a href="/change-password.html"><i class="fas fa-key"></i> 修改密码</a></li>
+                        <li><a href="/admin.html"><i class="fas fa-cog"></i> 管理后台</a></li>
+                        <li><div class="divider"></div></li>
+                        <li><button id="bubbleLogoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</button></li>
+                    </ul>
+                `;
 
-            // 绑定上传头像事件
-            const uploadBtn = bubble.querySelector('#uploadAvatarBtn');
-            if (uploadBtn) {
-                uploadBtn.addEventListener('click', () => {
-                    // 创建隐藏文件输入框
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.accept = 'image/jpeg,image/png,image/gif,image/webp';
-                    fileInput.onchange = async (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        const formData = new FormData();
-                        formData.append('avatar', file);
-                        try {
-                            const uploadRes = await fetch('/api/user/avatar', {
-                                method: 'POST',
-                                body: formData
-                            });
-                            const data = await uploadRes.json();
-                            if (uploadRes.ok) {
-                                // 更新头像显示
-                                if (avatarElem) {
-                                    avatarElem.innerHTML = `<img src="${data.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                const uploadBtn = bubble.querySelector('#uploadAvatarBtn');
+                if (uploadBtn) {
+                    uploadBtn.addEventListener('click', () => {
+                        const fileInput = document.createElement('input');
+                        fileInput.type = 'file';
+                        fileInput.accept = 'image/jpeg,image/png,image/gif,image/webp';
+                        fileInput.onchange = async (e) => {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            const formData = new FormData();
+                            formData.append('avatar', file);
+                            try {
+                                const uploadRes = await fetch('/api/user/avatar', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                const data = await uploadRes.json();
+                                if (uploadRes.ok) {
+                                    if (avatarElem) {
+                                        avatarElem.innerHTML = `<img src="${data.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                                    }
+                                    const bubbleAvatar = bubble.querySelector('.user-bubble-avatar');
+                                    if (bubbleAvatar) {
+                                        bubbleAvatar.innerHTML = `<img src="${data.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                                    }
+                                    alert('头像上传成功');
+                                } else {
+                                    alert(data.error || '上传失败');
                                 }
-                                // 更新气泡内头像
-                                const bubbleAvatar = bubble.querySelector('.user-bubble-avatar');
-                                if (bubbleAvatar) {
-                                    bubbleAvatar.innerHTML = `<img src="${data.avatar}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
-                                }
-                                alert('头像上传成功');
-                            } else {
-                                alert(data.error || '上传失败');
+                            } catch (err) {
+                                alert('网络错误');
                             }
-                        } catch (err) {
-                            alert('网络错误');
-                        }
-                    };
-                    fileInput.click();
-                });
-            }
+                        };
+                        fileInput.click();
+                    });
+                }
                 const logoutBtn = bubble.querySelector('#bubbleLogoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', async (e) => {
@@ -359,7 +475,6 @@ async loadUserInfo() {
                     });
                 }
             } else {
-                // 未登录状态
                 bubble.innerHTML = `
                     <div class="user-bubble-header">
                         <div class="user-bubble-avatar">
@@ -410,14 +525,12 @@ async loadUserInfo() {
             }
         });
 
-        // 点击外部关闭
         document.addEventListener('click', (e) => {
             if (!this.contains(e.target)) {
                 hideBubble();
             }
         });
 
-        // ESC 键关闭
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && bubble.classList.contains('show')) {
                 hideBubble();
@@ -425,7 +538,6 @@ async loadUserInfo() {
         });
     }
 }
-
 customElements.define('user-menu', UserMenu);
 
 // 辅助函数：防止 XSS
@@ -438,12 +550,12 @@ function escapeHtml(str) {
         return m;
     });
 }
+
 // ========== 网站运行时长组件 ==========
 class RuntimeDisplay extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        // 首次部署时间：2026年2月25日 9:07 AM
         this.startTime = new Date(2026, 1, 25, 9, 7, 0);
         this.timer = null;
     }
@@ -482,7 +594,6 @@ class RuntimeDisplay extends HTMLElement {
 
     startTimer() {
         const update = () => {
-            // 每次更新时重新获取元素，防止元素被意外移除
             const runtimeSpan = this.shadowRoot.getElementById('runtime');
             if (!runtimeSpan) return;
 
@@ -497,7 +608,6 @@ class RuntimeDisplay extends HTMLElement {
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // 构建带颜色分隔的HTML
             const html = `
                 <span class="pink-number">${days}</span><span style="color: #333;">天</span>
                 <span class="pink-number">${hours}</span><span style="color: #333;">小时</span>
@@ -510,11 +620,7 @@ class RuntimeDisplay extends HTMLElement {
         this.timer = setInterval(update, 1000);
     }
 }
-
 customElements.define('runtime-display', RuntimeDisplay);
-
-
-
 
 // ========== 页脚组件 ==========
 class BlogFooter extends HTMLElement {
@@ -585,6 +691,7 @@ class BlogFooter extends HTMLElement {
                     }
                 }
             </style>
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <footer class="footer">
                 <div class="copyright">
                     <i class="fas fa-copyright"></i> 2026 星辰空间站 · 星辰大海
