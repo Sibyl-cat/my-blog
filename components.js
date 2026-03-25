@@ -131,6 +131,7 @@ class BlogSidebar extends HTMLElement {
                     }
                 }
             </style>
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <div class="sidebar" id="sidebar">
                 <div class="sidebar-header">
                     <span class="sidebar-title">导航</span>
