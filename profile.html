@@ -120,25 +120,9 @@
 </head>
 <body>
     <div class="blog-container">
-        <!-- 导航栏（复用全局） -->
-        <nav class="navbar glass">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;" title="打开侧边栏"></i>
-                    <a href="./index.html" style="text-decoration: none; color: inherit; cursor: pointer;" title="返回首页">
-                        <span>星辰空间站</span>
-                    </a>
-                </div>
-            </div>
-            <div class="nav-links">
-                <a href="index.html"><i class="fas fa-house"></i> 首页</a>
-                <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
-                <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
-                <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
-            </div>
-            <user-menu></user-menu>
-        </nav>
-
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+        
         <!-- 全局侧边栏 -->
         <blog-sidebar></blog-sidebar>
 
