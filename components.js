@@ -664,12 +664,9 @@ class BlogFooter extends HTMLElement {
                     color: #FB7299;
                     margin: 0 4px;
                 }
-                .copyright a {
-                    color: #666;
-                    text-decoration: none;
-                }
-                .copyright a:hover {
-                    text-decoration: underline;
+                .runtime {
+                    color: #3d3d3d;
+                    font-size: 1rem;
                 }
                 @media (max-width: 680px) {
                     .footer {
@@ -684,8 +681,9 @@ class BlogFooter extends HTMLElement {
                 <div class="copyright">
                     <i class="fas fa-copyright"></i> 2026 星辰空间站 · 星辰大海
                     <i class="fas fa-heart" style="color: #FB7299;"></i>
-                    <br>
-                    <span>网站已运行 <runtime-display></runtime-display></span>
+                </div>
+                <div class="runtime">
+                    网站已运行 <runtime-display></runtime-display>
                 </div>
             </footer>
         `;
