@@ -656,19 +656,6 @@ class BlogFooter extends HTMLElement {
                     0% { opacity: 0; transform: translateY(20px); }
                     100% { opacity: 1; transform: translateY(0); }
                 }
-                .social-links {
-                    display: flex;
-                    gap: 2rem;
-                }
-                .social-links a {
-                    color: #2e2e2e;
-                    font-size: 1.8rem;
-                    transition: all 0.2s;
-                }
-                .social-links a:hover {
-                    color: #FB7299;
-                    transform: scale(1.2) rotate(4deg);
-                }
                 .copyright {
                     color: #3d3d3d;
                     font-size: 1.1rem;
@@ -698,16 +685,7 @@ class BlogFooter extends HTMLElement {
                     <i class="fas fa-copyright"></i> 2026 星辰空间站 · 星辰大海
                     <i class="fas fa-heart" style="color: #FB7299;"></i>
                     <br>
-                    <a href="https://icp.gov.moe/?keyword=20260225" target="_blank" rel="noopener noreferrer">
-                        萌ICP备20260225号
-                    </a>
-                    <br>
                     <span>网站已运行 <runtime-display></runtime-display></span>
-                </div>
-                <div class="social-links">
-                    <a href="https://space.bilibili.com/1722712378" target="_blank"><i class="fab fa-bilibili"></i></a>
-                    <a href="https://github.com/Sibyl-cat" target="_blank"><i class="fab fa-github"></i></a>
-                    <a href="#"><i class="fas fa-envelope"></i></a>
                 </div>
             </footer>
         `;
