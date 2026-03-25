@@ -512,3 +512,97 @@ class RuntimeDisplay extends HTMLElement {
 }
 
 customElements.define('runtime-display', RuntimeDisplay);
+
+
+
+
+// ========== 页脚组件 ==========
+class BlogFooter extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        this.render();
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                :host {
+                    display: block;
+                }
+                .footer {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 1.6rem 2.5rem;
+                    border-radius: 60px;
+                    background: rgba(255, 255, 255, 0.18);
+                    backdrop-filter: blur(12px);
+                    margin-top: 1rem;
+                    border: 1px solid rgba(255,255,255,0.4);
+                    animation: fadeUp 0.8s 0.3s both;
+                }
+                @keyframes fadeUp {
+                    0% { opacity: 0; transform: translateY(20px); }
+                    100% { opacity: 1; transform: translateY(0); }
+                }
+                .social-links {
+                    display: flex;
+                    gap: 2rem;
+                }
+                .social-links a {
+                    color: #2e2e2e;
+                    font-size: 1.8rem;
+                    transition: all 0.2s;
+                }
+                .social-links a:hover {
+                    color: #FB7299;
+                    transform: scale(1.2) rotate(4deg);
+                }
+                .copyright {
+                    color: #3d3d3d;
+                    font-size: 1.1rem;
+                }
+                .copyright i {
+                    color: #FB7299;
+                    margin: 0 4px;
+                }
+                .copyright a {
+                    color: #666;
+                    text-decoration: none;
+                }
+                .copyright a:hover {
+                    text-decoration: underline;
+                }
+                @media (max-width: 680px) {
+                    .footer {
+                        flex-direction: column;
+                        gap: 1rem;
+                        text-align: center;
+                    }
+                }
+            </style>
+            <footer class="footer">
+                <div class="copyright">
+                    <i class="fas fa-copyright"></i> 2026 星辰空间站 · 星辰大海
+                    <i class="fas fa-heart" style="color: #FB7299;"></i>
+                    <br>
+                    <a href="https://icp.gov.moe/?keyword=20260225" target="_blank" rel="noopener noreferrer">
+                        萌ICP备20260225号
+                    </a>
+                    <br>
+                    <span>网站已运行 <runtime-display></runtime-display></span>
+                </div>
+                <div class="social-links">
+                    <a href="https://space.bilibili.com/1722712378" target="_blank"><i class="fab fa-bilibili"></i></a>
+                    <a href="https://github.com/Sibyl-cat" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fas fa-envelope"></i></a>
+                </div>
+            </footer>
+        `;
+    }
+}
+customElements.define('blog-footer', BlogFooter);
