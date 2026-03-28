@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章编辑 · 小电视の日常</title>
+    <title>文章编辑 · 星辰空间站</title>
     <!-- 引入 Font Awesome 和全局样式 -->
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -260,12 +260,8 @@
         </div>
 
         <!-- 底部按钮组 -->
-        <div class="action-buttons">
-            <label for="uploadMd" class="btn" style="cursor: pointer;">
-                <i class="fas fa-upload"></i> 上传MD
-            </label>
-            <button class="btn" id="saveDraftBtn">保存草稿</button>
-            <button class="btn btn-primary" id="publishBtn">发表文章</button>
+        <div class="action-buttons" id="actionButtons">
+            <!-- 动态生成按钮 -->
         </div>
         <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
         <div id="message" class="message"></div>
@@ -283,8 +279,6 @@
     const titleInput = document.getElementById('title');
     const tagsInput = document.getElementById('tags');
     const excerptInput = document.getElementById('excerpt');
-    const saveDraftBtn = document.getElementById('saveDraftBtn');
-    const publishBtn = document.getElementById('publishBtn');
     const messageDiv = document.getElementById('message');
     const uploadMd = document.getElementById('uploadMd');
     const suggestTagsBtn = document.getElementById('suggestTagsBtn');
@@ -381,6 +375,7 @@
 
             setContent(post.content || '');
             currentPost = { slug: post.slug, is_published: post.is_published };
+            renderButtons(); // 渲染按钮组（编辑模式）
             showMessage('文章已加载', 'success');
         } catch (error) {
             console.error('加载失败:', error);
@@ -388,19 +383,55 @@
         }
     }
 
-    // ========== 保存草稿 ==========
-    saveDraftBtn.addEventListener('click', async () => {
-        const content = getCurrentContent();
+    // ========== 动态按钮渲染 ==========
+    function renderButtons() {
+        const container = document.getElementById('actionButtons');
+        if (!container) return;
 
+        const isNew = !slugHidden.value; // 新建时隐藏字段为空
+        if (isNew) {
+            // 新建模式：显示“保存草稿”和“直接发布”
+            container.innerHTML = `
+                <label for="uploadMd" class="btn" style="cursor: pointer;">上传MD</label>
+                <button id="saveDraftBtn" class="btn">保存草稿</button>
+                <button id="publishNewBtn" class="btn btn-primary">直接发布</button>
+            `;
+            document.getElementById('saveDraftBtn').addEventListener('click', () => savePost(0));
+            document.getElementById('publishNewBtn').addEventListener('click', () => savePost(1));
+        } else {
+            // 编辑模式：显示“保存”和状态切换按钮
+            const toggleText = currentPost && currentPost.is_published ? '撤回为草稿' : '发布';
+            container.innerHTML = `
+                <label for="uploadMd" class="btn" style="cursor: pointer;">上传MD</label>
+                <button id="saveBtn" class="btn">保存</button>
+                <button id="toggleStatusBtn" class="btn btn-primary">${toggleText}</button>
+            `;
+            document.getElementById('saveBtn').addEventListener('click', () => savePost());
+            document.getElementById('toggleStatusBtn').addEventListener('click', () => {
+                const newStatus = (currentPost && currentPost.is_published) ? 0 : 1;
+                savePost(newStatus);
+            });
+        }
+    }
+
+    // ========== 统一的保存/发布函数 ==========
+    async function savePost(isPublished = null) {
         const formData = new FormData();
         formData.append('slug', slugHidden.value);
         formData.append('title', titleInput.value);
-        formData.append('content', content);
+        formData.append('content', getCurrentContent());
         formData.append('excerpt', excerptInput.value);
         formData.append('tags', tagsInput.value);
+        if (isPublished !== null) {
+            formData.append('is_published', isPublished);
+        }
 
-        saveDraftBtn.disabled = true;
-        saveDraftBtn.textContent = '保存中...';
+        // 获取当前激活的按钮并显示加载状态
+        const activeBtn = document.querySelector('#saveDraftBtn, #publishNewBtn, #saveBtn, #toggleStatusBtn');
+        if (activeBtn) {
+            activeBtn.disabled = true;
+            activeBtn.textContent = '处理中...';
+        }
 
         try {
             const response = await fetch('/api/admin/post', {
@@ -410,66 +441,40 @@
             const result = await response.json();
 
             if (result.success) {
-                showMessage('草稿保存成功', 'success');
-                if (result.slug) {
-                    slugHidden.value = result.slug;
-                    currentPost = { slug: result.slug, is_published: currentPost ? currentPost.is_published : false };
+                showMessage('操作成功', 'success');
+                if (!slugHidden.value && result.slug) {
+                    // 新建文章后，跳转到该文章的编辑页，以便继续编辑
+                    window.location.href = `editor.html?slug=${result.slug}`;
+                } else {
+                    // 更新当前文章状态
+                    if (currentPost) {
+                        // 重新加载文章以获取最新状态
+                        await loadPost(currentPost.slug);
+                    } else if (slugHidden.value) {
+                        // 如果当前有 slug（比如新建后跳转回来），但 currentPost 可能未设置，重新加载
+                        await loadPost(slugHidden.value);
+                    }
+                    renderButtons(); // 重新渲染按钮（状态可能变化）
                 }
             } else {
-                showMessage(result.error || '保存失败', 'error');
+                showMessage(result.error || '操作失败', 'error');
             }
         } catch (error) {
-            showMessage('保存失败，请重试', 'error');
+            console.error('操作失败:', error);
+            showMessage('网络错误，请重试', 'error');
         } finally {
-            saveDraftBtn.disabled = false;
-            saveDraftBtn.textContent = '保存草稿';
-        }
-    });
-
-    // ========== 发表文章 ==========
-    publishBtn.addEventListener('click', async () => {
-        if (!currentPost || !currentPost.slug) {
-            showMessage('请先保存草稿', 'error');
-            return;
-        }
-        if (currentPost.is_published) {
-            showMessage('文章已发表，无需重复操作', 'error');
-            return;
-        }
-        if (!confirm('确定要发表这篇文章吗？')) return;
-
-        publishBtn.disabled = true;
-        publishBtn.textContent = '发表中...';
-
-        try {
-            const response = await fetch('/api/admin/post/publish', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ slug: currentPost.slug })
-            });
-            const result = await response.json();
-
-            if (result.success) {
-                showMessage('发表成功', 'success');
-                currentPost.slug = result.newSlug;
-                currentPost.is_published = true;
-                slugHidden.value = result.newSlug;
-                publishBtn.disabled = true;
-                publishBtn.style.opacity = 0.5;
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1500);
-            } else {
-                showMessage(result.error || '发表失败', 'error');
-                publishBtn.disabled = false;
+            if (activeBtn) {
+                activeBtn.disabled = false;
+                // 恢复按钮文字
+                if (activeBtn.id === 'saveDraftBtn') activeBtn.textContent = '保存草稿';
+                else if (activeBtn.id === 'publishNewBtn') activeBtn.textContent = '直接发布';
+                else if (activeBtn.id === 'saveBtn') activeBtn.textContent = '保存';
+                else if (activeBtn.id === 'toggleStatusBtn') {
+                    activeBtn.textContent = (currentPost && currentPost.is_published) ? '撤回为草稿' : '发布';
+                }
             }
-        } catch (error) {
-            showMessage('发表失败', 'error');
-            publishBtn.disabled = false;
-        } finally {
-            publishBtn.textContent = '发表文章';
         }
-    });
+    }
 
     // ========== 上传 MD 文件 ==========
     uploadMd.addEventListener('change', async (e) => {
@@ -598,6 +603,7 @@
             } else {
                 initMode('rich'); // 默认富文本
             }
+            renderButtons(); // 显示新建按钮组
         }
     });
 </script>
