@@ -415,57 +415,56 @@
     }
 
     // ========== 统一的保存/发布函数 ==========
-    async function savePost(isPublished = null) {
-        const formData = new FormData();
-        formData.append('slug', slugHidden.value);
-        formData.append('title', titleInput.value);
-        formData.append('content', getCurrentContent());
-        formData.append('excerpt', excerptInput.value);
-        formData.append('tags', tagsInput.value);
-        if (isPublished !== null) {
-            formData.append('is_published', isPublished);
-        }
+async function savePost(isPublished = null) {
+    const formData = new FormData();
+    formData.append('slug', slugHidden.value);
+    formData.append('title', titleInput.value);
+    formData.append('content', getCurrentContent());
+    formData.append('excerpt', excerptInput.value);
+    formData.append('tags', tagsInput.value);
+    if (isPublished !== null) {
+        formData.append('is_published', isPublished);
+    }
 
-        // 获取当前激活的按钮并显示加载状态
-        const activeBtn = document.querySelector('#saveDraftBtn, #publishNewBtn, #saveBtn, #toggleStatusBtn');
-        if (activeBtn) {
-            activeBtn.disabled = true;
-            activeBtn.textContent = '处理中...';
-        }
+    const activeBtn = document.querySelector('#saveDraftBtn, #publishNewBtn, #saveBtn, #toggleStatusBtn');
+    if (activeBtn) {
+        activeBtn.disabled = true;
+        activeBtn.textContent = '处理中...';
+    }
 
-        try {
-            const response = await fetch('/api/admin/post', {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
+    try {
+        const response = await fetch('/api/admin/post', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
 
-            if (result.success) {
-                showMessage('操作成功', 'success');
-                if (!slugHidden.value && result.slug) {
-                    // 新建文章后，跳转到该文章的编辑页，以便继续编辑
-                    window.location.href = `editor.html?slug=${result.slug}`;
-                } else {
-                    // 更新当前文章状态
+        if (result.success) {
+            showMessage('操作成功', 'success');
+            if (!slugHidden.value && result.slug) {
+                // 新建文章后跳转到编辑页
+                window.location.href = `editor.html?slug=${result.slug}`;
+            } else {
+                // 如果是状态切换（isPublished 不为 null），直接更新本地状态并重绘按钮
+                if (isPublished !== null) {
                     if (currentPost) {
-                        // 重新加载文章以获取最新状态
+                        currentPost.is_published = isPublished;
+                    }
+                    renderButtons(); // 重新渲染按钮
+                } else {
+                    // 仅保存内容，重新加载文章以获取最新内容
+                    if (currentPost) {
                         await loadPost(currentPost.slug);
                     } else if (slugHidden.value) {
-                        // 如果当前有 slug（比如新建后跳转回来），但 currentPost 可能未设置，重新加载
                         await loadPost(slugHidden.value);
                     }
-                    renderButtons(); // 重新渲染按钮（状态可能变化）
                 }
-            } else {
-                showMessage(result.error || '操作失败', 'error');
             }
-        } catch (error) {
-            console.error('操作失败:', error);
-            showMessage('网络错误，请重试', 'error');
-        } finally {
+        } else {
+            showMessage(result.error || '操作失败', 'error');
+            // 恢复按钮状态
             if (activeBtn) {
                 activeBtn.disabled = false;
-                // 恢复按钮文字
                 if (activeBtn.id === 'saveDraftBtn') activeBtn.textContent = '保存草稿';
                 else if (activeBtn.id === 'publishNewBtn') activeBtn.textContent = '直接发布';
                 else if (activeBtn.id === 'saveBtn') activeBtn.textContent = '保存';
@@ -474,7 +473,20 @@
                 }
             }
         }
+    } catch (error) {
+        console.error('操作失败:', error);
+        showMessage('网络错误，请重试', 'error');
+        if (activeBtn) {
+            activeBtn.disabled = false;
+            if (activeBtn.id === 'saveDraftBtn') activeBtn.textContent = '保存草稿';
+            else if (activeBtn.id === 'publishNewBtn') activeBtn.textContent = '直接发布';
+            else if (activeBtn.id === 'saveBtn') activeBtn.textContent = '保存';
+            else if (activeBtn.id === 'toggleStatusBtn') {
+                activeBtn.textContent = (currentPost && currentPost.is_published) ? '撤回为草稿' : '发布';
+            }
+        }
     }
+}
 
     // ========== 上传 MD 文件 ==========
     uploadMd.addEventListener('change', async (e) => {
