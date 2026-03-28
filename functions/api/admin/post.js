@@ -27,25 +27,26 @@ export async function onRequest(context) {
         const content = formData.get('content');
         const excerpt = formData.get('excerpt');
         const tags = formData.get('tags');
-        const is_published = formData.get('is_published'); // 可能为空
+        const is_published = formData.get('is_published'); // 可能是 '1' 或 '0' 或 null
 
         if (!title) {
             return new Response(JSON.stringify({ error: '标题不能为空' }), { status: 400 });
         }
 
         if (!slug) {
-            // ----- 新建文章 -----
+            // 新建文章
             if (role === 'superadmin') {
                 return new Response(JSON.stringify({ error: '超级管理员不能创建文章' }), { status: 403 });
             }
             slug = await generateSlug(env);
-            const publishFlag = is_published ? 1 : 0; // 前端传入 '1' 或 '0'
+            // 正确转换 is_published：只有显式传入 '1' 才设为已发表，否则为草稿
+            const publishFlag = is_published === '1' ? 1 : 0;
             await env.DB.prepare(
                 `INSERT INTO posts (slug, title, content, excerpt, tags, author_id, is_published)
                  VALUES (?, ?, ?, ?, ?, ?, ?)`
             ).bind(slug, title, content, excerpt, tags, userId, publishFlag).run();
         } else {
-            // ----- 更新文章 -----
+            // 更新文章
             const { results } = await env.DB.prepare(
                 'SELECT author_id FROM posts WHERE slug = ?'
             ).bind(slug).all();
@@ -62,8 +63,10 @@ export async function onRequest(context) {
             let sql = 'UPDATE posts SET title = ?, content = ?, excerpt = ?, tags = ?, updated_at = CURRENT_TIMESTAMP';
             const params = [title, content, excerpt, tags];
             if (is_published !== null) {
+                // 同样转换 is_published
+                const publishFlag = is_published === '1' ? 1 : 0;
                 sql += ', is_published = ?';
-                params.push(is_published);
+                params.push(publishFlag);
             }
             sql += ' WHERE slug = ?';
             params.push(slug);
