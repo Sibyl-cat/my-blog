@@ -690,3 +690,78 @@ class BlogFooter extends HTMLElement {
     }
 }
 customElements.define('blog-footer', BlogFooter);
+
+// ========== 夜间模式切换组件 ==========
+class NightModeToggle extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.render();
+    }
+
+    connectedCallback() {
+        this.init();
+        this.bindEvents();
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                :host {
+                    display: inline-block;
+                    margin-left: 0.5rem;
+                }
+                .toggle-btn {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 1.2rem;
+                    padding: 0.5rem;
+                    border-radius: 50%;
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.2s;
+                    color: #FB7299;
+                    background: rgba(255,255,255,0.2);
+                }
+                .toggle-btn:hover {
+                    background: rgba(251,114,153,0.3);
+                    transform: scale(1.05);
+                }
+            </style>
+            <button class="toggle-btn" id="nightModeBtn">
+                <i class="fas fa-moon"></i>
+            </button>
+        `;
+    }
+
+    init() {
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            this.setIcon('moon');
+        } else {
+            this.setIcon('sun');
+        }
+    }
+
+    bindEvents() {
+        const btn = this.shadowRoot.getElementById('nightModeBtn');
+        btn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            this.setIcon(isDark ? 'moon' : 'sun');
+        });
+    }
+
+    setIcon(icon) {
+        const btn = this.shadowRoot.getElementById('nightModeBtn');
+        if (!btn) return;
+        btn.innerHTML = `<i class="fas fa-${icon === 'moon' ? 'moon' : 'sun'}"></i>`;
+    }
+}
+customElements.define('night-mode-toggle', NightModeToggle);
