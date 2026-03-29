@@ -72,7 +72,7 @@ body::before {
 }
 
 /* ========== 导航栏 ========== */
-/* 导航栏容器 */
+/* ========== 导航栏 ========== */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -88,17 +88,16 @@ body::before {
     z-index: 100;
 }
 
-/* 左侧区域：固定宽度，保证右侧有足够空间 */
+/* 左侧区域：固定宽度，内容自然放置 */
 .navbar-left {
     flex-shrink: 0;
-    width: auto;
 }
 
-/* 中间区域：绝对定位实现完美居中 */
+/* 中间区域：使用 flex 自动居中，不绝对定位 */
 .navbar-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    flex: 1;
+    display: flex;
+    justify-content: center;
     white-space: nowrap;
 }
 
@@ -108,7 +107,6 @@ body::before {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-left: auto;
 }
 
 .logo {
@@ -853,12 +851,11 @@ body::before {
         justify-content: space-between;
     }
     .navbar-center {
-        position: static;
-        transform: none;
-        white-space: normal;
+        flex: 0;
+        display: none;
     }
     .nav-links {
-        display: none; /* 移动端隐藏导航链接，使用侧边栏 */
+        display: none;
     }
     .navbar-right {
         gap: 0.5rem;
