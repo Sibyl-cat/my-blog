@@ -919,3 +919,113 @@ body::before {
     transform: translateY(-5px);
   }
 }
+/* ========== 夜间模式（新增） ========== */
+/* 暗色模式样式覆盖 */
+body.dark-mode {
+  background: radial-gradient(rgba(0, 0, 0, 0.3) 1px, transparent 1px),
+              linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+}
+
+body.dark-mode::before {
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.1)),
+              url('images/wallpaper-desktop.jpg') no-repeat center center fixed;
+  filter: blur(8px);
+}
+
+body.dark-mode .glass,
+body.dark-mode .navbar,
+body.dark-mode .profile-card,
+body.dark-mode .article-card,
+body.dark-mode .panel,
+body.dark-mode .editor-card,
+body.dark-mode .tags-cloud,
+body.dark-mode .authors-grid .author-card,
+body.dark-mode .user-list .user-item,
+body.dark-mode .modal-card {
+  background: rgba(30, 30, 40, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .glass:hover,
+body.dark-mode .article-card:hover,
+body.dark-mode .author-card:hover {
+  background: rgba(50, 50, 60, 0.7);
+  box-shadow: 0 20px 32px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ddd;
+}
+body.dark-mode .btn:hover {
+  background: #FB7299;
+  color: white;
+}
+
+body.dark-mode input,
+body.dark-mode textarea {
+  background: rgba(30, 30, 40, 0.6);
+  color: #ddd;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+body.dark-mode .card-meta,
+body.dark-mode .card-excerpt,
+body.dark-mode .post-item .title,
+body.dark-mode .profile-info .bio,
+body.dark-mode .author-stats,
+body.dark-mode .user-date,
+body.dark-mode .copyright,
+body.dark-mode .sidebar-footer,
+body.dark-mode .sidebar-menu a {
+  color: #ccc;
+}
+
+body.dark-mode .card-title,
+body.dark-mode .profile-info h1 {
+  color: #FB7299;
+}
+
+body.dark-mode .sidebar {
+  background: rgba(20, 20, 30, 0.9);
+}
+
+body.dark-mode .sidebar-menu a:hover {
+  background: rgba(251, 114, 153, 0.2);
+  color: #FB7299;
+}
+
+body.dark-mode .footer {
+  background: rgba(20, 20, 30, 0.6);
+}
+
+body.dark-mode .tag {
+  background: rgba(251, 114, 153, 0.2);
+  border-color: rgba(251, 114, 153, 0.5);
+  color: #FB7299;
+}
+body.dark-mode .tag:hover {
+  background: #FB7299;
+  color: white;
+}
+
+body.dark-mode .modal-card {
+  background: rgba(30, 30, 40, 0.95);
+  color: #ddd;
+}
+body.dark-mode .modal-card h2 {
+  color: #FB7299;
+}
+body.dark-mode .modal-content {
+  color: #ddd;
+}
+
+/* 移动端暗色模式适配 */
+@media (max-width: 768px) {
+  body.dark-mode::before {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+                      url('images/wallpaper-mobile.jpg');
+  }
+}
