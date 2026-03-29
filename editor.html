@@ -207,7 +207,6 @@
 </head>
 <body>
 <div class="editor-container">
-    <!-- 返回按钮和页面标题 -->
     <div class="editor-card" style="padding: 1rem 2rem;">
         <div class="editor-header">
             <a href="admin.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
@@ -215,11 +214,9 @@
         </div>
     </div>
 
-    <!-- 主编辑卡片 -->
     <div class="editor-card">
         <input type="hidden" id="slug" name="slug" value="">
 
-        <!-- 标题和标签行 -->
         <div class="form-row">
             <div class="form-group">
                 <label>标题</label>
@@ -231,25 +228,21 @@
             </div>
         </div>
 
-        <!-- 标签推荐区域 -->
         <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
             <button type="button" id="suggestTagsBtn" class="btn">推荐标签</button>
             <div id="suggested-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1;"></div>
         </div>
 
-        <!-- 摘要 -->
         <div class="form-group">
             <label>摘要</label>
             <textarea id="excerpt" rows="3" placeholder="简短介绍..."></textarea>
         </div>
 
-        <!-- 富文本编辑器容器（默认显示） -->
         <div id="rich-editor-container">
             <label>正文</label>
             <div id="editor-container"></div>
         </div>
 
-        <!-- Markdown 编辑器容器（初始隐藏） -->
         <div id="markdown-editor-container">
             <label>正文 (Markdown)</label>
             <textarea id="markdown-textarea" placeholder="在此输入 Markdown 格式的文章..."></textarea>
@@ -259,10 +252,7 @@
             <div id="markdown-preview" class="md-preview"></div>
         </div>
 
-        <!-- 底部按钮组 -->
-        <div class="action-buttons" id="actionButtons">
-            <!-- 动态生成按钮 -->
-        </div>
+        <div class="action-buttons" id="actionButtons"></div>
         <input type="file" id="uploadMd" accept=".md, .markdown, text/markdown" style="display: none;">
         <div id="message" class="message"></div>
     </div>
@@ -271,8 +261,8 @@
 <script>
     // ========== 全局变量 ==========
     let quill = null;
-    let currentMode = 'rich';   // 'rich' 或 'markdown'
-    let currentPost = null;
+    let currentMode = 'rich';      // 'rich' 或 'markdown'
+    let currentPost = null;        // { slug, is_published }
 
     // DOM 元素
     const slugHidden = document.getElementById('slug');
@@ -294,21 +284,14 @@
         messageDiv.textContent = text;
         messageDiv.className = `message ${type}`;
         messageDiv.style.display = 'block';
-        setTimeout(() => {
-            messageDiv.style.display = 'none';
-        }, 3000);
+        setTimeout(() => messageDiv.style.display = 'none', 3000);
     }
 
-    // 获取当前编辑器内容
     function getCurrentContent() {
-        if (currentMode === 'rich') {
-            return quill ? quill.root.innerHTML : '';
-        } else {
-            return markdownTextarea.value;
-        }
+        if (currentMode === 'rich') return quill ? quill.root.innerHTML : '';
+        return markdownTextarea.value;
     }
 
-    // 设置编辑器内容
     function setContent(content) {
         if (currentMode === 'rich') {
             if (quill) quill.root.innerHTML = content || '';
@@ -317,7 +300,6 @@
         }
     }
 
-    // 初始化编辑器模式
     function initMode(mode) {
         currentMode = mode;
         if (mode === 'rich') {
@@ -349,7 +331,7 @@
         }
     }
 
-    // ========== 加载文章内容 ==========
+    // ========== 文章加载 ==========
     async function loadPost(slug) {
         try {
             const response = await fetch(`/api/post/${slug}`);
@@ -361,21 +343,23 @@
             tagsInput.value = post.tags || '';
             excerptInput.value = post.excerpt || '';
 
-            // 根据 URL 参数 mode 或内容自动判断模式
+            // 根据 mode 参数或内容自动选择编辑器模式
             const urlParams = new URLSearchParams(window.location.search);
             const modeParam = urlParams.get('mode');
             if (modeParam === 'rich' || modeParam === 'markdown') {
                 initMode(modeParam);
             } else {
-                // 自动判断：如果内容以 < 开头且包含 >，则视为 HTML，使用富文本模式；否则用 Markdown
                 const trimmed = (post.content || '').trim();
                 const isLikelyHTML = trimmed.startsWith('<') && trimmed.includes('>');
                 initMode(isLikelyHTML ? 'rich' : 'markdown');
             }
 
             setContent(post.content || '');
-            currentPost = { slug: post.slug, is_published: post.is_published };
-            renderButtons(); // 渲染按钮组（编辑模式）
+            currentPost = {
+                slug: post.slug,
+                is_published: Number(post.is_published) // 确保数字
+            };
+            renderButtons();
             showMessage('文章已加载', 'success');
         } catch (error) {
             console.error('加载失败:', error);
@@ -388,136 +372,108 @@
         const container = document.getElementById('actionButtons');
         if (!container) return;
 
-        const isNew = !slugHidden.value; // 新建时隐藏字段为空
+        const isNew = !slugHidden.value;
         if (isNew) {
-            // 新建模式：显示“保存草稿”和“直接发布”
             container.innerHTML = `
                 <label for="uploadMd" class="btn" style="cursor: pointer;">上传MD</label>
                 <button id="saveDraftBtn" class="btn">保存草稿</button>
                 <button id="publishNewBtn" class="btn btn-primary">直接发布</button>
             `;
-            document.getElementById('saveDraftBtn').addEventListener('click', () => savePost(0));
-            document.getElementById('publishNewBtn').addEventListener('click', () => savePost(1));
+            document.getElementById('saveDraftBtn')?.addEventListener('click', () => savePost(0));
+            document.getElementById('publishNewBtn')?.addEventListener('click', () => savePost(1));
         } else {
-            // 编辑模式：显示“保存”和状态切换按钮
-            const toggleText = currentPost && currentPost.is_published ? '撤回为草稿' : '发布';
+            const isPublished = currentPost && currentPost.is_published === 1;
+            const toggleText = isPublished ? '撤回为草稿' : '发布';
             container.innerHTML = `
                 <label for="uploadMd" class="btn" style="cursor: pointer;">上传MD</label>
                 <button id="saveBtn" class="btn">保存</button>
                 <button id="toggleStatusBtn" class="btn btn-primary">${toggleText}</button>
             `;
-            document.getElementById('saveBtn').addEventListener('click', () => savePost());
-            document.getElementById('toggleStatusBtn').addEventListener('click', () => {
-                const newStatus = (currentPost && currentPost.is_published) ? 0 : 1;
+            document.getElementById('saveBtn')?.addEventListener('click', () => savePost());
+            document.getElementById('toggleStatusBtn')?.addEventListener('click', () => {
+                const newStatus = isPublished ? 0 : 1;
                 savePost(newStatus);
             });
         }
     }
 
-    // ========== 统一的保存/发布函数 ==========
-async function savePost(isPublished = null) {
-    const formData = new FormData();
-    formData.append('slug', slugHidden.value);
-    formData.append('title', titleInput.value);
-    formData.append('content', getCurrentContent());
-    formData.append('excerpt', excerptInput.value);
-    formData.append('tags', tagsInput.value);
-    if (isPublished !== null) {
-        formData.append('is_published', isPublished);
-    }
+    // ========== 统一保存/发布/切换 ==========
+    async function savePost(isPublished = null) {
+        const formData = new FormData();
+        formData.append('slug', slugHidden.value);
+        formData.append('title', titleInput.value);
+        formData.append('content', getCurrentContent());
+        formData.append('excerpt', excerptInput.value);
+        formData.append('tags', tagsInput.value);
+        if (isPublished !== null) formData.append('is_published', isPublished);
 
-    const activeBtn = document.querySelector('#saveDraftBtn, #publishNewBtn, #saveBtn, #toggleStatusBtn');
-    if (activeBtn) {
-        activeBtn.disabled = true;
-        activeBtn.textContent = '处理中...';
-    }
+        const activeBtn = document.querySelector('#saveDraftBtn, #publishNewBtn, #saveBtn, #toggleStatusBtn');
+        const originalText = activeBtn?.textContent;
+        if (activeBtn) {
+            activeBtn.disabled = true;
+            activeBtn.textContent = '处理中...';
+        }
 
-    try {
-        const response = await fetch('/api/admin/post', {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();
+        try {
+            const response = await fetch('/api/admin/post', { method: 'POST', body: formData });
+            const result = await response.json();
 
-        if (result.success) {
-            showMessage('操作成功', 'success');
-            if (!slugHidden.value && result.slug) {
-                // 新建文章后跳转到编辑页
-                window.location.href = `editor.html?slug=${result.slug}`;
-            } else {
-                // 如果是状态切换（isPublished 不为 null），直接更新本地状态并重绘按钮
+            if (result.success) {
+                showMessage('操作成功', 'success');
+
+                if (!slugHidden.value && result.slug) {
+                    window.location.href = `editor.html?slug=${result.slug}`;
+                    return;
+                }
+
+                // 更新本地状态
                 if (isPublished !== null) {
-                    if (currentPost) {
-                        currentPost.is_published = isPublished;
-                    }
-                    renderButtons(); // 重新渲染按钮
+                    if (currentPost) currentPost.is_published = isPublished;
+                    renderButtons();
                 } else {
-                    // 仅保存内容，重新加载文章以获取最新内容
-                    if (currentPost) {
-                        await loadPost(currentPost.slug);
-                    } else if (slugHidden.value) {
-                        await loadPost(slugHidden.value);
-                    }
+                    if (currentPost) await loadPost(currentPost.slug);
+                    else if (slugHidden.value) await loadPost(slugHidden.value);
+                }
+            } else {
+                showMessage(result.error || '操作失败', 'error');
+                if (activeBtn) {
+                    activeBtn.disabled = false;
+                    activeBtn.textContent = originalText;
                 }
             }
-        } else {
-            showMessage(result.error || '操作失败', 'error');
-            // 恢复按钮状态
+        } catch (error) {
+            console.error('操作失败:', error);
+            showMessage('网络错误，请重试', 'error');
             if (activeBtn) {
                 activeBtn.disabled = false;
-                if (activeBtn.id === 'saveDraftBtn') activeBtn.textContent = '保存草稿';
-                else if (activeBtn.id === 'publishNewBtn') activeBtn.textContent = '直接发布';
-                else if (activeBtn.id === 'saveBtn') activeBtn.textContent = '保存';
-                else if (activeBtn.id === 'toggleStatusBtn') {
-                    activeBtn.textContent = (currentPost && currentPost.is_published) ? '撤回为草稿' : '发布';
-                }
-            }
-        }
-    } catch (error) {
-        console.error('操作失败:', error);
-        showMessage('网络错误，请重试', 'error');
-        if (activeBtn) {
-            activeBtn.disabled = false;
-            if (activeBtn.id === 'saveDraftBtn') activeBtn.textContent = '保存草稿';
-            else if (activeBtn.id === 'publishNewBtn') activeBtn.textContent = '直接发布';
-            else if (activeBtn.id === 'saveBtn') activeBtn.textContent = '保存';
-            else if (activeBtn.id === 'toggleStatusBtn') {
-                activeBtn.textContent = (currentPost && currentPost.is_published) ? '撤回为草稿' : '发布';
+                activeBtn.textContent = originalText;
             }
         }
     }
-}
 
-    // ========== 上传 MD 文件 ==========
+    // ========== 上传MD文件 ==========
     uploadMd.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         const allowedExts = ['.md', '.markdown'];
-        const fileName = file.name;
-        const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+        const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
         if (!allowedExts.includes(ext) && file.type !== 'text/markdown') {
             alert('只支持上传 .md 或 .markdown 文件');
             e.target.value = '';
             return;
         }
-
-        const maxSize = 1 * 1024 * 1024;
-        if (file.size > maxSize) {
+        if (file.size > 1024 * 1024) {
             alert('文件大小不能超过 1MB');
             e.target.value = '';
             return;
         }
 
         const reader = new FileReader();
-        reader.onload = (event) => {
-            const content = event.target.result;
-            if (currentMode === 'rich') {
-                const html = marked.parse(content);
-                setContent(html);
-            } else {
-                setContent(content);
-            }
+        reader.onload = (ev) => {
+            const content = ev.target.result;
+            if (currentMode === 'rich') setContent(marked.parse(content));
+            else setContent(content);
             showMessage('文件已加载到正文', 'success');
         };
         reader.onerror = () => alert('文件读取失败');
@@ -525,19 +481,15 @@ async function savePost(isPublished = null) {
         e.target.value = '';
     });
 
-    // ========== 标签推荐功能 ==========
+    // ========== 标签推荐 ==========
     suggestTagsBtn.addEventListener('click', async () => {
         const title = titleInput.value;
-        let content = '';
-        if (currentMode === 'rich') {
-            content = quill.getText(); // 获取纯文本
-        } else {
-            content = markdownTextarea.value;
-        }
+        let content = currentMode === 'rich' ? (quill?.getText() || '') : markdownTextarea.value;
         if (!title && !content) {
             alert('请先填写标题或内容以便推荐标签');
             return;
         }
+
         try {
             const res = await fetch('/api/suggest-tags', {
                 method: 'POST',
@@ -549,7 +501,6 @@ async function savePost(isPublished = null) {
 
             const limited = tags.slice(0, 5);
             suggestedTagsDiv.innerHTML = '';
-
             limited.forEach(tag => {
                 const span = document.createElement('span');
                 span.className = 'suggested-tag';
@@ -559,11 +510,10 @@ async function savePost(isPublished = null) {
                 suggestedTagsDiv.appendChild(span);
             });
 
-            const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
+            const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
             document.querySelectorAll('.suggested-tag').forEach(el => {
-                if (currentTags.includes(el.dataset.tag)) {
-                    el.classList.add('selected');
-                }
+                if (currentTags.includes(el.dataset.tag)) el.classList.add('selected');
+                else el.classList.remove('selected');
             });
         } catch (err) {
             console.error('获取推荐标签失败:', err);
@@ -571,21 +521,15 @@ async function savePost(isPublished = null) {
     });
 
     function updateTagSelection(tag) {
-        let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t !== '');
+        let currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
         const index = currentTags.indexOf(tag);
-        if (index > -1) {
-            currentTags.splice(index, 1);
-        } else {
-            currentTags.push(tag);
-        }
+        if (index > -1) currentTags.splice(index, 1);
+        else currentTags.push(tag);
         tagsInput.value = currentTags.join(', ');
 
         document.querySelectorAll('.suggested-tag').forEach(el => {
-            if (currentTags.includes(el.dataset.tag)) {
-                el.classList.add('selected');
-            } else {
-                el.classList.remove('selected');
-            }
+            if (currentTags.includes(el.dataset.tag)) el.classList.add('selected');
+            else el.classList.remove('selected');
         });
     }
 
@@ -593,8 +537,7 @@ async function savePost(isPublished = null) {
     if (previewMdBtn) {
         previewMdBtn.addEventListener('click', () => {
             const md = markdownTextarea.value;
-            const html = marked.parse(md);
-            markdownPreview.innerHTML = html;
+            markdownPreview.innerHTML = marked.parse(md);
             markdownPreview.style.display = 'block';
         });
     }
@@ -606,16 +549,11 @@ async function savePost(isPublished = null) {
         const mode = urlParams.get('mode');
 
         if (slug) {
-            // 编辑已有文章，加载内容
             loadPost(slug);
         } else {
-            // 新建文章，根据 mode 参数初始化
-            if (mode === 'rich' || mode === 'markdown') {
-                initMode(mode);
-            } else {
-                initMode('rich'); // 默认富文本
-            }
-            renderButtons(); // 显示新建按钮组
+            if (mode === 'rich' || mode === 'markdown') initMode(mode);
+            else initMode('rich');
+            renderButtons();
         }
     });
 </script>
