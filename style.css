@@ -72,38 +72,43 @@ body::before {
 }
 
 /* ========== 导航栏 ========== */
+/* 导航栏容器 */
 .navbar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2.5rem;
-  padding: 0.9rem 2rem;
-  margin-bottom: 2.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(14px) saturate(200%);
-  border-radius: 60px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  animation: slideDown 0.7s ease-out;
-  position: relative;
-  z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem 2rem;
+    margin-bottom: 2.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(14px) saturate(200%);
+    border-radius: 60px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    animation: slideDown 0.7s ease-out;
+    position: relative;
+    z-index: 100;
 }
-/* 夜间模式切换按钮独立容器，固定在右上角 */
-.night-mode-toggle-wrapper {
-    position: fixed;
-    top: 1.2rem;
-    right: 1.2rem;
-    z-index: 1100; /* 确保在导航栏之上，但不覆盖侧边栏（侧边栏 z-index 1000） */
-}
-@keyframes slideDown {
-  0% {
-    opacity: 0;
-    transform: translateY(-30px);
-  }
 
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 左侧区域：固定宽度，保证右侧有足够空间 */
+.navbar-left {
+    flex-shrink: 0;
+    width: auto;
+}
+
+/* 中间区域：绝对定位实现完美居中 */
+.navbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+/* 右侧区域：靠右对齐，不换行 */
+.navbar-right {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
 }
 
 .logo {
@@ -844,16 +849,19 @@ body::before {
 
 @media (max-width: 680px) {
     .navbar {
-        justify-content: space-between; /* 移动端改为左右分布，节省空间 */
-        gap: 1rem;
         padding: 0.6rem 1rem;
+        justify-content: space-between;
+    }
+    .navbar-center {
+        position: static;
+        transform: none;
+        white-space: normal;
     }
     .nav-links {
-        display: none; /* 移动端隐藏导航链接，用侧边栏代替 */
+        display: none; /* 移动端隐藏导航链接，使用侧边栏 */
     }
-    .night-mode-toggle-wrapper {
-        top: 0.8rem;
-        right: 0.8rem;
+    .navbar-right {
+        gap: 0.5rem;
     }
     .sidebar {
         width: 240px;
