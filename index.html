@@ -55,24 +55,32 @@
 
   <!-- 导航栏 · 毛玻璃 + 粉色调 -->
   <nav class="navbar glass">
-      <div class="logo" style="display: flex; align-items: center; gap: 12px;">
-          <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;" title="打开侧边栏"></i>
-          <a href="./index.html" style="text-decoration: none; color: inherit; cursor: pointer;" title="返回首页">
-              <span>星辰空间站</span>
-          </a>
-      </div>
-      <div class="nav-links">
-          <a href="#"><i class="fas fa-house"></i> 首页</a>
-          <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
-          <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
-          <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
-      </div>
-  </nav>
-  
-  <!-- 独立夜间模式切换按钮（固定在右上角） -->
-  <div class="night-mode-toggle-wrapper">
-      <night-mode-toggle></night-mode-toggle>
-  </div>
+    <!-- 左侧：Logo -->
+    <div class="navbar-left">
+        <div class="logo" style="display: flex; align-items: center; gap: 12px;">
+            <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;" title="打开侧边栏"></i>
+            <a href="./index.html" style="text-decoration: none; color: inherit; cursor: pointer;" title="返回首页">
+                <span>星辰空间站</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 中间：导航链接（绝对居中） -->
+    <div class="navbar-center">
+        <div class="nav-links">
+            <a href="#"><i class="fas fa-house"></i> 首页</a>
+            <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
+            <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
+            <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
+        </div>
+    </div>
+
+    <!-- 右侧：用户菜单 + 夜间模式 -->
+    <div class="navbar-right">
+        <user-menu></user-menu>
+        <night-mode-toggle></night-mode-toggle>
+    </div>
+</nav>
 
   <!-- 全局侧边栏组件 -->
   <blog-sidebar></blog-sidebar>
