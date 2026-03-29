@@ -73,11 +73,10 @@ body::before {
 
 /* ========== 导航栏 ========== */
 .navbar {
- 
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 2.5rem;
+  gap: 1rem;
   padding: 0.9rem 2rem;
   margin-bottom: 2.5rem;
   background: rgba(255, 255, 255, 0.2);
@@ -87,6 +86,22 @@ body::before {
   animation: slideDown 0.7s ease-out;
   position: relative;
   z-index: 100;
+}
+.nav-left {
+    flex: 0 0 auto; /* 左侧不伸缩 */
+}
+
+.nav-center {
+    flex: 1; /* 占据剩余空间，使导航链接居中 */
+    display: flex;
+    justify-content: center;
+}
+
+.nav-right {
+    flex: 0 0 auto; /* 右侧不伸缩 */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* 用户菜单与切换组件间距 */
 }
 
 @keyframes slideDown {
@@ -839,26 +854,30 @@ body::before {
 
 @media (max-width: 680px) {
     .navbar {
-        flex-direction: row;           /* 保持水平排列 */
-        justify-content: space-between; /* 左右两端对齐 */
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         padding: 0.6rem 1rem;
         gap: 0.5rem;
     }
-    .nav-links {
-        display: none;                 /* 隐藏原有导航链接 */
+    /* 隐藏中间导航链接区域 */
+    .nav-center {
+        display: none;
     }
-    /* 左侧 logo 区域自动占满剩余空间，右侧头像不换行 */
-    .navbar > div:first-child {
+    /* 左侧区域自动占满剩余空间，使右侧靠右 */
+    .nav-left {
         flex: 1;
         min-width: 0;
     }
-    .navbar user-menu {
-        flex-shrink: 0;                /* 防止被压缩 */
-        margin-left: auto;
+    /* 右侧区域不压缩，保持原有宽度 */
+    .nav-right {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
-
     .sidebar {
-      width: 240px;
+        width: 240px;
     }
   
     .profile-card {
