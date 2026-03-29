@@ -732,6 +732,7 @@ class NightModeToggle extends HTMLElement {
                     transform: scale(1.05);
                 }
             </style>
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <button class="toggle-btn" id="nightModeBtn">
                 <i class="fas fa-moon"></i>
             </button>
