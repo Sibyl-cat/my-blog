@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章管理 · 小电视の日常</title>
+    <title>文章管理 · 星辰空间站</title>
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
@@ -328,6 +328,62 @@
         .btn-primary:hover {
             background: #ff8aa5;
         }
+        /* 模式选择气泡 */
+        .mode-bubble {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(251,114,153,0.3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 0.5rem;
+            min-width: 160px;
+            z-index: 1000;
+            margin-bottom: 8px;
+        }
+        .mode-bubble .bubble-arrow {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid rgba(251,114,153,0.3);
+        }
+        .mode-option {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.6rem 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            color: #2a2a2a;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.2rem;
+            transition: all 0.2s ease;
+        }
+        .mode-option:hover {
+            background: rgba(251,114,153,0.15);
+            transform: translateX(4px);
+            color: #FB7299;
+        }
+        .option-desc {
+            font-size: 0.75rem;
+            color: #888;
+            font-weight: normal;
+        }
+        
     </style>
 </head>
 <body>
@@ -380,22 +436,23 @@
             <div class="panel right-panel">
                 <p>选择文章进行编辑</p>
                 <p>或者</p>
-                <a href="#" id="newPostLink" class="new-link"><i class="fas fa-plus"></i> 新建文章</a>
+                <div style="position: relative;">
+                    <a href="#" id="newPostLink" class="new-link"><i class="fas fa-plus"></i> 新建文章</a>
+                    <div id="modeBubble" class="mode-bubble" style="display: none;">
+                        <div class="bubble-arrow"></div>
+                        <button class="mode-option" data-mode="rich">
+                               随便写写（富文本）
+                            <span class="option-desc">像写日记一样简单</span>
+                        </button>
+                        <button class="mode-option" data-mode="markdown">
+                               硬核码字（Markdown）
+                            <span class="option-desc">懂代码的玩法</span>
+                        </button>
+                    </div>
+                </div>
                 <p>再或者</p>
                 <a href="index.html" class="btn" style="background: transparent; border: 1px solid #FB7299;">返回首页</a>
             </div>
-        </div>
-    </div>
-        <!-- 模式选择弹窗 -->
-    <div id="modeSelector" class="modal-overlay" style="display: none;">
-        <div class="modal-card glass">
-            <h2>选择编辑模式</h2>
-            <p>请选择您喜欢的文章编辑方式：</p>
-            <div style="display: flex; gap: 1rem; justify-content: center; margin: 2rem 0;">
-                <button id="chooseRichMode" class="btn btn-primary">富文本模式</button>
-                <button id="chooseCodeMode" class="btn">Markdown/代码模式</button>
-            </div>
-            <button id="closeModalBtn" class="close-modal">取消</button>
         </div>
     </div>
 
@@ -588,45 +645,34 @@
         loadPosts();
      // ==================== 新建文章模式选择 ====================
         const newPostLink = document.getElementById('newPostLink');
-        const modeSelector = document.getElementById('modeSelector');
-        const chooseRichMode = document.getElementById('chooseRichMode');
-        const chooseCodeMode = document.getElementById('chooseCodeMode');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-
-        if (newPostLink) {
-            newPostLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                modeSelector.style.display = 'flex';
+        const modeBubble = document.getElementById('modeBubble');
+        
+        // 显示/隐藏气泡
+        newPostLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            // 切换显示
+            if (modeBubble.style.display === 'none') {
+                modeBubble.style.display = 'block';
+            } else {
+                modeBubble.style.display = 'none';
+            }
+        });
+        
+        // 点击选项
+        document.querySelectorAll('.mode-option').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const mode = btn.dataset.mode;
+                window.location.href = `editor.html?mode=${mode}`;
             });
-        }
-
-        function closeModal() {
-            modeSelector.style.display = 'none';
-        }
-
-        if (modeSelector) {
-            modeSelector.addEventListener('click', (e) => {
-                if (e.target === modeSelector) {
-                    closeModal();
-                }
-            });
-        }
-
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', closeModal);
-        }
-
-        if (chooseRichMode) {
-            chooseRichMode.addEventListener('click', () => {
-                window.location.href = 'editor.html?mode=rich';
-            });
-        }
-
-        if (chooseCodeMode) {
-            chooseCodeMode.addEventListener('click', () => {
-                window.location.href = 'editor.html?mode=markdown';
-            });
-        }
+        });
+        
+        // 点击页面其他地方关闭气泡
+        document.addEventListener('click', (e) => {
+            if (!newPostLink.contains(e.target) && !modeBubble.contains(e.target)) {
+                modeBubble.style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
