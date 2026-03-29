@@ -281,53 +281,7 @@
                 justify-content: flex-end;
             }
         }
-        /* 弹窗样式（新增） */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-        .modal-card {
-            max-width: 500px;
-            width: 90%;
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 32px;
-            border: 1px solid rgba(251, 114, 153, 0.5);
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        .modal-card h2 {
-            color: #FB7299;
-            margin-bottom: 1rem;
-        }
-        .close-modal {
-            background: none;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-        }
-        .close-modal:hover {
-            color: #FB7299;
-        }
-        .btn-primary {
-            background: #FB7299;
-            color: white;
-            border: none;
-        }
-        .btn-primary:hover {
-            background: #ff8aa5;
-        }
+    
         /* 模式选择气泡 */
         .mode-bubble {
             position: absolute;
@@ -433,7 +387,7 @@
             </div>
     
             <!-- 右侧：占位面板（提示新建文章） -->
-            <<div class="panel right-panel">
+            <div class="panel right-panel">
                 <p><i class="fas fa-pencil-alt" style="color:#FB7299;"></i> 点一点，让文字发光</p>
                 <p><i class="fas fa-star" style="color:#FB7299;"></i> 或者</p>
                 <div style="position: relative;">
