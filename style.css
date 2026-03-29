@@ -74,9 +74,9 @@ body::before {
 /* ========== 导航栏 ========== */
 .navbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 2.5rem;
   padding: 0.9rem 2rem;
   margin-bottom: 2.5rem;
   background: rgba(255, 255, 255, 0.2);
@@ -844,11 +844,12 @@ body::before {
 
 @media (max-width: 680px) {
     .navbar {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+        justify-content: space-between; /* 移动端改为左右分布，节省空间 */
+        gap: 1rem;
         padding: 0.6rem 1rem;
-        gap: 0.5rem;
+    }
+    .nav-links {
+        display: none; /* 移动端隐藏导航链接，用侧边栏代替 */
     }
     .night-mode-toggle-wrapper {
         top: 0.8rem;
