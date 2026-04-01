@@ -773,18 +773,18 @@ class BlogNavbarHome extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this.boundHandleScroll = this.handleScroll.bind(this);
-        this.boundHandleResize = this.handleResize.bind(this);
+        this.observer = null;
     }
 
     connectedCallback() {
         this.render();
-        this.initEvents();
+        this.initObserver();
     }
 
     disconnectedCallback() {
-        window.removeEventListener('scroll', this.boundHandleScroll);
-        window.removeEventListener('resize', this.boundHandleResize);
+        if (this.observer) {
+            this.observer.disconnect();
+        }
     }
 
     render() {
@@ -954,37 +954,22 @@ class BlogNavbarHome extends HTMLElement {
         }
     }
 
-    initEvents() {
-        this.navbar = this.shadowRoot.getElementById('mainNavbar');
-        this.topBar = this.shadowRoot.getElementById('topBar');
-        this.backToTopBtn = this.shadowRoot.getElementById('backToTopBtn');
+    initObserver() {
+        const navbar = this.shadowRoot.getElementById('mainNavbar');
+        const topBar = this.shadowRoot.getElementById('topBar');
+        if (!navbar || !topBar) return;
 
-        window.addEventListener('scroll', this.boundHandleScroll);
-        window.addEventListener('resize', this.boundHandleResize);
-        this.boundHandleScroll(); // 初始化状态
-
-        if (this.backToTopBtn) {
-            this.backToTopBtn.addEventListener('click', () => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        }
-    }
-
-    handleScroll() {
-        if (!this.navbar || !this.topBar) return;
-        const rect = this.navbar.getBoundingClientRect();
-        // 当主导航栏完全滚出视口顶部（底部坐标 < 0）时，显示悬浮条
-        const isNavbarOut = rect.bottom < 0;
-        if (isNavbarOut) {
-            this.topBar.classList.add('show');
-        } else {
-            this.topBar.classList.remove('show');
-        }
-    }
-
-    handleResize() {
-        // 窗口大小变化可能影响导航栏位置，重新判断一次
-        this.handleScroll();
+        this.observer = new IntersectionObserver(
+            (entries) => {
+                const isVisible = entries[0].isIntersecting;
+                if (!isVisible) {
+                    topBar.classList.add('show');
+                } else {
+                    topBar.classList.remove('show');
+                }
+            },
+            { threshold: 0 }
+        );
+        this.observer.observe(navbar);
     }
 }
-customElements.define('blog-navbar-home', BlogNavbarHome);
