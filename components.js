@@ -768,14 +768,13 @@ class NightModeToggle extends HTMLElement {
 customElements.define('night-mode-toggle', NightModeToggle);
 
 
-// ========== 主页导航栏组件（包含滚动效果和顶部悬浮条） ==========
+// ========== 主页导航栏组件（悬浮条随主导航栏消失而出现） ==========
 class BlogNavbarHome extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this.lastScrollY = window.scrollY;
-        this.ticking = false;
         this.boundHandleScroll = this.handleScroll.bind(this);
+        this.boundHandleResize = this.handleResize.bind(this);
     }
 
     connectedCallback() {
@@ -785,12 +784,13 @@ class BlogNavbarHome extends HTMLElement {
 
     disconnectedCallback() {
         window.removeEventListener('scroll', this.boundHandleScroll);
+        window.removeEventListener('resize', this.boundHandleResize);
     }
 
     render() {
         this.shadowRoot.innerHTML = `
             <style>
-                /* 导航栏样式 */
+                /* 导航栏样式 (保持不变) */
                 .navbar {
                     display: flex;
                     align-items: center;
@@ -915,7 +915,6 @@ class BlogNavbarHome extends HTMLElement {
                     }
                 }
             </style>
-            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
 
             <nav class="navbar" id="mainNavbar">
                 <div class="navbar-brand">
@@ -943,8 +942,7 @@ class BlogNavbarHome extends HTMLElement {
             </div>
         `;
 
-        // 确保全局侧边栏开关仍然可用（因为侧边栏在外部）
-        // 由于 sideToggle 在 Shadow DOM 中，需要将点击事件传递出去
+        // 确保侧边栏触发正常工作
         const sidebarToggle = this.shadowRoot.querySelector('#sidebarToggle');
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', (e) => {
@@ -962,7 +960,8 @@ class BlogNavbarHome extends HTMLElement {
         this.backToTopBtn = this.shadowRoot.getElementById('backToTopBtn');
 
         window.addEventListener('scroll', this.boundHandleScroll);
-        this.boundHandleScroll(); // 初始化一次
+        window.addEventListener('resize', this.boundHandleResize);
+        this.boundHandleScroll(); // 初始化状态
 
         if (this.backToTopBtn) {
             this.backToTopBtn.addEventListener('click', () => {
@@ -973,15 +972,19 @@ class BlogNavbarHome extends HTMLElement {
 
     handleScroll() {
         if (!this.navbar || !this.topBar) return;
-        const scrollY = window.scrollY;
-        if (scrollY > 50) {
-            this.navbar.classList.add('navbar-scrolled');
+        const rect = this.navbar.getBoundingClientRect();
+        // 当主导航栏完全滚出视口顶部（底部坐标 < 0）时，显示悬浮条
+        const isNavbarOut = rect.bottom < 0;
+        if (isNavbarOut) {
             this.topBar.classList.add('show');
         } else {
-            this.navbar.classList.remove('navbar-scrolled');
             this.topBar.classList.remove('show');
         }
-        this.lastScrollY = scrollY;
+    }
+
+    handleResize() {
+        // 窗口大小变化可能影响导航栏位置，重新判断一次
+        this.handleScroll();
     }
 }
 customElements.define('blog-navbar-home', BlogNavbarHome);
