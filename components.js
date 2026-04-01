@@ -766,3 +766,221 @@ class NightModeToggle extends HTMLElement {
     }
 }
 customElements.define('night-mode-toggle', NightModeToggle);
+
+
+// ========== 主页导航栏组件（包含滚动效果和顶部悬浮条） ==========
+class BlogNavbarHome extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        this.lastScrollY = window.scrollY;
+        this.ticking = false;
+        this.boundHandleScroll = this.handleScroll.bind(this);
+    }
+
+    connectedCallback() {
+        this.render();
+        this.initEvents();
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('scroll', this.boundHandleScroll);
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                /* 导航栏样式 */
+                .navbar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0.8rem 2rem;
+                    margin-bottom: 2rem;
+                    background: rgba(255, 255, 255, 0.2);
+                    backdrop-filter: blur(12px);
+                    border-radius: 60px;
+                    border: 1px solid rgba(255, 255, 255, 0.4);
+                    transition: all 0.3s ease;
+                    position: sticky;
+                    top: 0;
+                    z-index: 100;
+                }
+                .navbar-scrolled {
+                    padding: 0.5rem 2rem;
+                    background: rgba(255, 255, 255, 0.3);
+                    backdrop-filter: blur(16px);
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+                }
+                .navbar-brand .logo {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    font-size: 1.7rem;
+                    font-weight: 700;
+                    color: #FB7299;
+                    text-decoration: none;
+                    text-shadow: 2px 2px 6px rgba(255, 255, 255, 0.7);
+                }
+                .navbar-brand .logo i {
+                    font-size: 2rem;
+                    color: #FB7299;
+                    filter: drop-shadow(0 2px 4px rgba(251, 114, 153, 0.4));
+                }
+                .navbar-links {
+                    display: flex;
+                    gap: 2rem;
+                }
+                .navbar-links a {
+                    text-decoration: none;
+                    color: #2e2e2e;
+                    font-weight: 500;
+                    font-size: 1.1rem;
+                    padding: 0.5rem 0;
+                    border-bottom: 2px solid transparent;
+                    transition: all 0.2s;
+                }
+                .navbar-links a i {
+                    color: #FB7299;
+                    margin-right: 0.3rem;
+                }
+                .navbar-links a:hover {
+                    color: #FB7299;
+                    border-bottom-color: #FB7299;
+                }
+                .navbar-tools {
+                    display: flex;
+                    align-items: center;
+                    gap: 1rem;
+                }
+
+                /* 顶部悬浮条 */
+                .top-bar {
+                    position: fixed;
+                    top: -60px;
+                    left: 0;
+                    width: 100%;
+                    background: rgba(255, 255, 255, 0.9);
+                    backdrop-filter: blur(12px);
+                    border-bottom: 1px solid rgba(251, 114, 153, 0.3);
+                    padding: 0.8rem 2rem;
+                    transition: top 0.3s ease;
+                    z-index: 99;
+                }
+                .top-bar.show {
+                    top: 0;
+                }
+                .top-bar-content {
+                    max-width: 1300px;
+                    margin: 0 auto;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .top-bar-title {
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    color: #FB7299;
+                }
+                .top-bar-btn {
+                    background: none;
+                    border: none;
+                    color: #FB7299;
+                    cursor: pointer;
+                    font-size: 0.9rem;
+                    padding: 0.3rem 1rem;
+                    border-radius: 30px;
+                    transition: all 0.2s;
+                }
+                .top-bar-btn:hover {
+                    background: rgba(251, 114, 153, 0.1);
+                    transform: translateY(-2px);
+                }
+
+                @media (max-width: 768px) {
+                    .navbar {
+                        padding: 0.6rem 1rem;
+                    }
+                    .navbar-links {
+                        display: none;
+                    }
+                    .navbar-tools {
+                        gap: 0.5rem;
+                    }
+                    .top-bar {
+                        padding: 0.6rem 1rem;
+                    }
+                    .top-bar-title {
+                        font-size: 1rem;
+                    }
+                }
+            </style>
+
+            <nav class="navbar" id="mainNavbar">
+                <div class="navbar-brand">
+                    <a href="./index.html" class="logo">
+                        <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;" title="打开侧边栏"></i>
+                        <span>星辰空间站</span>
+                    </a>
+                </div>
+                <div class="navbar-links">
+                    <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
+                    <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
+                    <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
+                </div>
+                <div class="navbar-tools">
+                    <user-menu></user-menu>
+                    <night-mode-toggle></night-mode-toggle>
+                </div>
+            </nav>
+
+            <div id="topBar" class="top-bar">
+                <div class="top-bar-content">
+                    <span class="top-bar-title">星辰空间站</span>
+                    <button id="backToTopBtn" class="top-bar-btn">↑ 回到顶部</button>
+                </div>
+            </div>
+        `;
+
+        // 确保全局侧边栏开关仍然可用（因为侧边栏在外部）
+        // 由于 sideToggle 在 Shadow DOM 中，需要将点击事件传递出去
+        const sidebarToggle = this.shadowRoot.querySelector('#sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (typeof window.openSidebar === 'function') {
+                    window.openSidebar();
+                }
+            });
+        }
+    }
+
+    initEvents() {
+        this.navbar = this.shadowRoot.getElementById('mainNavbar');
+        this.topBar = this.shadowRoot.getElementById('topBar');
+        this.backToTopBtn = this.shadowRoot.getElementById('backToTopBtn');
+
+        window.addEventListener('scroll', this.boundHandleScroll);
+        this.boundHandleScroll(); // 初始化一次
+
+        if (this.backToTopBtn) {
+            this.backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    }
+
+    handleScroll() {
+        if (!this.navbar || !this.topBar) return;
+        const scrollY = window.scrollY;
+        if (scrollY > 50) {
+            this.navbar.classList.add('navbar-scrolled');
+            this.topBar.classList.add('show');
+        } else {
+            this.navbar.classList.remove('navbar-scrolled');
+            this.topBar.classList.remove('show');
+        }
+        this.lastScrollY = scrollY;
+    }
+}
+customElements.define('blog-navbar-home', BlogNavbarHome);
