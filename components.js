@@ -973,3 +973,4 @@ class BlogNavbarHome extends HTMLElement {
         this.observer.observe(navbar);
     }
 }
+customElements.define('blog-navbar-home', BlogNavbarHome);
