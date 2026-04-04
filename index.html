@@ -9,61 +9,63 @@
     <script src="./components.js"></script>
 </head>
 <body>
-    <!-- 宽屏导航栏（使用主页专用组件，已去掉悬浮条） -->
-    <blog-navbar-home></blog-navbar-home>
-
-    <!-- 全局侧边栏 -->
-    <blog-sidebar></blog-sidebar>
-
-    <div class="blog-container new-home">
-        <!-- 左侧信息区（整合了原个人资料卡要素） -->
-        <aside class="home-sidebar">
-            <div class="author-card glass">
-                <div class="author-avatar">
-                    <i class="fa-regular fa-face-smile-wink"></i>
-                </div>
-                <div class="author-name">星辰空间站</div>
-                <div class="author-bio">✨ 一起写点有趣的东西吧 ✨</div>
-                <div class="author-stats">
-                    <div class="stat-item">
-                        <span class="stat-number" id="totalPosts">0</span>
-                        <span class="stat-label">篇宝藏</span>
+    <div class="blog-container">
+        <!-- 宽屏导航栏（使用主页专用组件，已去掉悬浮条） -->
+        <blog-navbar-home></blog-navbar-home>
+    
+        <!-- 全局侧边栏 -->
+        <blog-sidebar></blog-sidebar>
+    
+        <div class="blog-container new-home">
+            <!-- 左侧信息区（整合了原个人资料卡要素） -->
+            <aside class="home-sidebar">
+                <div class="author-card glass">
+                    <div class="author-avatar">
+                        <i class="fa-regular fa-face-smile-wink"></i>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="totalUsers">0</span>
-                        <span class="stat-label">位小伙伴</span>
+                    <div class="author-name">星辰空间站</div>
+                    <div class="author-bio">✨ 一起写点有趣的东西吧 ✨</div>
+                    <div class="author-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalPosts">0</span>
+                            <span class="stat-label">篇宝藏</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" id="totalUsers">0</span>
+                            <span class="stat-label">位小伙伴</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number"><runtime-display></runtime-display></span>
+                            <span class="stat-label">努力运行</span>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-number"><runtime-display></runtime-display></span>
-                        <span class="stat-label">努力运行</span>
+                    <div class="author-links">
+                        <a href="authors.html"><i class="fas fa-users"></i> 作者列表</a>
+                        <a href="tags.html"><i class="fas fa-tags"></i> 标签云</a>
+                        <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
                     </div>
                 </div>
-                <div class="author-links">
-                    <a href="authors.html"><i class="fas fa-users"></i> 作者列表</a>
-                    <a href="tags.html"><i class="fas fa-tags"></i> 标签云</a>
-                    <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
+            </aside>
+    
+            <!-- 右侧文章列表区 -->
+            <main class="home-main">
+                <div class="posts-header">
+                    <h2><i class="fas fa-arrow-trend-up" style="color:#FB7299; margin-right: 8px;"></i> 最新放映</h2>
+                    <a href="archive.html" class="more-link">查看全部 <i class="fas fa-arrow-right"></i></a>
                 </div>
-            </div>
-        </aside>
-
-        <!-- 右侧文章列表区 -->
-        <main class="home-main">
-            <div class="posts-header">
-                <h2><i class="fas fa-arrow-trend-up" style="color:#FB7299; margin-right: 8px;"></i> 最新放映</h2>
-                <a href="archive.html" class="more-link">查看全部 <i class="fas fa-arrow-right"></i></a>
-            </div>
-            <div class="article-list" id="post-list">
-                <!-- 动态加载文章卡片 -->
-            </div>
-            <div class="pagination-controls" id="pagination-controls">
-                <button id="loadMoreBtn" class="load-more-btn">加载更多 <i class="fas fa-arrow-down"></i></button>
-                <div class="pagination-info" id="paginationInfo"></div>
-            </div>
-        </main>
+                <div class="article-list" id="post-list">
+                    <!-- 动态加载文章卡片 -->
+                </div>
+                <div class="pagination-controls" id="pagination-controls">
+                    <button id="loadMoreBtn" class="load-more-btn">加载更多 <i class="fas fa-arrow-down"></i></button>
+                    <div class="pagination-info" id="paginationInfo"></div>
+                </div>
+            </main>
+        </div>
+    
+        <!-- 宽屏页脚 -->
+        <blog-footer></blog-footer>
     </div>
-
-    <!-- 宽屏页脚 -->
-    <blog-footer></blog-footer>
 
     <script>
         // 分页配置
