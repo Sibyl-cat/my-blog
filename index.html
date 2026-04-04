@@ -1,278 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>星辰空间站 · 星辰大海</title>
-  <!-- Font Awesome 6  -->
-  <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
-  <script src="./components.js"></script>
-  <style>
-    /* 仅在本页生效：移除页脚的毛玻璃、边框、阴影 */
-    .footer {
-        background: transparent !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-    /* 可选：调整文字颜色，确保在透明背景上清晰 */
-    .footer .copyright,
-    .footer .social-links a {
-        color: #333; /* 或保持原色，根据背景调整 */
-    }
-    .footer .copyright a {
-        color: #666;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星辰空间站 · 星辰大海</title>
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="./components.js"></script>
 </head>
-
 <body>
-  <!-- 入站须知弹窗（默认隐藏） -->
-<div id="entryModal" class="modal-overlay">
-    <div class="modal-card glass">
-        <h2>欢迎来到「星辰空间站」</h2>
-        <div class="modal-content">
-            <p>这里是一个开放的个人创作平台，由 <strong>Sibyl</strong> 搭建，但属于每一个愿意分享的人。</p>
-            <p><strong>你可以在这里：</strong></p>
-            <ul>
-                <li><strong>注册账号</strong>，发布你的小说、随笔、技术笔记等等；</li>
-                <li>按作者或标签浏览他人作品，发现有趣的灵魂；</li>
-            </ul>
-            <p><strong>我们约定：</strong></p>
-            <ul>
-                <li>尊重他人，友善发言；</li>
-                <li>原创内容版权归作者所有，转载请注明出处；</li>
-                <li>禁止广告、恶意灌水或侵犯他人权益的行为。</li>
-            </ul>
-            <p style="margin-top: 1rem;">点击下方按钮，开启你的创作之旅！</p>
-        </div>
-        <button id="agreeBtn" class="btn btn-primary">开始探索</button>
-    </div>
-</div>
+    <!-- 宽屏导航栏（使用主页专用组件，已去掉悬浮条） -->
+    <blog-navbar-home></blog-navbar-home>
 
-  <blog-navbar-home></blog-navbar-home>
+    <!-- 全局侧边栏 -->
+    <blog-sidebar></blog-sidebar>
 
-  <!-- 全局侧边栏组件 -->
-  <blog-sidebar></blog-sidebar>
-
-  <div class="blog-container">
-
-<!-- 俏皮个人资料卡 -->
-<div class="profile-card glass">
-    <div class="avatar">
-        <i class="fa-regular fa-face-smile-wink"></i>
-    </div>
-    <div class="profile-info">
-        <h1>   星辰空间站   </h1>
-        <div class="bio">
-            <span><i class="fas fa-calendar-alt"></i> 开张于 2026.02.25</span>
-            <span><i class="fas fa-pen-fancy"></i>    已有 <strong id="totalPosts">0</strong> 篇宝藏</span>
-            <span><i class="fas fa-heart" style="color: #FB7299;"></i>    <strong id="totalUsers">0</strong> 位小伙伴入驻</span>
-        </div>
-        <div style="margin-top: 12px; color:#393939; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <i class="fas fa-quote-left" style="color:#FB7299;"></i>
-            <span>   一起写点有趣的东西吧！</span>
-            <span class="runtime-badge">
-                   已运行 <runtime-display></runtime-display>
-            </span>
-        </div>
-    </div>
-</div>
-    <!-- 文章区域 标题 + 卡片网格 -->
-    <h2 class="section-title"><i class="fas fa-arrow-trend-up" style="color:#FB7299; margin-right: 12px;"></i>最新放映</h2>
-    <div class="article-grid" id="post-grid">
-      <!-- 这里将用 JavaScript 动态填充卡片 -->
-    </div>
-
-    <!-- 加载更多按钮 · 附带模拟点击动效 -->
-    <div class="load-more" onclick="alert('已经是最新内容啦，期待下一篇吧～')">
-      <span>加载更多文章</span>
-      <i class="fas fa-arrow-right"></i>
-    </div>
-
-    <!-- 页脚 毛玻璃 + B站氛围 -->
-    <footer class="footer glass">
-      <div class="copyright">
-        <i class="fas fa-copyright"></i> 2026 星辰空间站
-        <i class="fas fa-heart" style="color: #FB7299;"></i>
-        <br>
-        <span>网站已努力运行了 <runtime-display></runtime-display></span>
-        <br>
-        <a href="https://icp.gov.moe/?keyword=20260225" target="_blank" rel="noopener noreferrer" style="color: #666; font-size: 0.8rem; text-decoration: none;">萌ICP备20260225号
-        </a>
-      </div>
-      <div class="social-links">
-        <a href="https://github.com/Sibyl-cat" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="mailto:1703023351@qq.com" target="_blank" rel="noopener noreferrer"><i class="fas fa-envelope"></i></a>
-      </div>
-    </footer>
-  </div>
-
-  <!-- 微小交互：模仿哔哩哔哩 logo 浮动 -->
-  <script>
-    (function () {
-      // 加一点点趣味：所有卡片点击时小小的反馈 (保持流畅)
-      const cards = document.querySelectorAll('.article-card');
-      cards.forEach(card => {
-        card.addEventListener('click', () => {
-          // 仅仅模拟阅读体验，不跳转
-          card.style.transform = 'scale(0.99)';
-          setTimeout(() => {
-            card.style.transform = '';
-          }, 150);
-        });
-      });
-
-      // 毛玻璃动态光效 (很轻微)
-      console.log('✨ 博客已加载 · 主色调 #FB7299 · 毛玻璃全开');
-    })();
-  </script>
-
-  <!-- 编写 JavaScript 动态加载函数 -->
-  <script>
-    // 定义一个异步函数，用于加载文章列表
-    async function loadPosts() {
-      // 1. 显示加载提示（可选）
-      const grid = document.getElementById('post-grid');
-      grid.innerHTML = '<p style="text-align: center; color: #FB7299;">加载中...</p>';
-
-      try {
-        // 2. 调用我们创建的 API 接口
-        const response = await fetch('/api/posts');
-
-        // 3. 检查响应是否成功
-        if (!response.ok) {
-          throw new Error('网络响应错误');
-        }
-
-        // 4. 解析返回的 JSON 数据
-        const posts = await response.json();
-
-        // 5. 清空容器，准备填充新卡片
-        grid.innerHTML = '';
-
-        // 6. 遍历每一篇文章，生成卡片 HTML
-        posts.forEach(post => {
-          // 格式化日期：从 "2025-02-18T12:34:56Z" 转为 "2025-02-18"
-          const date = new Date(post.updated_at);
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, '0');  // 月份补零
-          const day = String(date.getDate()).padStart(2, '0');         // 日期补零
-          const formattedDate = `${year}-${month}-${day}`;
-
-          // 处理标签：假设数据库里 tags 是逗号分隔的字符串，如 "教程,Cloudflare,前端"
-          let tagsHtml = '';
-          if (post.tags) {
-            const tagsArray = post.tags.split(',');  // 拆分成数组
-            tagsHtml = tagsArray.map(tag =>
-              `<span class="tag">#${tag.trim()}</span>`  // 每个标签生成一个 <span>
-            ).join('');  // 合并成字符串
-          }
-
-          // 生成整张卡片的 HTML
-          const card = `
-        <article class="article-card glass">
-            <div class="card-meta">
-                <span class="card-date"><i class="far fa-calendar"></i> ${formattedDate}</span>
-                <span class="card-author" title="${post.author || '未知作者'}">
-                    <i class="fas fa-user"></i> ${post.author || '未知作者'}
-                </span>
+    <div class="blog-container new-home">
+        <!-- 左侧信息区（整合了原个人资料卡要素） -->
+        <aside class="home-sidebar">
+            <div class="author-card glass">
+                <div class="author-avatar">
+                    <i class="fa-regular fa-face-smile-wink"></i>
+                </div>
+                <div class="author-name">星辰空间站</div>
+                <div class="author-bio">✨ 一起写点有趣的东西吧 ✨</div>
+                <div class="author-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalPosts">0</span>
+                        <span class="stat-label">篇宝藏</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalUsers">0</span>
+                        <span class="stat-label">位小伙伴</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number"><runtime-display></runtime-display></span>
+                        <span class="stat-label">努力运行</span>
+                    </div>
+                </div>
+                <div class="author-links">
+                    <a href="authors.html"><i class="fas fa-users"></i> 作者列表</a>
+                    <a href="tags.html"><i class="fas fa-tags"></i> 标签云</a>
+                    <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
+                </div>
             </div>
-            <a href="post.html?slug=${post.slug}" style="text-decoration: none; color: inherit;">
-                <h3 class="card-title">${post.title}</h3>
-            </a>
-            <p class="card-excerpt">${post.excerpt || ''}</p>
-            <div class="card-tags">${tagsHtml}</div>
-        </article>
-        `;
+        </aside>
 
-          // 将这张卡片的 HTML 添加到容器中
-          grid.innerHTML += card;
-        });
-      } catch (error) {
-        // 7. 如果出错了，显示错误信息
-        console.error('加载文章失败:', error);
-        grid.innerHTML = '<p style="text-align: center; color: red;">文章加载失败，请稍后重试。</p>';
-      }
-    }
+        <!-- 右侧文章列表区 -->
+        <main class="home-main">
+            <div class="posts-header">
+                <h2><i class="fas fa-arrow-trend-up" style="color:#FB7299; margin-right: 8px;"></i> 最新放映</h2>
+                <a href="archive.html" class="more-link">查看全部 <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="article-list" id="post-list">
+                <!-- 动态加载文章卡片 -->
+            </div>
+            <div class="pagination-controls" id="pagination-controls">
+                <button id="loadMoreBtn" class="load-more-btn">加载更多 <i class="fas fa-arrow-down"></i></button>
+                <div class="pagination-info" id="paginationInfo"></div>
+            </div>
+        </main>
+    </div>
 
-    // 8. 当页面 DOM 加载完成后，执行 loadPosts 函数
-    document.addEventListener('DOMContentLoaded', loadPosts);
+    <!-- 宽屏页脚 -->
+    <blog-footer></blog-footer>
 
+    <script>
+        // 分页配置
+        let allPosts = [];
+        let currentPage = 1;
+        const postsPerPage = 6;  // 每页显示文章数
+        let isLoading = false;
 
-    // 格式化数字：超过10000显示 x.xw，超过1000显示 x.xk，否则原样
-    function formatCount(num) {
-      if (num >= 10000) {
-        return (num / 10000).toFixed(1) + 'w';
-      } else if (num >= 1000) {
-        return (num / 1000).toFixed(1) + 'k';
-      } else {
-        return num;
-      }
-    }
-
-    async function loadStats() {
-      try {
-        const res = await fetch('/api/stats');
-        if (!res.ok) throw new Error('网络错误');
-        const data = await res.json();
-        document.getElementById('totalPosts').textContent = data.postsCount;
-        document.getElementById('totalUsers').textContent = formatCount(data.usersCount);
-      } catch (err) {
-        console.error('加载统计失败:', err);
-        // 可选：保留原静态数字或显示占位符
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', loadStats);
-
-    (function() {
-        const modal = document.getElementById('entryModal');
-        const agreeBtn = document.getElementById('agreeBtn');
-
-        // 检查 localStorage 中是否有同意记录
-        const hasAgreed = localStorage.getItem('entryAgreed');
-
-        // 如果从未同意过，显示弹窗
-        if (!hasAgreed) {
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';  // 禁止背景滚动
-        } else {
-            // 已同意，直接预加载资源（可选）
-            preloadResources();
-        }
-
-        // 同意按钮点击事件
-        agreeBtn.addEventListener('click', function() {
-            // 存储同意标记（可选设置有效期，这里存储时间戳）
-            localStorage.setItem('entryAgreed', JSON.stringify({ timestamp: Date.now() }));
-
-            // 隐藏弹窗
-            modal.classList.remove('show');
-            document.body.style.overflow = '';
-            // 开始预加载
-            preloadResources();
-        });
-
-        // 预加载函数（在空闲时加载关键资源）
-        function preloadResources() {
-            // 使用 requestIdleCallback 或在空闲时加载非关键资源
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(() => {
-                    // 可以在这里预加载其他页面的资源，比如 Quill 编辑器需要的文件
-                    // 例如：<link rel="preload" as="style" href="...">
-                });
-            } else {
-                setTimeout(() => {
-                    // 降级
-                }, 1000);
+        // 获取所有文章（一次性，用于分页）
+        async function fetchAllPosts() {
+            try {
+                const res = await fetch('/api/posts');
+                allPosts = await res.json();
+                return allPosts;
+            } catch (err) {
+                console.error('加载文章失败', err);
+                return [];
             }
         }
-    })();
-  </script>
-</body>
 
+        // 渲染当前页的文章
+        function renderPosts() {
+            const container = document.getElementById('post-list');
+            const start = (currentPage - 1) * postsPerPage;
+            const end = start + postsPerPage;
+            const pagePosts = allPosts.slice(start, end);
+            if (!pagePosts.length && currentPage === 1) {
+                container.innerHTML = '<div class="no-posts">✨ 还没有文章，快去写一篇吧～</div>';
+                return;
+            }
+            let html = '';
+            pagePosts.forEach(post => {
+                const date = new Date(post.updated_at);
+                const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+                html += `
+                    <article class="post-item-card">
+                        <div class="post-item-meta">
+                            <span class="post-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+                            <span class="post-author"><i class="fas fa-user"></i> ${post.author || '匿名'}</span>
+                        </div>
+                        <h3 class="post-item-title">
+                            <a href="post.html?slug=${post.slug}">${post.title}</a>
+                        </h3>
+                        <p class="post-item-excerpt">${post.excerpt || ''}</p>
+                        <div class="post-item-tags">
+                            ${post.tags ? post.tags.split(',').map(t => `<span class="tag">#${t.trim()}</span>`).join('') : ''}
+                        </div>
+                    </article>
+                `;
+            });
+            container.innerHTML = html;
+            updatePaginationInfo();
+        }
+
+        function updatePaginationInfo() {
+            const totalPages = Math.ceil(allPosts.length / postsPerPage);
+            const infoDiv = document.getElementById('paginationInfo');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (currentPage >= totalPages) {
+                loadMoreBtn.style.display = 'none';
+                infoDiv.textContent = `—— 已经到底了 ——`;
+            } else {
+                loadMoreBtn.style.display = 'inline-flex';
+                infoDiv.textContent = `第 ${currentPage} / ${totalPages} 页 · 共 ${allPosts.length} 篇文章`;
+            }
+        }
+
+        async function loadMore() {
+            if (isLoading) return;
+            isLoading = true;
+            const totalPages = Math.ceil(allPosts.length / postsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPosts();
+                // 平滑滚动到新文章区域顶部
+                document.querySelector('.home-main').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                updatePaginationInfo();
+            }
+            isLoading = false;
+        }
+
+        async function initHome() {
+            // 加载统计数据
+            try {
+                const statsRes = await fetch('/api/stats');
+                const stats = await statsRes.json();
+                document.getElementById('totalPosts').textContent = stats.postsCount;
+                document.getElementById('totalUsers').textContent = stats.usersCount;
+            } catch (err) { console.error(err); }
+
+            // 加载文章数据
+            await fetchAllPosts();
+            currentPage = 1;
+            renderPosts();
+
+            // 绑定加载更多按钮
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (loadMoreBtn) loadMoreBtn.addEventListener('click', loadMore);
+        }
+
+        document.addEventListener('DOMContentLoaded', initHome);
+    </script>
+</body>
 </html>
