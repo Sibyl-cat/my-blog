@@ -140,8 +140,14 @@
             if (currentPage < totalPages) {
                 currentPage++;
                 renderPosts();
-                // 平滑滚动到新文章区域顶部
-                document.querySelector('.home-main').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // 平滑滚动到文章列表顶部，并偏移导航栏高度
+                const mainElement = document.querySelector('.home-main');
+                const navbarHeight = document.querySelector('.navbar')?.offsetHeight || 80;
+                const elementPosition = mainElement.getBoundingClientRect().top + window.scrollY;
+                window.scrollTo({
+                    top: elementPosition - navbarHeight,
+                    behavior: 'smooth'
+                });
             } else {
                 updatePaginationInfo();
             }
