@@ -768,35 +768,28 @@ class NightModeToggle extends HTMLElement {
 customElements.define('night-mode-toggle', NightModeToggle);
 
 
-// ========== 主页导航栏组件（悬浮条随主导航栏消失而出现） ==========
+// ========== 主页导航栏组件（无悬浮条） ==========
 class BlogNavbarHome extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this.observer = null;
     }
 
     connectedCallback() {
         this.render();
-        this.initObserver();
-    }
-
-    disconnectedCallback() {
-        if (this.observer) {
-            this.observer.disconnect();
-        }
+        this.initEvents();
     }
 
     render() {
         this.shadowRoot.innerHTML = `
             <style>
-                /* 导航栏样式 (保持不变) */
+                /* 导航栏样式 */
                 .navbar {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
                     padding: 0.8rem 2rem;
-                    margin-bottom: 2rem;
+                    margin: 0 auto 2rem auto;
                     background: rgba(255, 255, 255, 0.2);
                     backdrop-filter: blur(12px);
                     border-radius: 60px;
@@ -805,6 +798,8 @@ class BlogNavbarHome extends HTMLElement {
                     position: sticky;
                     top: 0;
                     z-index: 100;
+                    width: auto;
+                    max-width: 90%;
                 }
                 .navbar-scrolled {
                     padding: 0.5rem 2rem;
@@ -854,49 +849,6 @@ class BlogNavbarHome extends HTMLElement {
                     gap: 1rem;
                 }
 
-                /* 顶部悬浮条 */
-                .top-bar {
-                    position: fixed;
-                    top: -60px;
-                    left: 0;
-                    width: 100%;
-                    background: rgba(255, 255, 255, 0.9);
-                    backdrop-filter: blur(12px);
-                    border-bottom: 1px solid rgba(251, 114, 153, 0.3);
-                    padding: 0.8rem 2rem;
-                    transition: top 0.3s ease;
-                    z-index: 99;
-                }
-                .top-bar.show {
-                    top: 0;
-                }
-                .top-bar-content {
-                    max-width: 1300px;
-                    margin: 0 auto;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                .top-bar-title {
-                    font-size: 1.2rem;
-                    font-weight: 600;
-                    color: #FB7299;
-                }
-                .top-bar-btn {
-                    background: none;
-                    border: none;
-                    color: #FB7299;
-                    cursor: pointer;
-                    font-size: 0.9rem;
-                    padding: 0.3rem 1rem;
-                    border-radius: 30px;
-                    transition: all 0.2s;
-                }
-                .top-bar-btn:hover {
-                    background: rgba(251, 114, 153, 0.1);
-                    transform: translateY(-2px);
-                }
-
                 @media (max-width: 768px) {
                     .navbar {
                         padding: 0.6rem 1rem;
@@ -907,15 +859,9 @@ class BlogNavbarHome extends HTMLElement {
                     .navbar-tools {
                         gap: 0.5rem;
                     }
-                    .top-bar {
-                        padding: 0.6rem 1rem;
-                    }
-                    .top-bar-title {
-                        font-size: 1rem;
-                    }
                 }
             </style>
-            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+
             <nav class="navbar" id="mainNavbar">
                 <div class="navbar-brand">
                     <a href="./index.html" class="logo">
@@ -933,16 +879,21 @@ class BlogNavbarHome extends HTMLElement {
                     <night-mode-toggle></night-mode-toggle>
                 </div>
             </nav>
-
-            <div id="topBar" class="top-bar">
-                <div class="top-bar-content">
-                    <span class="top-bar-title">星辰空间站</span>
-                    <button id="backToTopBtn" class="top-bar-btn">↑ 回到顶部</button>
-                </div>
-            </div>
         `;
+    }
 
-        // 确保侧边栏触发正常工作
+    initEvents() {
+        this.navbar = this.shadowRoot.getElementById('mainNavbar');
+        // 滚动时添加背景加深效果（可选）
+        window.addEventListener('scroll', () => {
+            if (!this.navbar) return;
+            if (window.scrollY > 50) {
+                this.navbar.classList.add('navbar-scrolled');
+            } else {
+                this.navbar.classList.remove('navbar-scrolled');
+            }
+        });
+        // 确保侧边栏触发正常
         const sidebarToggle = this.shadowRoot.querySelector('#sidebarToggle');
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', (e) => {
@@ -952,25 +903,6 @@ class BlogNavbarHome extends HTMLElement {
                 }
             });
         }
-    }
-
-    initObserver() {
-        const navbar = this.shadowRoot.getElementById('mainNavbar');
-        const topBar = this.shadowRoot.getElementById('topBar');
-        if (!navbar || !topBar) return;
-
-        this.observer = new IntersectionObserver(
-            (entries) => {
-                const isVisible = entries[0].isIntersecting;
-                if (!isVisible) {
-                    topBar.classList.add('show');
-                } else {
-                    topBar.classList.remove('show');
-                }
-            },
-            { threshold: 0 }
-        );
-        this.observer.observe(navbar);
     }
 }
 customElements.define('blog-navbar-home', BlogNavbarHome);
