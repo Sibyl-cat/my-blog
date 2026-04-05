@@ -70,16 +70,17 @@ body::before {
   justify-content: space-between;
   align-items: center;
   padding: 0.9rem 2rem;
+  margin: 0 auto 2rem auto;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(14px) saturate(200%);
+  border-radius: 60px;         /* 恢复圆角 */
   border: 1px solid rgba(255, 255, 255, 0.5);
   animation: slideDown 0.7s ease-out;
   position: sticky;
-  z-index: 100;
-  width: 100%;
-  border-radius: 0;
-  margin-bottom: 0;
   top: 0;
+  z-index: 100;
+  width: auto;                /* 宽度由内容撑开，而不是100% */
+  max-width: 90%;
 }
 
 .navbar-left { flex-shrink: 0; }
