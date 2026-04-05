@@ -5,17 +5,26 @@ class BlogSidebar extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
+        this.handleDocumentClick = null; // 用于存储事件处理函数，以便清理
     }
 
     connectedCallback() {
         this.render();
         this.initSidebar();
+        this.bindOutsideClick();
+    }
+
+    disconnectedCallback() {
+        // 移除事件监听，防止内存泄漏
+        if (this.handleDocumentClick) {
+            document.removeEventListener('click', this.handleDocumentClick);
+        }
     }
 
     render() {
         this.shadowRoot.innerHTML = `
             <style>
-                /* 侧边栏样式 */
+                /* 侧边栏样式（不变，省略...） */
                 .sidebar {
                     position: fixed;
                     top: 0;
@@ -35,9 +44,7 @@ class BlogSidebar extends HTMLElement {
                     padding: 1.5rem 1rem;
                     color: #2a2a2a;
                 }
-                .sidebar.open {
-                    transform: translateX(0);
-                }
+                .sidebar.open { transform: translateX(0); }
                 .sidebar-header {
                     display: flex;
                     justify-content: space-between;
@@ -46,11 +53,7 @@ class BlogSidebar extends HTMLElement {
                     padding-bottom: 0.5rem;
                     border-bottom: 1px solid rgba(251, 114, 153, 0.3);
                 }
-                .sidebar-title {
-                    font-size: 1.5rem;
-                    font-weight: 600;
-                    color: #FB7299;
-                }
+                .sidebar-title { font-size: 1.5rem; font-weight: 600; color: #FB7299; }
                 .close-btn {
                     background: none;
                     border: none;
@@ -65,18 +68,9 @@ class BlogSidebar extends HTMLElement {
                     align-items: center;
                     justify-content: center;
                 }
-                .close-btn:hover {
-                    background: rgba(251, 114, 153, 0.2);
-                    transform: rotate(90deg);
-                }
-                .sidebar-menu {
-                    list-style: none;
-                    padding: 0;
-                    flex: 1;
-                }
-                .sidebar-menu li {
-                    margin-bottom: 0.5rem;
-                }
+                .close-btn:hover { background: rgba(251, 114, 153, 0.2); transform: rotate(90deg); }
+                .sidebar-menu { list-style: none; padding: 0; flex: 1; }
+                .sidebar-menu li { margin-bottom: 0.5rem; }
                 .sidebar-menu a {
                     display: flex;
                     align-items: center;
@@ -96,11 +90,7 @@ class BlogSidebar extends HTMLElement {
                     transform: translateX(6px);
                     color: #FB7299;
                 }
-                .sidebar-menu i {
-                    width: 24px;
-                    color: #FB7299;
-                    font-size: 1.2rem;
-                }
+                .sidebar-menu i { width: 24px; color: #FB7299; font-size: 1.2rem; }
                 .sidebar-footer {
                     padding-top: 1rem;
                     border-top: 1px solid rgba(251, 114, 153, 0.3);
@@ -121,15 +111,8 @@ class BlogSidebar extends HTMLElement {
                     visibility: hidden;
                     transition: opacity 0.3s, visibility 0.3s;
                 }
-                .overlay.active {
-                    opacity: 1;
-                    visibility: visible;
-                }
-                @media (max-width: 680px) {
-                    .sidebar {
-                        width: 240px;
-                    }
-                }
+                .overlay.active { opacity: 1; visibility: visible; }
+                @media (max-width: 680px) { .sidebar { width: 240px; } }
             </style>
             <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <div class="sidebar" id="sidebar">
@@ -181,6 +164,25 @@ class BlogSidebar extends HTMLElement {
                 window.closeSidebar();
             }
         });
+    }
+
+    bindOutsideClick() {
+        // 避免重复绑定
+        if (this.handleDocumentClick) return;
+        this.handleDocumentClick = (e) => {
+            const sidebar = this.shadowRoot.getElementById('sidebar');
+            const overlay = this.shadowRoot.getElementById('overlay');
+            if (!sidebar || !overlay) return;
+            // 检查点击是否来自侧边栏内部、遮罩层、或者侧边栏触发按钮（#sidebarToggle）
+            const isInsideSidebar = sidebar.contains(e.target);
+            const isOverlay = overlay === e.target || overlay.contains(e.target);
+            const isToggle = e.target.closest('#sidebarToggle');
+            // 如果点击在外部，且不是遮罩层（遮罩层有自己的关闭事件），也不是触发按钮，则关闭侧边栏
+            if (!isInsideSidebar && !isOverlay && !isToggle && sidebar.classList.contains('open')) {
+                window.closeSidebar();
+            }
+        };
+        document.addEventListener('click', this.handleDocumentClick);
     }
 }
 customElements.define('blog-sidebar', BlogSidebar);
