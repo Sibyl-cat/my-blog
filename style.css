@@ -607,7 +607,6 @@ body::before {
   margin-bottom: 1.5rem;
 }
 .author-stats {
-  display: flex;
   justify-content: space-around;
   margin: 1.5rem 0;
   padding: 0.5rem 0;
