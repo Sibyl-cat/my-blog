@@ -5,21 +5,13 @@ class BlogSidebar extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this.handleDocumentClick = null; // 用于存储事件处理函数，以便清理
     }
 
     connectedCallback() {
         this.render();
         this.initSidebar();
-        this.bindOutsideClick();
     }
 
-    disconnectedCallback() {
-        // 移除事件监听，防止内存泄漏
-        if (this.handleDocumentClick) {
-            document.removeEventListener('click', this.handleDocumentClick);
-        }
-    }
 
     render() {
         this.shadowRoot.innerHTML = `
@@ -143,7 +135,6 @@ class BlogSidebar extends HTMLElement {
 
         if (!sidebar || !overlay || !closeBtn) return;
 
-        // 全局挂载开关方法
         window.openSidebar = () => {
             sidebar.classList.add('open');
             overlay.classList.add('active');
@@ -165,28 +156,7 @@ class BlogSidebar extends HTMLElement {
             }
         });
     }
-
-    bindOutsideClick() {
-        // 避免重复绑定
-        if (this.handleDocumentClick) return;
-        this.handleDocumentClick = (e) => {
-            const sidebar = this.shadowRoot.getElementById('sidebar');
-            const overlay = this.shadowRoot.getElementById('overlay');
-            if (!sidebar || !overlay) return;
-            // 检查点击是否来自侧边栏内部、遮罩层、或者侧边栏触发按钮（#sidebarToggle）
-            const isInsideSidebar = sidebar.contains(e.target);
-            const isOverlay = overlay === e.target || overlay.contains(e.target);
-            const isToggle = e.target.closest('#sidebarToggle');
-            // 如果点击在外部，且不是遮罩层（遮罩层有自己的关闭事件），也不是触发按钮，则关闭侧边栏
-            if (!isInsideSidebar && !isOverlay && !isToggle && sidebar.classList.contains('open')) {
-                window.closeSidebar();
-            }
-        };
-        document.addEventListener('click', this.handleDocumentClick);
-    }
 }
-customElements.define('blog-sidebar', BlogSidebar);
-
 // ========== 二级页面精简导航栏 ==========
 class BlogNavbarSecondary extends HTMLElement {
     connectedCallback() {
