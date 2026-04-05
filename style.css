@@ -747,7 +747,7 @@ body::before {
     position: static;
     margin-bottom: 2rem;
   }
-  .author-stats { justify-content: center; gap: 2rem; }
+  .author-stats { justify-content: center;}
 }
 
 /* ========== 全局移动端适配（原有） ========== */
