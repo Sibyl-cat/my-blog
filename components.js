@@ -861,7 +861,7 @@ class BlogNavbarHome extends HTMLElement {
                     }
                 }
             </style>
-
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <nav class="navbar" id="mainNavbar">
                 <div class="navbar-brand">
                     <a href="./index.html" class="logo">
