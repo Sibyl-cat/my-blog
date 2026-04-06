@@ -739,16 +739,117 @@ body::before {
 }
 
 /* 移动端适配（新主页） */
-@media (max-width: 900px) {
-  .new-home { flex-direction: column; }
-  .home-sidebar {
-    flex: auto;
-    position: static;
-    margin-bottom: 2rem;
-  }
-  .author-stats { justify-content: center;}
-}
+/* ========== 移动端布局重设计（≤768px） ========== */
+@media (max-width: 768px) {
+    /* 取消左右两栏，改为单列 */
+    .new-home {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
 
+    /* 左侧信息区（作者卡片）压缩内边距，置顶 */
+    .home-sidebar {
+        flex: auto;
+        position: static;
+        margin: 0;
+    }
+    .sidebar-author-card {
+        padding: 1.2rem;
+        border-radius: 24px;
+    }
+    .sidebar-author-card .author-avatar i {
+        font-size: 3.5rem;
+    }
+    .sidebar-author-card .author-name {
+        font-size: 1.3rem;
+        margin: 0.5rem 0;
+    }
+    .sidebar-author-card .author-bio {
+        font-size: 0.85rem;
+    }
+    .author-stats {
+        margin: 1rem 0;
+        gap: 1rem;
+    }
+    .stat-number {
+        font-size: 1.2rem;
+    }
+    .stat-label {
+        font-size: 0.7rem;
+    }
+    .author-links a {
+        padding: 0.4rem;
+        font-size: 0.9rem;
+    }
+
+    /* 右侧文章区 */
+    .home-main {
+        flex: auto;
+    }
+    .posts-header {
+        margin-bottom: 1rem;
+    }
+    .posts-header h2 {
+        font-size: 1.4rem;
+        padding-left: 0.8rem;
+    }
+
+    /* 文章列表改为清爽列表样式，去掉卡片堆砌感 */
+    .article-list {
+        gap: 0;
+    }
+    .post-item-card {
+        background: none;
+        backdrop-filter: none;
+        border: none;
+        border-bottom: 1px solid rgba(251, 114, 153, 0.2);
+        padding: 1rem 0;
+        margin: 0;
+        border-radius: 0;
+        transition: none;
+    }
+    .post-item-card:hover {
+        transform: none;
+        background: none;
+        border-color: rgba(251, 114, 153, 0.3);
+    }
+    .post-item-meta {
+        font-size: 0.75rem;
+        gap: 0.8rem;
+        margin-bottom: 0.4rem;
+    }
+    .post-item-title {
+        font-size: 1.2rem;
+        margin: 0.2rem 0;
+    }
+    .post-item-excerpt {
+        font-size: 0.9rem;
+        margin: 0.4rem 0;
+        color: #666;
+        line-height: 1.5;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .post-item-tags {
+        margin-top: 0.5rem;
+        gap: 0.4rem;
+    }
+    .post-item-tags .tag {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+
+    /* 分页按钮样式调整 */
+    .load-more-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    .pagination-info {
+        font-size: 0.75rem;
+    }
+}
 /* ========== 全局移动端适配（原有） ========== */
 @media (max-width: 768px) {
   body::before {
