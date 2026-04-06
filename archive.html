@@ -78,17 +78,19 @@
         .article-item {
             display: flex;
             align-items: baseline;
-            gap: 1rem;
+            gap: 0.8rem;
             padding: 0.6rem 0;
             border-bottom: 1px dashed rgba(251,114,153,0.2);
+            flex-wrap: wrap;
         }
         .article-date {
             font-size: 0.85rem;
             color: #888;
-            min-width: 80px;
+            min-width: 70px;
         }
         .article-title {
-            flex: 1;
+            flex: 2;
+            min-width: 150px;
         }
         .article-title a {
             text-decoration: none;
@@ -98,6 +100,14 @@
         }
         .article-title a:hover {
             color: #FB7299;
+        }
+        .article-author {
+            font-size: 0.85rem;
+            color: #FB7299;
+            background: rgba(251,114,153,0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            white-space: nowrap;
         }
         .loading, .no-posts {
             text-align: center;
@@ -124,10 +134,16 @@
             }
             .article-item {
                 flex-direction: column;
-                gap: 0.2rem;
+                gap: 0.3rem;
             }
             .article-date {
                 min-width: auto;
+            }
+            .article-title {
+                flex: auto;
+            }
+            .article-author {
+                align-self: flex-start;
             }
         }
     </style>
@@ -194,6 +210,7 @@
                                 <li class="article-item">
                                     <span class="article-date">${day}日</span>
                                     <span class="article-title"><a href="post.html?slug=${post.slug}">${post.title}</a></span>
+                                    <span class="article-author"><i class="fas fa-user"></i> ${post.author || '匿名'}</span>
                                 </li>
                             `;
                         });
