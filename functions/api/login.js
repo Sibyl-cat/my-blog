@@ -14,7 +14,7 @@ export async function onRequest(context) {
 
         // 查询用户信息（包括密码哈希、盐和角色）
         const { results } = await env.DB.prepare(
-            'SELECT id, password_hash, salt, role FROM users WHERE username = ?'
+            'SELECT id, password_hash, salt, role, is_active FROM users WHERE username = ?'
         ).bind(username).all();
 
         if (results.length === 0) {
@@ -34,6 +34,18 @@ export async function onRequest(context) {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
+        // 验证密码成功后
+        if (user.is_active === 0) {
+            return new Response(JSON.stringify({ error: '账号已被禁用，请联系管理员' }), {
+                status: 403,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+         // ========== 新增：更新最后登录时间 ==========
+        await env.DB.prepare(
+            'UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?'
+        ).bind(user.id).run();
 
         // 创建会话
         const sessionId = crypto.randomUUID();
