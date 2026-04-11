@@ -16,10 +16,14 @@ export async function onRequest(context) {
         return new Response(JSON.stringify({ error: '无权访问' }), { status: 403 });
     }
 
-    // 查询所有用户，排除 role='superadmin'
+    // 查询所有用户，排除 role='superadmin'，并返回 id, username, created_at, role, is_active, last_login_at
     const { results } = await env.DB.prepare(
-        "SELECT id, username, created_at FROM users WHERE role != 'superadmin' ORDER BY id ASC"
+        `SELECT id, username, created_at, role, is_active, last_login_at 
+         FROM users 
+         WHERE role != 'superadmin' 
+         ORDER BY id ASC`
     ).all();
+
     return new Response(JSON.stringify(results), {
         headers: { 'Content-Type': 'application/json' }
     });
