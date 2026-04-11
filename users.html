@@ -381,8 +381,8 @@
                 let html = '';
                 users.forEach(user => {
                     const selectedClass = selectedUserId === user.id ? 'selected' : '';
-                    const regDate = new Date(user.created_at).toLocaleDateString('zh-CN');
-                    const lastLogin = user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN') : '从未登录';
+                    const regDate = new Date(user.created_at).toLocaleString('zh-CN', { hour12: false });
+                    const lastLogin = user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN', { hour12: false }): '从未登录';
                     const roleText = user.role === 'admin' ? '管理员' : '普通用户';
                     html += `
                         <div class="user-item ${selectedClass}" data-id="${user.id}" data-username="${user.username}">
