@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
     <style>
+        /* 样式保持不变（与上一版本相同） */
         * {
             margin: 0;
             padding: 0;
@@ -119,7 +120,6 @@
             gap: 0.5rem;
         }
 
-        /* 开关样式 */
         .switch {
             position: relative;
             display: inline-block;
@@ -165,7 +165,6 @@
             transform: translateX(22px);
         }
 
-        /* 右侧详情卡片 */
         .detail-group {
             margin-bottom: 1.5rem;
         }
@@ -398,9 +397,10 @@
             });
             userListDiv.innerHTML = html || '<p style="text-align:center; padding:2rem; color:#666;">暂无用户</p>';
 
-            // 绑定启用/禁用开关
+            // 绑定启用/禁用开关（修复：不再调用 loadUsers，而是直接更新本地数据和UI）
             document.querySelectorAll('.active-toggle').forEach(toggle => {
-                toggle.addEventListener('change', async (e) => {
+                toggle.removeEventListener('change', toggle._listener);
+                const listener = async (e) => {
                     e.stopPropagation();
                     const userId = parseInt(toggle.dataset.id);
                     const active = toggle.checked;
@@ -413,32 +413,41 @@
                         const data = await res.json();
                         if (!res.ok) {
                             showMessage(data.error || '操作失败', 'error');
-                            loadUsers();
+                            // 恢复开关状态
+                            toggle.checked = !active;
                         } else {
                             showMessage(active ? '用户已启用' : '用户已禁用', 'success');
+                            // 更新本地数据
                             const user = usersData.find(u => u.id === userId);
                             if (user) user.is_active = active ? 1 : 0;
+                            // 更新左侧列表中该用户的开关状态（已经是最新，无需额外操作）
+                            // 如果右侧详情中当前显示的是该用户，刷新详情
                             if (selectedUserId === userId) {
                                 renderUserDetail(user);
                             }
                         }
                     } catch (err) {
                         showMessage('网络错误', 'error');
-                        loadUsers();
+                        toggle.checked = !active;
                     }
-                });
+                };
+                toggle.addEventListener('change', listener);
+                toggle._listener = listener;
             });
 
             // 绑定点击选中用户
             document.querySelectorAll('.user-item').forEach(item => {
-                item.addEventListener('click', (e) => {
+                item.removeEventListener('click', item._clickListener);
+                const clickListener = (e) => {
                     if (e.target.closest('.active-toggle')) return;
                     const userId = parseInt(item.dataset.id);
                     selectedUserId = userId;
                     const selectedUser = usersData.find(u => u.id === userId);
                     renderUserList();
                     renderUserDetail(selectedUser);
-                });
+                };
+                item.addEventListener('click', clickListener);
+                item._clickListener = clickListener;
             });
         }
 
@@ -473,7 +482,8 @@
 
             // 绑定角色修改
             const roleSelect = document.getElementById('roleSelect');
-            roleSelect.addEventListener('change', async (e) => {
+            roleSelect.removeEventListener('change', roleSelect._listener);
+            const roleListener = async (e) => {
                 const newRole = roleSelect.value;
                 try {
                     const res = await fetch('/api/admin/user/role', {
@@ -495,11 +505,14 @@
                     showMessage('网络错误', 'error');
                     roleSelect.value = user.role;
                 }
-            });
+            };
+            roleSelect.addEventListener('change', roleListener);
+            roleSelect._listener = roleListener;
 
             // 删除用户
             const deleteBtn = document.getElementById('deleteUserBtn');
-            deleteBtn.addEventListener('click', async () => {
+            deleteBtn.removeEventListener('click', deleteBtn._listener);
+            const deleteListener = async () => {
                 if (!confirm('确定要删除该用户吗？此操作不可撤销。')) return;
                 try {
                     const res = await fetch('/api/admin/user/delete', {
@@ -521,7 +534,9 @@
                 } catch (err) {
                     showMessage('网络错误', 'error');
                 }
-            });
+            };
+            deleteBtn.addEventListener('click', deleteListener);
+            deleteBtn._listener = deleteListener;
         }
 
         refreshBtn.addEventListener('click', () => loadUsers());
