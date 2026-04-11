@@ -842,7 +842,7 @@ class BlogNavbarHome extends HTMLElement {
                     </a>
                 </div>
                 <div class="navbar-links">
-                    <a href="authors.html"><i class="fas fa-users"></i> 作者</a>
+                    <a href="rankings.html"><i class="fas fa-chart-line"></i> 榜单</a>
                     <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
                     <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
                 </div>
