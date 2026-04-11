@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>榜单 · 星辰空间站</title>
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="./components.js"></script>
+    <style>
+        .rankings-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .rank-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 1.5rem;
+            border: 1px solid rgba(251, 114, 153, 0.3);
+        }
+        .rank-card h2 {
+            color: #FB7299;
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #FB7299;
+            padding-left: 1rem;
+        }
+        .rank-list {
+            list-style: none;
+            padding: 0;
+        }
+        .rank-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed rgba(251,114,153,0.2);
+        }
+        .rank-number {
+            font-weight: 600;
+            color: #FB7299;
+            width: 30px;
+        }
+        .rank-name {
+            flex: 1;
+            margin-left: 0.5rem;
+        }
+        .rank-value {
+            color: #666;
+        }
+        .stats-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            border-radius: 24px;
+            padding: 1rem;
+            flex: 1;
+            margin: 0 0.5rem;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #FB7299;
+        }
+        @media (max-width: 768px) {
+            .rankings-container {
+                grid-template-columns: 1fr;
+            }
+            .stats-summary {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <blog-navbar-secondary></blog-navbar-secondary>
+    <blog-sidebar></blog-sidebar>
+
+    <div class="blog-container">
+        <div class="stats-summary" id="statsSummary">
+            <div class="stat-card glass"><div class="stat-number" id="totalPosts">-</div><div>总文章</div></div>
+            <div class="stat-card glass"><div class="stat-number" id="totalUsers">-</div><div>总用户</div></div>
+            <div class="stat-card glass"><div class="stat-number" id="totalTags">-</div><div>总标签</div></div>
+        </div>
+
+        <div class="rankings-container">
+            <div class="rank-card glass">
+                <h2><i class="fas fa-trophy"></i> 作者发文榜</h2>
+                <ul class="rank-list" id="authorRank"></ul>
+            </div>
+            <div class="rank-card glass">
+                <h2><i class="fas fa-fire"></i> 热门标签</h2>
+                <ul class="rank-list" id="tagRank"></ul>
+            </div>
+            <div class="rank-card glass">
+                <h2><i class="fas fa-clock"></i> 最新文章</h2>
+                <ul class="rank-list" id="latestPosts"></ul>
+            </div>
+        </div>
+    </div>
+
+    <blog-footer></blog-footer>
+
+    <script>
+        async function loadRankings() {
+            try {
+                const res = await fetch('/api/stats/public');
+                const data = await res.json();
+
+                // 汇总统计
+                document.getElementById('totalPosts').textContent = data.totalPosts;
+                document.getElementById('totalUsers').textContent = data.totalUsers;
+                document.getElementById('totalTags').textContent = data.totalTags;
+
+                // 作者榜
+                const authorList = document.getElementById('authorRank');
+                authorList.innerHTML = '';
+                data.authorRank.forEach((item, idx) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="rank-number">${idx+1}</span>
+                        <span class="rank-name">${item.username}</span>
+                        <span class="rank-value">${item.post_count} 篇</span>
+                    `;
+                    authorList.appendChild(li);
+                });
+
+                // 标签榜
+                const tagList = document.getElementById('tagRank');
+                tagList.innerHTML = '';
+                data.tagRank.forEach((tag, idx) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="rank-number">${idx+1}</span>
+                        <span class="rank-name">#${tag.name}</span>
+                        <span class="rank-value">${tag.count} 次</span>
+                    `;
+                    tagList.appendChild(li);
+                });
+
+                // 最新文章
+                const latestList = document.getElementById('latestPosts');
+                latestList.innerHTML = '';
+                data.latestPosts.forEach(post => {
+                    const date = new Date(post.updated_at);
+                    const formatted = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="rank-name">
+                            <a href="post.html?slug=${post.slug}" style="text-decoration:none; color:inherit;">${post.title}</a>
+                        </span>
+                        <span class="rank-value">${post.author} · ${formatted}</span>
+                    `;
+                    latestList.appendChild(li);
+                });
+            } catch (err) {
+                console.error('加载榜单失败', err);
+                document.querySelectorAll('.rank-list').forEach(el => el.innerHTML = '<li>加载失败</li>');
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadRankings);
+    </script>
+</body>
+</html>
