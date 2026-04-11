@@ -61,15 +61,13 @@
         .user-list {
             max-height: 500px;
             overflow-y: auto;
-            margin-bottom: 1.5rem;
         }
 
         .user-item {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
-            gap: 0.5rem;
-            padding: 1rem;
+            gap: 1rem;
+            padding: 0.8rem 1rem;
             border-bottom: 1px solid rgba(251, 114, 153, 0.2);
             cursor: pointer;
             transition: all 0.2s;
@@ -90,6 +88,7 @@
         .user-avatar {
             width: 40px;
             text-align: center;
+            flex-shrink: 0;
         }
 
         .user-avatar i {
@@ -97,40 +96,27 @@
             color: #FB7299;
         }
 
-        .user-details {
-            flex: 3;
-            min-width: 180px;
+        .user-info {
+            flex: 1;
+            min-width: 0;
         }
 
         .user-name {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
-        .user-meta {
-            font-size: 0.75rem;
-            color: #666;
+        .user-last-login {
+            font-size: 0.7rem;
+            color: #888;
             margin-top: 0.2rem;
         }
 
         .user-status {
-            flex: 0 0 100px;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .user-role {
-            flex: 0 0 100px;
-        }
-
-        .role-select {
-            padding: 0.3rem 0.5rem;
-            border-radius: 30px;
-            border: 1px solid rgba(251,114,153,0.5);
-            background: rgba(255,255,255,0.5);
-            font-size: 0.8rem;
-            cursor: pointer;
         }
 
         /* 开关样式 */
@@ -179,30 +165,35 @@
             transform: translateX(22px);
         }
 
-        .form-group {
+        /* 右侧详情卡片 */
+        .detail-group {
             margin-bottom: 1.5rem;
         }
 
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2a2a2a;
+        .detail-label {
             font-weight: 500;
+            color: #2a2a2a;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
         }
 
-        input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid rgba(251, 114, 153, 0.3);
-            border-radius: 30px;
+        .detail-value {
             background: rgba(255, 255, 255, 0.5);
+            padding: 0.6rem 1rem;
+            border-radius: 30px;
             font-size: 1rem;
+            color: #333;
+            word-break: break-all;
         }
 
-        input:focus {
-            outline: none;
-            border-color: #FB7299;
-            box-shadow: 0 0 0 3px rgba(251, 114, 153, 0.2);
+        .role-select {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border-radius: 30px;
+            border: 1px solid rgba(251,114,153,0.5);
+            background: rgba(255,255,255,0.5);
+            font-size: 1rem;
+            cursor: pointer;
         }
 
         .btn-group {
@@ -310,16 +301,6 @@
             .btn-group {
                 flex-direction: column;
             }
-
-            .user-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .user-status, .user-role {
-                flex: auto;
-                width: 100%;
-            }
         }
     </style>
 </head>
@@ -330,7 +311,7 @@
         <blog-sidebar></blog-sidebar>
 
         <div class="users-container">
-            <!-- 左侧：用户列表卡片 -->
+            <!-- 左侧：用户列表（紧凑） -->
             <div class="panel glass">
                 <h2><i class="fas fa-users"></i> 用户列表</h2>
                 <div class="user-list" id="user-list"></div>
@@ -339,30 +320,26 @@
                 </button>
             </div>
 
-            <!-- 右侧：操作卡片 -->
+            <!-- 右侧：用户详情与操作 -->
             <div class="panel glass">
-                <h2><i class="fas fa-user-edit"></i> 用户操作</h2>
-                <form id="userForm">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> 用户名</label>
-                        <input type="text" id="username" disabled>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" id="deleteUserBtn" class="btn btn-danger"><i class="fas fa-trash"></i> 删除用户</button>
-                    </div>
-                    <div id="message" class="message"></div>
-                </form>
+                <h2><i class="fas fa-user-edit"></i> 用户详情</h2>
+                <div id="userDetailPanel">
+                    <p style="color:#666; text-align:center;">请从左侧选择一个用户</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         let selectedUserId = null;
+        let usersData = [];
         const userListDiv = document.getElementById('user-list');
-        const usernameInput = document.getElementById('username');
-        const deleteBtn = document.getElementById('deleteUserBtn');
+        const userDetailPanel = document.getElementById('userDetailPanel');
         const refreshBtn = document.getElementById('refreshUsersBtn');
-        const messageDiv = document.getElementById('message');
+        const messageDiv = document.createElement('div');
+        messageDiv.id = 'message';
+        messageDiv.className = 'message';
+        userDetailPanel.parentNode.appendChild(messageDiv);
 
         function showMessage(text, type) {
             messageDiv.textContent = text;
@@ -377,118 +354,18 @@
             try {
                 const res = await fetch('/api/admin/users');
                 if (!res.ok) throw new Error('加载失败');
-                const users = await res.json();
-                let html = '';
-                users.forEach(user => {
-                    const selectedClass = selectedUserId === user.id ? 'selected' : '';
-                    const regDate = new Date(user.created_at).toLocaleDateString('zh-CN');
-                    const lastLogin = user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN') : '从未登录';
-                    const roleText = user.role === 'admin' ? '管理员' : '普通用户';
-                    html += `
-                        <div class="user-item ${selectedClass}" data-id="${user.id}" data-username="${user.username}">
-                            <div class="user-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="user-details">
-                                <div class="user-name">${user.username}</div>
-                                <div class="user-meta">
-                                    注册: ${regDate}<br>
-                                    最后登录: ${lastLogin}
-                                </div>
-                            </div>
-                            <div class="user-status">
-                                <label class="switch">
-                                    <input type="checkbox" class="active-toggle" data-id="${user.id}" ${user.is_active ? 'checked' : ''}>
-                                    <span class="slider round"></span>
-                                </label>
-                                <span style="font-size:0.75rem;">${user.is_active ? '启用' : '禁用'}</span>
-                            </div>
-                            <div class="user-role">
-                                <select class="role-select" data-id="${user.id}">
-                                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>普通用户</option>
-                                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>管理员</option>
-                                </select>
-                            </div>
-                        </div>
-                    `;
-                });
-                userListDiv.innerHTML = html || '<p style="text-align:center; padding:2rem; color:#666;">暂无用户</p>';
-
-                // 绑定角色修改
-                document.querySelectorAll('.role-select').forEach(select => {
-                    select.addEventListener('change', async (e) => {
-                        e.stopPropagation();
-                        const userId = parseInt(select.dataset.id);
-                        const newRole = select.value;
-                        try {
-                            const res = await fetch('/api/admin/user/role', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ targetUserId: userId, newRole })
-                            });
-                            const data = await res.json();
-                            if (res.ok) {
-                                showMessage('角色已更新', 'success');
-                                loadUsers(); // 刷新列表以更新选中状态
-                            } else {
-                                showMessage(data.error || '更新失败', 'error');
-                                loadUsers(); // 恢复原状
-                            }
-                        } catch (err) {
-                            showMessage('网络错误', 'error');
-                            loadUsers();
-                        }
-                    });
-                });
-
-                // 绑定启用/禁用开关
-                document.querySelectorAll('.active-toggle').forEach(toggle => {
-                    toggle.addEventListener('change', async (e) => {
-                        e.stopPropagation();
-                        const userId = parseInt(toggle.dataset.id);
-                        const active = toggle.checked;
-                        try {
-                            const res = await fetch('/api/admin/user/toggle-active', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ targetUserId: userId, active })
-                            });
-                            const data = await res.json();
-                            if (!res.ok) {
-                                showMessage(data.error || '操作失败', 'error');
-                                loadUsers(); // 恢复
-                            } else {
-                                showMessage(active ? '用户已启用' : '用户已禁用', 'success');
-                            }
-                        } catch (err) {
-                            showMessage('网络错误', 'error');
-                            loadUsers();
-                        }
-                    });
-                });
-
-                // 绑定选择用户（点击条目）
-                document.querySelectorAll('.user-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        // 避免点击内部控件时触发
-                        if (e.target.closest('.role-select') || e.target.closest('.active-toggle')) return;
-                        document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
-                        item.classList.add('selected');
-                        selectedUserId = parseInt(item.dataset.id);
-                        usernameInput.value = item.dataset.username;
-                    });
-                });
-
-                // 如果之前选中的用户仍在列表中，保持选中样式
+                usersData = await res.json();
+                renderUserList();
                 if (selectedUserId) {
-                    const selectedItem = document.querySelector(`.user-item[data-id="${selectedUserId}"]`);
-                    if (selectedItem) {
-                        selectedItem.classList.add('selected');
-                        usernameInput.value = selectedItem.dataset.username;
+                    const selectedUser = usersData.find(u => u.id === selectedUserId);
+                    if (selectedUser) {
+                        renderUserDetail(selectedUser);
                     } else {
                         selectedUserId = null;
-                        usernameInput.value = '';
+                        userDetailPanel.innerHTML = '<p style="color:#666; text-align:center;">请从左侧选择一个用户</p>';
                     }
+                } else {
+                    userDetailPanel.innerHTML = '<p style="color:#666; text-align:center;">请从左侧选择一个用户</p>';
                 }
             } catch (err) {
                 console.error(err);
@@ -496,32 +373,156 @@
             }
         }
 
-        // 删除用户
-        deleteBtn.addEventListener('click', async () => {
-            if (!selectedUserId) {
-                showMessage('请先选择一个用户', 'error');
-                return;
-            }
-            if (!confirm('确定要删除该用户吗？此操作不可撤销。')) return;
-            try {
-                const res = await fetch('/api/admin/user/delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: selectedUserId })
+        function renderUserList() {
+            let html = '';
+            usersData.forEach(user => {
+                const selectedClass = selectedUserId === user.id ? 'selected' : '';
+                const lastLogin = user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '从未登录';
+                html += `
+                    <div class="user-item ${selectedClass}" data-id="${user.id}">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">${user.username}</div>
+                            <div class="user-last-login">最后登录: ${lastLogin}</div>
+                        </div>
+                        <div class="user-status">
+                            <label class="switch">
+                                <input type="checkbox" class="active-toggle" data-id="${user.id}" ${user.is_active ? 'checked' : ''}>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            });
+            userListDiv.innerHTML = html || '<p style="text-align:center; padding:2rem; color:#666;">暂无用户</p>';
+
+            // 绑定启用/禁用开关
+            document.querySelectorAll('.active-toggle').forEach(toggle => {
+                toggle.addEventListener('change', async (e) => {
+                    e.stopPropagation();
+                    const userId = parseInt(toggle.dataset.id);
+                    const active = toggle.checked;
+                    try {
+                        const res = await fetch('/api/admin/user/toggle-active', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ targetUserId: userId, active })
+                        });
+                        const data = await res.json();
+                        if (!res.ok) {
+                            showMessage(data.error || '操作失败', 'error');
+                            loadUsers();
+                        } else {
+                            showMessage(active ? '用户已启用' : '用户已禁用', 'success');
+                            const user = usersData.find(u => u.id === userId);
+                            if (user) user.is_active = active ? 1 : 0;
+                            if (selectedUserId === userId) {
+                                renderUserDetail(user);
+                            }
+                        }
+                    } catch (err) {
+                        showMessage('网络错误', 'error');
+                        loadUsers();
+                    }
                 });
-                const data = await res.json();
-                if (res.ok) {
-                    showMessage('用户删除成功', 'success');
-                    selectedUserId = null;
-                    usernameInput.value = '';
-                    loadUsers();
-                } else {
-                    showMessage(data.error || '删除失败', 'error');
+            });
+
+            // 绑定点击选中用户
+            document.querySelectorAll('.user-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.active-toggle')) return;
+                    const userId = parseInt(item.dataset.id);
+                    selectedUserId = userId;
+                    const selectedUser = usersData.find(u => u.id === userId);
+                    renderUserList();
+                    renderUserDetail(selectedUser);
+                });
+            });
+        }
+
+        function renderUserDetail(user) {
+            if (!user) return;
+            const regDate = new Date(user.created_at).toLocaleString('zh-CN');
+            const lastLogin = user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN') : '从未登录';
+            userDetailPanel.innerHTML = `
+                <div class="detail-group">
+                    <div class="detail-label">用户名</div>
+                    <div class="detail-value">${user.username}</div>
+                </div>
+                <div class="detail-group">
+                    <div class="detail-label">注册时间</div>
+                    <div class="detail-value">${regDate}</div>
+                </div>
+                <div class="detail-group">
+                    <div class="detail-label">最后登录</div>
+                    <div class="detail-value">${lastLogin}</div>
+                </div>
+                <div class="detail-group">
+                    <div class="detail-label">角色</div>
+                    <select class="role-select" id="roleSelect">
+                        <option value="user" ${user.role === 'user' ? 'selected' : ''}>普通用户</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>管理员</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button id="deleteUserBtn" class="btn btn-danger"><i class="fas fa-trash"></i> 删除用户</button>
+                </div>
+            `;
+
+            // 绑定角色修改
+            const roleSelect = document.getElementById('roleSelect');
+            roleSelect.addEventListener('change', async (e) => {
+                const newRole = roleSelect.value;
+                try {
+                    const res = await fetch('/api/admin/user/role', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ targetUserId: user.id, newRole })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showMessage('角色已更新', 'success');
+                        user.role = newRole;
+                        renderUserList();
+                        renderUserDetail(user);
+                    } else {
+                        showMessage(data.error || '更新失败', 'error');
+                        roleSelect.value = user.role;
+                    }
+                } catch (err) {
+                    showMessage('网络错误', 'error');
+                    roleSelect.value = user.role;
                 }
-            } catch (err) {
-                showMessage('网络错误', 'error');
-            }
-        });
+            });
+
+            // 删除用户
+            const deleteBtn = document.getElementById('deleteUserBtn');
+            deleteBtn.addEventListener('click', async () => {
+                if (!confirm('确定要删除该用户吗？此操作不可撤销。')) return;
+                try {
+                    const res = await fetch('/api/admin/user/delete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: user.id })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        showMessage('用户删除成功', 'success');
+                        if (selectedUserId === user.id) {
+                            selectedUserId = null;
+                            userDetailPanel.innerHTML = '<p style="color:#666; text-align:center;">请从左侧选择一个用户</p>';
+                        }
+                        loadUsers();
+                    } else {
+                        showMessage(data.error || '删除失败', 'error');
+                    }
+                } catch (err) {
+                    showMessage('网络错误', 'error');
+                }
+            });
+        }
 
         refreshBtn.addEventListener('click', () => loadUsers());
         loadUsers();
