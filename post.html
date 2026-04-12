@@ -77,48 +77,39 @@
     </div>
 
     <script>
-        async function loadPost() {
-
-            const container = document.getElementById('post-container');
-            if (!container) return;
-
-            // 从 URL 获取 slug 参数
-            const urlParams = new URLSearchParams(window.location.search);
-            const slug = urlParams.get('slug');
-
-            if (!slug) {
-                container.innerHTML = '<p style="color: red; text-align: center;">文章不存在</p>';
-                return;
+    async function loadPost() {
+        const container = document.getElementById('post-container');
+        if (!container) return;
+    
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+    
+        if (!slug) {
+            container.innerHTML = '<p style="color: red; text-align: center;">文章不存在</p>';
+            return;
+        }
+    
+        try {
+            const response = await fetch(`/api/post/${slug}`);
+            if (!response.ok) {
+                if (response.status === 404) throw new Error('文章不存在');
+                else throw new Error(`加载失败 (${response.status})`);
             }
-
-            try {
-                const response = await fetch(`/api/post/${slug}`);
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('文章不存在');
-                    } else {
-                        throw new Error(`加载失败 (${response.status})`);
-                    }
-                }
-                const post = await response.json();
-
-                // 格式化日期
-                const date = new Date(post.updated_at);
-                const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-                // 处理标签
-                let tagsHtml = '';
-                if (post.tags) {
-                    tagsHtml = post.tags.split(',').map(tag => `#${tag.trim()}`).join(' · ');
-                }
-
-                // 判断内容格式：如果去除空格后以 < 开头且包含 >，则视为 HTML，否则按 Markdown 渲染
-                const trimmed = (post.content || '').trim();
-                const isLikelyHTML = trimmed.startsWith('<') && trimmed.includes('>');
-                const renderedContent = isLikelyHTML ? trimmed : marked.parse(trimmed);
-
-                // 渲染文章
-                container.innerHTML = `
+            const post = await response.json();
+    
+            const date = new Date(post.updated_at);
+            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    
+            let tagsHtml = '';
+            if (post.tags) {
+                tagsHtml = post.tags.split(',').map(tag => `#${tag.trim()}`).join(' · ');
+            }
+    
+            const trimmed = (post.content || '').trim();
+            const isLikelyHTML = trimmed.startsWith('<') && trimmed.includes('>');
+            const renderedContent = isLikelyHTML ? trimmed : marked.parse(trimmed);
+    
+            container.innerHTML = `
                 <h1 style="font-size: 2.5rem; color: #FB7299;">${post.title}</h1>
                 <div class="card-meta" style="margin: 1rem 0; width: 100%;">
                     <span><i class="far fa-calendar"></i> ${formattedDate}</span>
@@ -129,11 +120,25 @@
                 </div>
                 <a href="index.html" class="load-more" style="margin: 2rem 0; align-self: center;">← 返回首页</a>
             `;
-            } catch (error) {
-                console.error(error);
-                container.innerHTML = `<p style="color: red; text-align: center;">${error.message}</p>`;
-            }
+    
+            // 执行插入内容中的脚本（使小游戏生效）
+            const scripts = container.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                    newScript.async = false;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
+    
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = `<p style="color: red; text-align: center;">${error.message}</p>`;
         }
+    }
 
         // 确保 DOM 加载完成后执行
         document.addEventListener('DOMContentLoaded', loadPost);
