@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>站点维护中 · 星辰空间站</title>
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -18,61 +19,132 @@
             align-items: center;
             justify-content: center;
             padding: 1rem;
+            position: relative;
+        }
+        body::before {
+            content: "🔧";
+            font-size: 8rem;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            opacity: 0.1;
+            pointer-events: none;
+            transform: rotate(-15deg);
+        }
+        body::after {
+            content: "✨";
+            font-size: 6rem;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            opacity: 0.15;
+            pointer-events: none;
+            animation: float 4s infinite ease-in-out;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(16px);
+            border-radius: 48px;
             padding: 2rem;
-            border: 1px solid rgba(251, 114, 153, 0.3);
-            box-shadow: 0 12px 28px rgba(251, 114, 153, 0.1);
-            max-width: 500px;
+            border: 1px solid rgba(251, 114, 153, 0.4);
+            box-shadow: 0 20px 40px rgba(251, 114, 153, 0.2);
+            max-width: 550px;
             width: 100%;
             text-align: center;
+            transition: all 0.3s;
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            80% { transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
         }
         h1 {
             color: #FB7299;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         .subtitle {
             color: #666;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .repair-status {
+            background: rgba(255,255,255,0.5);
+            border-radius: 60px;
+            padding: 0.5rem 1rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #FB7299;
+            font-weight: 500;
+        }
+        .timer-wrapper {
+            margin: 1rem 0;
+        }
+        .timer-label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 0.3rem;
         }
         .timer {
-            font-size: 2rem;
-            font-weight: 600;
+            font-size: 2.2rem;
+            font-weight: 700;
             color: #FB7299;
-            margin: 1rem 0;
+            background: rgba(255,255,255,0.5);
+            display: inline-block;
+            padding: 0.3rem 1.5rem;
+            border-radius: 60px;
+            backdrop-filter: blur(4px);
         }
         .quote {
             font-style: italic;
-            color: #444;
-            margin: 2rem 0;
+            color: #555;
+            margin: 1.5rem 0;
             padding: 1rem;
-            background: rgba(255,255,255,0.3);
-            border-radius: 20px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 32px;
+            font-size: 1rem;
+            border-left: 4px solid #FB7299;
+            text-align: left;
+        }
+        .emoji-pile {
+            font-size: 2rem;
+            margin: 0.5rem 0;
+            letter-spacing: 8px;
         }
         .login-trigger {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.3);
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(8px);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             color: #FB7299;
-            font-size: 1.2rem;
-            border: 1px solid rgba(251,114,153,0.3);
+            font-size: 1.5rem;
+            border: 1px solid rgba(251,114,153,0.5);
             transition: all 0.2s;
+            z-index: 100;
         }
         .login-trigger:hover {
             background: #FB7299;
             color: white;
+            transform: scale(1.1);
         }
         .login-popup {
             display: none;
@@ -80,23 +152,37 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(16px);
             padding: 2rem;
-            border-radius: 32px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
             z-index: 1000;
-            width: 300px;
+            width: 320px;
+            border: 1px solid rgba(251,114,153,0.4);
         }
         .login-popup.show {
             display: block;
+            animation: pop 0.3s ease;
+        }
+        @keyframes pop {
+            0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        .login-popup h3 {
+            color: #FB7299;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            text-align: center;
         }
         .login-popup input {
             width: 100%;
             padding: 0.8rem;
             margin: 0.5rem 0;
             border: 1px solid rgba(251,114,153,0.3);
-            border-radius: 30px;
+            border-radius: 40px;
             background: rgba(255,255,255,0.8);
+            font-size: 1rem;
         }
         .login-popup button {
             width: 100%;
@@ -104,14 +190,22 @@
             background: #FB7299;
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 40px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            transition: all 0.2s;
+        }
+        .login-popup button:hover {
+            background: #ff8aa5;
+            transform: scale(1.02);
         }
         .error-message {
-            color: red;
-            font-size: 0.9rem;
+            color: #ff4d4f;
+            font-size: 0.85rem;
             margin-top: 0.5rem;
+            text-align: center;
         }
         .overlay {
             display: none;
@@ -121,47 +215,59 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
             z-index: 999;
         }
         .overlay.show {
             display: block;
         }
+        @media (max-width: 600px) {
+            .glass-card { padding: 1.5rem; }
+            h1 { font-size: 2rem; }
+            .timer { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
     <div class="glass-card">
-        <h1>站点维护中</h1>
-        <p class="subtitle">我们正在努力修复，稍后将恢复访问</p>
-        <div class="timer" id="timer">00:00:00</div>
+        <h1>
+            <span>🔧</span> 站点维护中 <span>🛠️</span>
+        </h1>
+        <p class="subtitle">稍后将恢复访问 ✨</p>
+        <div class="repair-status">
+            🚧 我们仍在修复中 🚧
+        </div>
+        <div class="timer-wrapper">
+            <div class="timer-label">已持续修复时间</div>
+            <div class="timer" id="timer">00:00:00</div>
+        </div>
+        <div class="emoji-pile">
+            ⏳ 🐢 💤
+        </div>
         <div class="quote" id="quote">加载一言中...</div>
-        <p style="color:#aaa; font-size:0.9rem;">—— 小电视の日常</p>
+        <p style="color:#aaa; font-size:0.85rem; margin-top:1rem;">—— 星辰空间站 · 星辰大海 ——</p>
     </div>
 
     <!-- 隐藏登录触发器 -->
     <div class="login-trigger" id="loginTrigger">
         <i class="fas fa-tools"></i>
     </div>
-
-    <!-- 遮罩层 -->
     <div class="overlay" id="overlay"></div>
 
     <!-- 登录弹窗 -->
     <div class="login-popup" id="loginPopup">
-    <h3 style="color:#FB7299; margin-bottom:1rem;">管理员登录</h3>
-    <form id="loginForm">
-        <input type="text" id="username" placeholder="用户名" required>
-        <input type="password" id="password" placeholder="密码" required>
-        <button type="submit" id="loginBtn">登录</button>
-        <div class="error-message" id="loginError"></div>
-    </form>
-</div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
-
+        <h3><i class="fas fa-user-astronaut"></i> 管理员登录</h3>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="用户名" autocomplete="username" required>
+            <input type="password" id="password" placeholder="密码" autocomplete="current-password" required>
+            <button type="submit">🔓 进入后台</button>
+            <div class="error-message" id="loginError"></div>
+        </form>
+    </div>
     <script>
         // 计时器
         function updateTimer(startTime) {
-            const now = Math.floor(Date.now() / 1000); // 当前秒数
+            const now = Math.floor(Date.now() / 1000);
             const elapsed = now - startTime;
             if (elapsed < 0) return "00:00:00";
             const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0');
@@ -170,14 +276,12 @@
             document.getElementById('timer').textContent = `${hours}:${minutes}:${seconds}`;
         }
 
-        // 获取修复开始时间（从环境变量或服务器API获取）
         async function getStartTime() {
             try {
-                const res = await fetch('/api/repair-time'); // 可选API，返回 { startTime: 1234567890 }
+                const res = await fetch('/api/repair-time');
                 const data = await res.json();
                 return data.startTime;
             } catch (e) {
-                // 如果API不可用，使用当前时间（假设修复刚开始）
                 return Math.floor(Date.now() / 1000);
             }
         }
@@ -187,7 +291,7 @@
             setInterval(() => updateTimer(startTime), 1000);
         })();
 
-        // 每日一言（使用免费API）
+        // 每日一言
         fetch('https://v1.hitokoto.cn/')
             .then(res => res.json())
             .then(data => {
@@ -197,39 +301,33 @@
                 document.getElementById('quote').textContent = '世界很小，请带着梦想一起奔跑。';
             });
 
-       // 登录弹窗控制
+        // 登录弹窗控制
         const trigger = document.getElementById('loginTrigger');
         const popup = document.getElementById('loginPopup');
         const overlay = document.getElementById('overlay');
-        const loginForm = document.getElementById('loginForm'); // 获取表单元素
+        const loginForm = document.getElementById('loginForm');
         const loginError = document.getElementById('loginError');
-    
+
         function showLogin() {
             popup.classList.add('show');
             overlay.classList.add('show');
         }
-    
         function hideLogin() {
             popup.classList.remove('show');
             overlay.classList.remove('show');
             loginError.textContent = '';
         }
-    
         trigger.addEventListener('click', showLogin);
         overlay.addEventListener('click', hideLogin);
-    
-        // 监听表单的 submit 事件
+
         loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // 阻止表单默认提交（页面刷新）
-    
+            e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-    
             if (!username || !password) {
                 loginError.textContent = '请输入用户名和密码';
                 return;
             }
-
             try {
                 const res = await fetch('/api/maintenance-login', {
                     method: 'POST',
@@ -238,7 +336,6 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    // 登录成功，刷新页面（中间件将允许访问主页）
                     window.location.href = '/';
                 } else {
                     loginError.textContent = data.error || '登录失败';
