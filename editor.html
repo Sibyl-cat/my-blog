@@ -4,15 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章编辑 · 星辰空间站</title>
-    <!-- 引入 Font Awesome 和全局样式 -->
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <!-- 引入 Quill 富文本编辑器 -->
     <link href="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/quill@1.3.6/dist/quill.min.js"></script>
-    <!-- 引入 marked 用于解析 MD 上传和预览 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
     <style>
         body {
             background: linear-gradient(145deg, #ffe9f0, #ffd9e5);
@@ -103,7 +99,6 @@
             background: #ff8aa5;
             transform: scale(1.02);
         }
-        /* 标签推荐样式 */
         .suggested-tag {
             background: rgba(251,114,153,0.1);
             border: 1px solid #FB7299;
@@ -123,7 +118,6 @@
             background: #FB7299;
             color: white;
         }
-        /* Quill 编辑器样式 */
         #editor-container {
             height: 500px;
             margin-bottom: 1rem;
@@ -139,7 +133,6 @@
             border: 1px solid rgba(251,114,153,0.3) !important;
             border-bottom: none !important;
         }
-        /* Markdown 编辑器样式 */
         #markdown-editor-container {
             display: none;
         }
@@ -261,8 +254,11 @@
 <script>
     // ========== 全局变量 ==========
     let quill = null;
-    let currentMode = 'rich';      // 'rich' 或 'markdown'
-    let currentPost = null;        // { slug, is_published }
+    let currentMode = 'rich';   // 'rich' 或 'markdown'
+    let currentPost = null;
+    let lastSavedContent = '';        // 最后一次保存的内容
+    let autoSaveTimer = null;
+    const AUTO_SAVE_INTERVAL = 30000; // 30秒
 
     // DOM 元素
     const slugHidden = document.getElementById('slug');
@@ -284,12 +280,44 @@
         messageDiv.textContent = text;
         messageDiv.className = `message ${type}`;
         messageDiv.style.display = 'block';
-        setTimeout(() => messageDiv.style.display = 'none', 3000);
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    function showAutoSaveMessage() {
+        let msgDiv = document.getElementById('autoSaveMsg');
+        if (!msgDiv) {
+            msgDiv = document.createElement('div');
+            msgDiv.id = 'autoSaveMsg';
+            msgDiv.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(0,0,0,0.7);
+                color: white;
+                padding: 8px 16px;
+                border-radius: 30px;
+                font-size: 0.8rem;
+                z-index: 9999;
+                transition: opacity 0.3s;
+                opacity: 1;
+            `;
+            document.body.appendChild(msgDiv);
+        }
+        msgDiv.textContent = '草稿已自动保存';
+        msgDiv.style.opacity = '1';
+        setTimeout(() => {
+            msgDiv.style.opacity = '0';
+        }, 2000);
     }
 
     function getCurrentContent() {
-        if (currentMode === 'rich') return quill ? quill.root.innerHTML : '';
-        return markdownTextarea.value;
+        if (currentMode === 'rich') {
+            return quill ? quill.root.innerHTML : '';
+        } else {
+            return markdownTextarea.value;
+        }
     }
 
     function setContent(content) {
@@ -298,6 +326,10 @@
         } else {
             markdownTextarea.value = content || '';
         }
+    }
+
+    function hasUnsavedChanges() {
+        return getCurrentContent() !== lastSavedContent;
     }
 
     function initMode(mode) {
@@ -343,7 +375,6 @@
             tagsInput.value = post.tags || '';
             excerptInput.value = post.excerpt || '';
 
-            // 根据 mode 参数或内容自动选择编辑器模式
             const urlParams = new URLSearchParams(window.location.search);
             const modeParam = urlParams.get('mode');
             if (modeParam === 'rich' || modeParam === 'markdown') {
@@ -355,10 +386,8 @@
             }
 
             setContent(post.content || '');
-            currentPost = {
-                slug: post.slug,
-                is_published: Number(post.is_published) // 确保数字
-            };
+            currentPost = { slug: post.slug, is_published: Number(post.is_published) };
+            lastSavedContent = getCurrentContent(); // 记录初始内容
             renderButtons();
             showMessage('文章已加载', 'success');
         } catch (error) {
@@ -379,8 +408,8 @@
                 <button id="saveDraftBtn" class="btn">保存草稿</button>
                 <button id="publishNewBtn" class="btn btn-primary">直接发布</button>
             `;
-            document.getElementById('saveDraftBtn')?.addEventListener('click', () => savePost(0));
-            document.getElementById('publishNewBtn')?.addEventListener('click', () => savePost(1));
+            document.getElementById('saveDraftBtn').addEventListener('click', () => savePost(0));
+            document.getElementById('publishNewBtn').addEventListener('click', () => savePost(1));
         } else {
             const isPublished = currentPost && currentPost.is_published === 1;
             const toggleText = isPublished ? '撤回为草稿' : '发布';
@@ -389,8 +418,8 @@
                 <button id="saveBtn" class="btn">保存</button>
                 <button id="toggleStatusBtn" class="btn btn-primary">${toggleText}</button>
             `;
-            document.getElementById('saveBtn')?.addEventListener('click', () => savePost());
-            document.getElementById('toggleStatusBtn')?.addEventListener('click', () => {
+            document.getElementById('saveBtn').addEventListener('click', () => savePost());
+            document.getElementById('toggleStatusBtn').addEventListener('click', () => {
                 const newStatus = isPublished ? 0 : 1;
                 savePost(newStatus);
             });
@@ -405,7 +434,9 @@
         formData.append('content', getCurrentContent());
         formData.append('excerpt', excerptInput.value);
         formData.append('tags', tagsInput.value);
-        if (isPublished !== null) formData.append('is_published', isPublished);
+        if (isPublished !== null) {
+            formData.append('is_published', isPublished);
+        }
 
         const activeBtn = document.querySelector('#saveDraftBtn, #publishNewBtn, #saveBtn, #toggleStatusBtn');
         const originalText = activeBtn?.textContent;
@@ -420,13 +451,14 @@
 
             if (result.success) {
                 showMessage('操作成功', 'success');
+                // 更新最后保存的内容
+                lastSavedContent = getCurrentContent();
 
                 if (!slugHidden.value && result.slug) {
                     window.location.href = `editor.html?slug=${result.slug}`;
                     return;
                 }
 
-                // 更新本地状态
                 if (isPublished !== null) {
                     if (currentPost) currentPost.is_published = isPublished;
                     renderButtons();
@@ -448,6 +480,51 @@
                 activeBtn.disabled = false;
                 activeBtn.textContent = originalText;
             }
+        }
+    }
+
+    // ========== 自动保存 ==========
+    async function autoSave() {
+        if (!hasUnsavedChanges()) return;
+        // 只在有内容时自动保存
+        const hasContent = titleInput.value.trim() || getCurrentContent().trim();
+        if (!hasContent) return;
+
+        const formData = new FormData();
+        formData.append('slug', slugHidden.value);
+        formData.append('title', titleInput.value);
+        formData.append('content', getCurrentContent());
+        formData.append('excerpt', excerptInput.value);
+        formData.append('tags', tagsInput.value);
+        // 不传递 is_published，保持原有状态
+
+        try {
+            const response = await fetch('/api/admin/post', { method: 'POST', body: formData });
+            const result = await response.json();
+            if (result.success) {
+                lastSavedContent = getCurrentContent();
+                showAutoSaveMessage();
+                if (result.slug && !slugHidden.value) {
+                    slugHidden.value = result.slug;
+                    if (currentPost) currentPost.slug = result.slug;
+                }
+            }
+        } catch (err) {
+            console.error('自动保存失败', err);
+        }
+    }
+
+    function startAutoSaveTimer() {
+        if (autoSaveTimer) clearInterval(autoSaveTimer);
+        autoSaveTimer = setInterval(() => {
+            autoSave();
+        }, AUTO_SAVE_INTERVAL);
+    }
+
+    function stopAutoSaveTimer() {
+        if (autoSaveTimer) {
+            clearInterval(autoSaveTimer);
+            autoSaveTimer = null;
         }
     }
 
@@ -475,6 +552,7 @@
             if (currentMode === 'rich') setContent(marked.parse(content));
             else setContent(content);
             showMessage('文件已加载到正文', 'success');
+            lastSavedContent = getCurrentContent(); // 文件加载后视为已保存状态？不，因为未保存，但可以重置比较基准
         };
         reader.onerror = () => alert('文件读取失败');
         reader.readAsText(file, 'UTF-8');
@@ -542,6 +620,15 @@
         });
     }
 
+    // ========== 页面退出前检查 ==========
+    window.addEventListener('beforeunload', (e) => {
+        if (hasUnsavedChanges()) {
+            e.preventDefault();
+            e.returnValue = '您有未保存的更改，确定要离开吗？';
+            return e.returnValue;
+        }
+    });
+
     // ========== 页面初始化 ==========
     document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -554,7 +641,14 @@
             if (mode === 'rich' || mode === 'markdown') initMode(mode);
             else initMode('rich');
             renderButtons();
+            lastSavedContent = ''; // 新建时无保存内容
         }
+        startAutoSaveTimer();
+
+        // 页面卸载时清理定时器
+        window.addEventListener('beforeunload', () => {
+            stopAutoSaveTimer();
+        });
     });
 </script>
 </body>
