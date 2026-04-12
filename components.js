@@ -157,6 +157,7 @@ class BlogSidebar extends HTMLElement {
         });
     }
 }
+customElements.define('blog-sidebar', BlogSidebar);
 // ========== 二级页面精简导航栏 ==========
 class BlogNavbarSecondary extends HTMLElement {
     connectedCallback() {
@@ -165,10 +166,10 @@ class BlogNavbarSecondary extends HTMLElement {
         <nav class="navbar glass" style="justify-content: flex-start;">
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div class="logo" style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;" title="打开侧边栏"></i>
-                    <a href="./index.html" style="text-decoration: none; color: inherit; cursor: pointer;" title="返回首页">
-                        <span>星辰空间站</span>
+                    <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
+                        <img src="./images/logo.svg" alt="Logo" style="width: 28px; height: 28px; mix-blend-mode: multiply;" />
                     </a>
+                    <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px; color: inherit; font-weight: bold;" title="打开侧边栏">星辰空间站</span>
                 </div>
             </div>
         </nav>
@@ -836,10 +837,12 @@ class BlogNavbarHome extends HTMLElement {
             <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <nav class="navbar" id="mainNavbar">
                 <div class="navbar-brand">
-                    <a href="./index.html" class="logo">
-                        <i class="fab fa-bilibili" id="sidebarToggle" style="color: #FB7299; cursor: pointer; padding: 4px;" title="打开侧边栏"></i>
-                        <span>星辰空间站</span>
-                    </a>
+                    <div class="logo">
+                        <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
+                            <img src="./images/logo.svg" alt="Logo" style="width: 36px; height: 36px; mix-blend-mode: multiply;" />
+                        </a>
+                        <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px;" title="打开侧边栏">星辰空间站</span>
+                    </div>
                 </div>
                 <div class="navbar-links">
                     <a href="rankings.html"><i class="fas fa-chart-line"></i> 榜单</a>
