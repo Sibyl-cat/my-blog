@@ -365,30 +365,41 @@
     }
 
     // ========== 文章加载 ==========
-    async function loadPost(slug) {
+        async function loadPost(slug) {
         try {
             const response = await fetch(`/api/post/${slug}`);
             if (!response.ok) throw new Error('加载失败');
             const post = await response.json();
-
+    
             slugHidden.value = post.slug;
             titleInput.value = post.title;
             tagsInput.value = post.tags || '';
             excerptInput.value = post.excerpt || '';
-
+    
+            // 获取 URL 参数中的 mode（用户明确选择）
             const urlParams = new URLSearchParams(window.location.search);
             const modeParam = urlParams.get('mode');
+    
             if (modeParam === 'rich' || modeParam === 'markdown') {
+                // 如果用户指定了模式，优先使用
                 initMode(modeParam);
             } else {
+                // 自动判断：包含 <script> 则强制 markdown，否则普通 HTML 判断
                 const trimmed = (post.content || '').trim();
+                const hasScript = /<script\b/i.test(trimmed);
                 const isLikelyHTML = trimmed.startsWith('<') && trimmed.includes('>');
-                initMode(isLikelyHTML ? 'rich' : 'markdown');
+    
+                if (hasScript) {
+                    initMode('markdown');
+                } else if (isLikelyHTML) {
+                    initMode('rich');
+                } else {
+                    initMode('markdown');
+                }
             }
-
+    
             setContent(post.content || '');
             currentPost = { slug: post.slug, is_published: Number(post.is_published) };
-            lastSavedContent = getCurrentContent(); // 记录初始内容
             renderButtons();
             showMessage('文章已加载', 'success');
         } catch (error) {
