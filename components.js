@@ -841,7 +841,7 @@ class BlogNavbarHome extends HTMLElement {
                         <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
                             <img src="./images/logo.svg" alt="Logo" style="width: 36px; height: 36px; mix-blend-mode: multiply;" />
                         </a>
-                        <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px;" title="打开侧边栏">星辰空间站</span>
+                        <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px;" title="打开侧边栏">星辰</span>
                     </div>
                 </div>
                 <div class="navbar-links">
