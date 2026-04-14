@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>仪表盘 · 星辰空间站</title>
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="./components.js"></script>
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #FB7299;
+        }
+        .chart-card {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        canvas {
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <blog-navbar-secondary></blog-navbar-secondary>
+    <blog-sidebar></blog-sidebar>
+    <div class="dashboard-container">
+        <h2 style="color:#FB7299;"><i class="fas fa-chart-line"></i> 数据仪表盘</h2>
+        <div class="stats-grid" id="summaryStats">
+            <!-- 动态加载 -->
+        </div>
+        <div class="chart-card">
+            <h3>近7日访问趋势</h3>
+            <canvas id="trendChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>热门文章（近7日）</h3>
+            <canvas id="articleChart"></canvas>
+        </div>
+    </div>
+    <script>
+        async function loadDashboard() {
+            const res = await fetch('/api/admin/stats/dashboard');
+            const data = await res.json();
+            // 汇总卡片
+            const lastDay = data.dailyStats[data.dailyStats.length-1];
+            document.getElementById('summaryStats').innerHTML = `
+                <div class="stat-card"><div class="stat-number">${lastDay?.pv || 0}</div><div>昨日PV</div></div>
+                <div class="stat-card"><div class="stat-number">${lastDay?.uv || 0}</div><div>昨日UV</div></div>
+                <div class="stat-card"><div class="stat-number">${lastDay?.new_posts || 0}</div><div>昨日新文章</div></div>
+                <div class="stat-card"><div class="stat-number">${lastDay?.new_users || 0}</div><div>昨日新用户</div></div>
+            `;
+            // 趋势图
+            const dates = data.dailyStats.map(d => d.date.slice(5));
+            const pvs = data.dailyStats.map(d => d.pv);
+            const uvs = data.dailyStats.map(d => d.uv);
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: { labels: dates, datasets: [
+                    { label: 'PV', data: pvs, borderColor: '#FB7299', fill: false },
+                    { label: 'UV', data: uvs, borderColor: '#ffaaaf', fill: false }
+                ]}
+            });
+            // 热门文章
+            const articleLabels = data.topArticles.map(a => a.title);
+            const articleViews = data.topArticles.map(a => a.total_views);
+            new Chart(document.getElementById('articleChart'), {
+                type: 'bar',
+                data: { labels: articleLabels, datasets: [{ label: '阅读量', data: articleViews, backgroundColor: '#FB7299' }] }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>
