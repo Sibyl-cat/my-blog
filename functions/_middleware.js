@@ -12,7 +12,6 @@ export async function onRequest(context) {
         ).bind('maintenance_mode').first();
         maintenanceMode = modeResult?.value === 'on';
     } catch (e) {
-        // 如果数据库查询失败，记录错误但继续（默认不开启维护模式）
         console.error('读取修复模式状态失败:', e);
     }
 
@@ -20,22 +19,22 @@ export async function onRequest(context) {
     if (maintenanceMode) {
         // 放行静态资源和修复模式相关页面/API
         const isAllowedPath = (
-            path === '/maintenance.html' ||                     // 修复页面本身
-            path === '/maintenance' ||                     // 修复页面不带后缀
-            path.startsWith('/images/') ||                       // 图片资源
-            path.startsWith('/css/') ||                          // CSS 资源
-            path.startsWith('/js/') ||                           // JS 资源
-            path.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?|ttf|eot)$/i) || // 常见静态文件
-            path === '/api/maintenance-login' ||                 // 修复模式专用登录 API
-            path === '/api/repair-time' ||                       // 修复模式计时 API
-            path.startsWith('/api/admin/maintenance/')           // 管理员切换修复模式的 API
+            path === '/maintenance.html' ||
+            path === '/maintenance' ||
+            path.startsWith('/images/') ||
+            path.startsWith('/css/') ||
+            path.startsWith('/js/') ||
+            path.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?|ttf|eot)$/i) ||
+            path === '/api/maintenance-login' ||
+            path === '/api/repair-time' ||
+            path.startsWith('/api/admin/maintenance/')
         );
 
         if (isAllowedPath) {
             return await next();
         }
 
-        // 检查当前用户是否为管理员（通过会话）
+        // 检查当前用户是否为管理员
         const cookieHeader = request.headers.get('Cookie') || '';
         const cookies = Object.fromEntries(
             cookieHeader.split('; ').map(c => {
@@ -51,7 +50,6 @@ export async function onRequest(context) {
                     'SELECT role FROM sessions WHERE id = ? AND expires_at > ?'
                 ).bind(sessionId, new Date().toISOString()).all();
                 if (results.length > 0 && (results[0].role === 'admin' || results[0].role === 'superadmin')) {
-                    // 管理员放行，可以正常访问网站
                     return await next();
                 }
             } catch (e) {
@@ -59,39 +57,90 @@ export async function onRequest(context) {
             }
         }
 
-        // 非管理员且非放行路径，重定向到修复页面
         return new Response(null, {
             status: 302,
             headers: { Location: '/maintenance.html' }
         });
     }
 
-    // ========== 3. 原有页面保护逻辑（仅在修复模式关闭时执行） ==========
-    // 放行登录页和注册页（无需任何检查）
-    if (path === '/admin/login.html' || 
-        path === '/admin/login' || 
+    // ========== 3. 日志记录（异步，不阻塞） ==========
+    // 注意：仅记录非静态资源请求，避免过多日志
+    const shouldLog = !path.match(/\.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?|ttf|eot)$/i) &&
+                      !path.startsWith('/images/') &&
+                      path !== '/favicon.ico';
+    if (shouldLog) {
+        // 异步执行，不等待
+        context.waitUntil((async () => {
+            try {
+                // 获取地理位置信息
+                const country = request.headers.get('CF-IPCountry') || 'unknown';
+                const region = request.headers.get('CF-Region') || '';
+                const city = request.headers.get('CF-City') || '';
+                const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || '';
+
+                // 获取用户 ID（如果已登录）
+                let userId = null;
+                const cookieHeader = request.headers.get('Cookie') || '';
+                const cookies = Object.fromEntries(
+                    cookieHeader.split('; ').map(c => {
+                        const [key, value] = c.split('=');
+                        return [key, value];
+                    })
+                );
+                const sessionId = cookies.session_id;
+                if (sessionId) {
+                    const { results } = await env.DB.prepare(
+                        'SELECT user_id FROM sessions WHERE id = ? AND expires_at > ?'
+                    ).bind(sessionId, new Date().toISOString()).all();
+                    if (results.length) userId = results[0].user_id;
+                }
+
+                await env.DB.prepare(`
+                    INSERT INTO access_logs (path, method, ip, country, region, city, user_agent, referer, user_id, session_id)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `).bind(
+                    path,
+                    request.method,
+                    ip,
+                    country,
+                    region,
+                    city,
+                    request.headers.get('User-Agent') || '',
+                    request.headers.get('Referer') || '',
+                    userId,
+                    sessionId
+                ).run();
+            } catch (e) {
+                console.error('日志记录失败:', e);
+            }
+        })());
+    }
+
+    // ========== 4. 原有页面保护逻辑 ==========
+    // 放行登录页和注册页
+    if (path === '/admin/login.html' ||
+        path === '/admin/login' ||
         path === '/register.html') {
         return await next();
     }
 
-    // 需要保护的页面列表（任何登录用户可访问）
-    const isProtectedPage = 
+    // 需要保护的页面列表
+    const isProtectedPage =
         path === '/admin.html' ||
-        path === '/admin' ||                  // 文章管理页
-        path === '/editor.html' || 
-        path === '/editor' || 
-        path.startsWith('/admin/') ||          // 其他 admin 子路径
-        path === '/users.html' ||              // 用户管理页
-        path === '/users' || 
+        path === '/admin' ||
+        path === '/editor.html' ||
+        path === '/editor' ||
+        path.startsWith('/admin/') ||
+        path === '/users.html' ||
+        path === '/users' ||
         path === '/profile.html' ||
         path === '/change-password.html';
 
     if (!isProtectedPage) {
-        // 非保护页面直接放行（如首页、文章页等）
         return await next();
     }
 
-    // ----- 登录检查 -----
+    // 登录检查
     const cookieHeader = request.headers.get('Cookie') || '';
     const cookies = Object.fromEntries(
         cookieHeader.split('; ').map(c => {
@@ -102,7 +151,6 @@ export async function onRequest(context) {
     const sessionId = cookies.session_id;
 
     if (!sessionId) {
-        // 未登录，重定向到登录页
         return new Response(null, {
             status: 302,
             headers: { Location: '/admin/login.html' }
@@ -123,10 +171,9 @@ export async function onRequest(context) {
 
     const { role } = results[0];
 
-    // ----- 管理员页面权限检查（仅 /users.html 和 /users 需要 admin 角色）-----
+    // 管理员页面权限检查
     if (path === '/users.html' || path === '/users') {
         if (role !== 'admin') {
-            // 非管理员重定向到登录页
             return new Response(null, {
                 status: 302,
                 headers: { Location: '/admin/login.html' }
@@ -134,6 +181,5 @@ export async function onRequest(context) {
         }
     }
 
-    // 其他受保护页面（如 /admin.html）仅需登录，无需额外角色
     return await next();
 }
