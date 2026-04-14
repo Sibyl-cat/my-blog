@@ -1,5 +1,5 @@
 // /functions/api/admin/stats/dashboard.js
-import { getCurrentUserId } from '../../../utils/auth';
+import { getCurrentUserId } from '../../utils/auth';
 
 export async function onRequest(context) {
     const { request, env } = context;
