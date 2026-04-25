@@ -11,9 +11,9 @@ export async function onRequest(context) {
                 p.content, 
                 p.excerpt, 
                 p.tags, 
-                p.updated_at, 
+                strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at, 
                 u.username as author,
-                p.is_published   -- 新增字段
+                p.is_published
             FROM posts p
             LEFT JOIN users u ON p.author_id = u.id
             WHERE p.slug = ?

@@ -172,9 +172,12 @@
         async function loadArchive() {
             const container = document.getElementById('archive-content');
             try {
-                const response = await fetch('/api/posts');
+                // 归档页请求全部文章（设置一个较大的 limit）
+                const response = await fetch('/api/posts?limit=1000');
                 if (!response.ok) throw new Error('网络错误');
-                const posts = await response.json();
+                const data = await response.json();
+                const posts = data.posts || [];
+                
                 if (!posts.length) {
                     container.innerHTML = '<div class="no-posts">✨ 还没有文章，快去写一篇吧～</div>';
                     return;
@@ -184,9 +187,11 @@
                 const grouped = {};
                 posts.forEach(post => {
                     const date = new Date(post.updated_at);
-                    const year = date.getFullYear();
-                    const month = date.getMonth() + 1;
+                    // 强制使用北京时间进行分组
+                    const year = parseInt(date.toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', year: 'numeric' }));
+                    const month = parseInt(date.toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', month: 'numeric' }));
                     const monthStr = `${year}-${String(month).padStart(2,'0')}`;
+                    
                     if (!grouped[year]) grouped[year] = {};
                     if (!grouped[year][monthStr]) grouped[year][monthStr] = [];
                     grouped[year][monthStr].push(post);
@@ -204,9 +209,13 @@
                         html += `<div class="month-group">`;
                         html += `<div class="month-title">📅 ${monthName}</div>`;
                         html += `<ul class="article-list">`;
+                        
+                        // 排序当前月份的文章
                         const postsInMonth = grouped[year][monthStr].sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+                        
                         postsInMonth.forEach(post => {
-                            const day = new Date(post.updated_at).getDate();
+                            const date = new Date(post.updated_at);
+                            const day = parseInt(date.toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', day: 'numeric' }));
                             html += `
                                 <li class="article-item">
                                     <span class="article-date">${day}日</span>

@@ -17,13 +17,17 @@ export async function onRequest(context) {
     let sql, params = [];
     if (role === 'superadmin') {
         // 超级管理员查看所有文章
-        sql = `SELECT p.slug, p.title, p.excerpt, p.tags, p.updated_at, u.username as author, p.author_id, p.is_published
+        sql = `SELECT p.slug, p.title, p.excerpt, p.tags, 
+                      strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at, 
+                      u.username as author, p.author_id, p.is_published
                FROM posts p
                LEFT JOIN users u ON p.author_id = u.id
                ORDER BY p.updated_at DESC`;
     } else {
         // admin 和普通用户都只能看到自己的文章
-        sql = `SELECT p.slug, p.title, p.excerpt, p.tags, p.updated_at, u.username as author, p.author_id, p.is_published
+        sql = `SELECT p.slug, p.title, p.excerpt, p.tags, 
+                      strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at, 
+                      u.username as author, p.author_id, p.is_published
                FROM posts p
                LEFT JOIN users u ON p.author_id = u.id
                WHERE p.author_id = ?

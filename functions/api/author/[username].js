@@ -3,7 +3,7 @@ export async function onRequest(context) {
     const username = params.username;
 
     const { results } = await env.DB.prepare(
-        `SELECT p.slug, p.title, p.excerpt, p.tags, p.updated_at
+        `SELECT p.slug, p.title, p.excerpt, p.tags, strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at
          FROM posts p
          JOIN users u ON p.author_id = u.id
          WHERE u.username = ?

@@ -8,7 +8,9 @@ export async function onRequest(context) {
 
     // 获取文章列表
     const { results: posts } = await env.DB.prepare(`
-        SELECT p.slug, p.title, p.excerpt, p.tags, p.updated_at, u.username as author
+        SELECT p.slug, p.title, p.excerpt, p.tags, 
+               strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at, 
+               u.username as author
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         WHERE p.is_published = 1

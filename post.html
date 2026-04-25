@@ -98,7 +98,13 @@
             const post = await response.json();
     
             const date = new Date(post.updated_at);
-            const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            // 强制显示北京时间 (UTC+8)
+            const formattedDate = date.toLocaleDateString('zh-CN', {
+                timeZone: 'Asia/Shanghai',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace(/\//g, '-');
     
             let tagsHtml = '';
             if (post.tags) {
