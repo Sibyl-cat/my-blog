@@ -23,18 +23,19 @@ class BlogSidebar extends HTMLElement {
                     left: 0;
                     width: 280px;
                     height: 100vh;
-                    background: rgba(255, 255, 255, 0.6);
-                    backdrop-filter: blur(16px) saturate(180%);
-                    -webkit-backdrop-filter: blur(16px) saturate(180%);
-                    border-right: 1px solid rgba(251, 114, 153, 0.3);
-                    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+                    background: var(--glass-bg, rgba(255, 255, 255, 0.6));
+                    backdrop-filter: blur(24px) saturate(180%);
+                    -webkit-backdrop-filter: blur(24px) saturate(180%);
+                    border-right: 1px solid var(--glass-border, rgba(251, 114, 153, 0.3));
+                    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.1);
                     z-index: 1000;
                     transform: translateX(-100%);
-                    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     display: flex;
                     flex-direction: column;
-                    padding: 1.5rem 1rem;
-                    color: #2a2a2a;
+                    padding: 2rem 1.5rem;
+                    color: var(--text-main, #2a2a2a);
+                    font-family: 'Inter', sans-serif;
                 }
                 .sidebar.open { transform: translateX(0); }
                 .sidebar-header {
@@ -232,20 +233,20 @@ class UserMenu extends HTMLElement {
                 }
                 .user-bubble {
                     position: absolute;
-                    top: 50px;
+                    top: 55px;
                     right: 0;
                     width: 280px;
-                    background: rgba(255,255,255,0.95);
-                    backdrop-filter: blur(10px);
-                    border-radius: 24px;
-                    border: 1px solid rgba(251,114,153,0.3);
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-                    padding: 1rem;
+                    background: var(--glass-bg, rgba(255,255,255,0.95));
+                    backdrop-filter: blur(24px) saturate(200%);
+                    border-radius: 28px;
+                    border: 1px solid var(--glass-border, rgba(251,114,153,0.3));
+                    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+                    padding: 1.2rem;
                     z-index: 1001;
                     opacity: 0;
                     visibility: hidden;
-                    transform: translateY(-10px);
-                    transition: all 0.2s ease;
+                    transform: translateY(-15px) scale(0.95);
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 }
                 .user-bubble.show {
                     opacity: 1;
@@ -279,12 +280,14 @@ class UserMenu extends HTMLElement {
                 }
                 .user-bubble-name {
                     font-weight: 600;
-                    color: #2a2a2a;
+                    color: var(--text-main, #2a2a2a);
                     font-size: 1.1rem;
+                    font-family: 'Outfit', sans-serif;
                 }
                 .user-bubble-role {
                     font-size: 0.8rem;
                     color: #FB7299;
+                    font-weight: 500;
                 }
                 .user-bubble-menu {
                     list-style: none;
@@ -769,18 +772,20 @@ class BlogNavbarHome extends HTMLElement {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
-                    padding: 0.8rem 2rem;
+                    padding: 0.8rem 2.5rem;
                     margin: 0 auto 2rem auto;
-                    background: rgba(255, 255, 255, 0.2);
-                    backdrop-filter: blur(12px);
+                    background: var(--nav-bg, rgba(255, 255, 255, 0.2));
+                    backdrop-filter: blur(20px) saturate(180%);
+                    -webkit-backdrop-filter: blur(20px) saturate(180%);
                     border-radius: 60px;
-                    border: 1px solid rgba(255, 255, 255, 0.4);
-                    transition: all 0.3s ease;
+                    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
+                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     position: sticky;
-                    top: 0;
+                    top: 1rem;
                     z-index: 100;
                     width: auto;
-                    max-width: 90%;
+                    max-width: 95%;
+                    font-family: 'Inter', sans-serif;
                 }
                 .navbar-scrolled {
                     padding: 0.5rem 2rem;
@@ -792,11 +797,13 @@ class BlogNavbarHome extends HTMLElement {
                     display: flex;
                     align-items: center;
                     gap: 12px;
-                    font-size: 1.7rem;
+                    font-size: 1.8rem;
                     font-weight: 700;
                     color: #FB7299;
                     text-decoration: none;
-                    text-shadow: 2px 2px 6px rgba(255, 255, 255, 0.7);
+                    text-shadow: var(--glow-pink);
+                    letter-spacing: -0.5px;
+                    font-family: 'Outfit', sans-serif;
                 }
                 .navbar-brand .logo i {
                     font-size: 2rem;
@@ -805,25 +812,27 @@ class BlogNavbarHome extends HTMLElement {
                 }
                 .navbar-links {
                     display: flex;
-                    gap: 2rem;
+                    gap: 1.5rem;
                 }
                 .navbar-links a {
                     text-decoration: none;
-                    color: #2e2e2e;
+                    color: var(--text-main, #1f1f1f);
                     font-weight: 500;
                     font-size: 1.1rem;
-                    padding: 0.5rem 0;
-                    border-bottom: 2px solid transparent;
-                    transition: all 0.2s;
+                    padding: 0.5rem 1.2rem;
+                    border-radius: 30px;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
                 }
-                .navbar-links a i {
-                    color: #FB7299;
-                    margin-right: 0.3rem;
-                }
+                .navbar-links a i { color: #FB7299; font-size: 1.2rem; transition: transform 0.3s; }
                 .navbar-links a:hover {
+                    background: rgba(251, 114, 153, 0.15);
                     color: #FB7299;
-                    border-bottom-color: #FB7299;
+                    transform: translateY(-2px);
                 }
+                .navbar-links a:hover i { transform: scale(1.2) rotate(5deg); }
                 .navbar-tools {
                     display: flex;
                     align-items: center;

@@ -1,4 +1,7 @@
-/* ========== 1. 核心主题变量定义 ========== */
+/* ========== 1. 字体与全局导入 ========== */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500&display=swap');
+
+/* ========== 2. 核心主题变量定义 ========== */
 :root {
   /* 品牌色 */
   --primary-pink: #FB7299;
@@ -23,35 +26,37 @@
 /* 深色模式变量定义 (系统自动感应) */
 @media (prefers-color-scheme: dark) {
   :root {
-    --body-bg: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-               linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
-    --wallpaper-overlay: rgba(0, 0, 0, 0.5);
-    --glass-bg: rgba(30, 30, 45, 0.7);
-    --glass-bg-hover: rgba(40, 40, 60, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --text-main: #eeeeee;
-    --text-secondary: #cccccc;
-    --text-muted: #999999;
-    --card-shadow: rgba(0, 0, 0, 0.4);
-    --pink-shadow: rgba(0, 0, 0, 0.2);
-    --nav-bg: rgba(20, 20, 35, 0.8);
+    --body-bg: radial-gradient(rgba(251, 114, 153, 0.08) 1px, transparent 1px),
+               linear-gradient(145deg, #05050a 0%, #0d0d1a 100%);
+    --wallpaper-overlay: rgba(0, 0, 0, 0.7);
+    --glass-bg: rgba(13, 13, 25, 0.75);
+    --glass-bg-hover: rgba(20, 20, 35, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-main: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --card-shadow: rgba(0, 0, 0, 0.6);
+    --pink-shadow: rgba(251, 114, 153, 0.15);
+    --nav-bg: rgba(10, 10, 20, 0.85);
+    --glow-pink: 0 0 10px rgba(251, 114, 153, 0.4);
   }
 }
 
 /* 兼容手动切换逻辑 */
 body.dark-mode {
-  --body-bg: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-             linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
-  --wallpaper-overlay: rgba(0, 0, 0, 0.5);
-  --glass-bg: rgba(30, 30, 45, 0.7);
-  --glass-bg-hover: rgba(40, 40, 60, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --text-main: #eeeeee;
-  --text-secondary: #cccccc;
-  --text-muted: #999999;
-  --card-shadow: rgba(0, 0, 0, 0.4);
-  --pink-shadow: rgba(0, 0, 0, 0.2);
-  --nav-bg: rgba(20, 20, 35, 0.8);
+  --body-bg: radial-gradient(rgba(251, 114, 153, 0.08) 1px, transparent 1px),
+             linear-gradient(145deg, #05050a 0%, #0d0d1a 100%);
+  --wallpaper-overlay: rgba(0, 0, 0, 0.7);
+  --glass-bg: rgba(13, 13, 25, 0.75);
+  --glass-bg-hover: rgba(20, 20, 35, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --card-shadow: rgba(0, 0, 0, 0.6);
+  --pink-shadow: rgba(251, 114, 153, 0.15);
+  --nav-bg: rgba(10, 10, 20, 0.85);
+  --glow-pink: 0 0 10px rgba(251, 114, 153, 0.4);
 }
 
 /* ========== 全局重置与主色调 ========== */
@@ -59,7 +64,11 @@ body.dark-mode {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .logo, .sidebar-title {
+  font-family: 'Outfit', sans-serif;
 }
 
 body {
@@ -72,7 +81,22 @@ body {
   align-items: center;
   padding: 1.5rem 1rem;
   color: var(--text-main);
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: all 0.3s ease;
+  overflow-x: hidden;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, var(--pink-shadow) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 body::before {
@@ -102,11 +126,11 @@ body::before {
 /* ========== 通用玻璃样式优化 (使用变量) ========== */
 .glass, .navbar, .profile-card, .article-card, .sidebar-author-card, .post-item-card, .modal-card, .author-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 12px 28px var(--card-shadow), 0 4px 12px var(--pink-shadow);
-  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1);
+  box-shadow: 0 12px 40px var(--card-shadow), 0 4px 15px var(--pink-shadow);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .glass:hover, .article-card:hover, .post-item-card:hover {
@@ -142,11 +166,12 @@ body::before {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--primary-pink);
-  text-shadow: 2px 2px 6px rgba(255, 255, 255, 0.7);
+  text-shadow: var(--glow-pink);
   cursor: pointer;
+  letter-spacing: -0.5px;
 }
 .logo i {
   font-size: 2rem;
@@ -231,7 +256,7 @@ body::before {
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 .avatar {
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--glass-bg);
   border-radius: 50%;
   width: 110px;
   height: 110px;
@@ -239,7 +264,7 @@ body::before {
   align-items: center;
   justify-content: center;
   border: 4px solid var(--primary-pink);
-  box-shadow: 0 10px 20px var(--pink-shadow);
+  box-shadow: 0 10px 20px var(--pink-shadow), var(--glow-pink);
 }
 .avatar i { font-size: 5.5rem; color: var(--primary-pink); transition: transform 0.4s; }
 .avatar:hover i { transform: rotate(8deg) scale(1.05); }
@@ -521,7 +546,7 @@ body::before {
   text-decoration: none;
   font-size: 1.1rem;
   transition: all 0.25s;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
   border: 1px solid transparent;
 }
 .sidebar-menu a:hover {

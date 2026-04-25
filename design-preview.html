@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber-Glass 视觉预览</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0a0b10;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* 动态背景光斑 */
+        .blobs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.6;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-purple);
+            top: -100px;
+            right: -100px;
+        }
+
+        .blob-2 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent-blue);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(100px, 50px) scale(1.2); }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .preview-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .preview-header h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            background: linear-gradient(to right, #fff, var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .preview-header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        /* 胶囊导航栏 */
+        .navbar-preview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 2rem;
+            background: rgba(15, 17, 26, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            margin-bottom: 3rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent-purple);
+        }
+
+        /* 文章卡片 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: 0.4s;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(139, 92, 246, 0.1);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-tag {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 100px;
+            color: var(--accent-purple);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            margin: 0.5rem 0 1rem;
+            line-height: 1.2;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .btn-preview {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-preview:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 1rem;
+            margin-top: 4rem;
+            justify-content: center;
+        }
+
+        .color-swatch {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+    </style>
+</head>
+<body>
+    <div class="blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="container">
+        <div class="preview-header">
+            <h1>Cyber-Glass Redesign</h1>
+            <p>探索未来的博客交互体验</p>
+        </div>
+
+        <nav class="navbar-preview">
+            <div style="font-weight: 700; font-family: 'Outfit'; font-size: 1.4rem; color: #fff;">
+                <i class="fas fa-terminal" style="color: var(--accent-purple);"></i> SIBYL
+            </div>
+            <div class="nav-links">
+                <a href="#">首页</a>
+                <a href="#">归档</a>
+                <a href="#">关于</a>
+            </div>
+            <button class="btn-preview">立即开启</button>
+        </nav>
+
+        <div class="card-grid">
+            <div class="card">
+                <span class="card-tag"># 未来主义</span>
+                <h3>深度探索 Web Components 的潜力</h3>
+                <p>原生组件化不仅带来了极致的性能，更让代码拥有了如艺术品般的封装质感。在本篇中，我们将讨论如何利用 Shadow DOM 打造真正的隔离美学。</p>
+                <div class="card-footer">
+                    <span><i class="far fa-clock"></i> 2026-04-25</span>
+                    <span>阅读更多 <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="card-tag"># 设计美学</span>
+                <h3>玻璃拟态：在光影之间寻找平衡</h3>
+                <p>背景模糊、透明度与边框高光的完美比例。极客幻境风格不仅仅是视觉的堆砌，更是对光影物理规律的极致模拟。</p>
+                <div class="card-footer">
+                    <span><i class="far fa-clock"></i> 2026-04-24</span>
+                    <span>阅读更多 <i class="fas fa-arrow-right"></i></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="color-palette">
+            <div class="color-swatch" style="background: var(--accent-purple);"></div>
+            <div class="color-swatch" style="background: var(--accent-blue);"></div>
+            <div class="color-swatch" style="background: var(--accent-cyan);"></div>
+            <div class="color-swatch" style="background: var(--bg-dark);"></div>
+        </div>
+    </div>
+</body>
+</html>
