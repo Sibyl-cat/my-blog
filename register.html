@@ -8,6 +8,7 @@
     <title>注册 · 星辰空间站</title>
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="components.js"></script>
     <style>
         body {
             display: flex;
@@ -15,6 +16,9 @@
             justify-content: center;
             min-height: 100vh;
             padding: 1rem;
+            background: var(--body-bg);
+            color: var(--text-main);
+            transition: all 0.3s ease;
         }
 
         .register-container {
@@ -48,7 +52,7 @@
         label {
             display: block;
             margin-bottom: 0.5rem;
-            color: #2a2a2a;
+            color: var(--text-main);
             font-weight: 500;
         }
 

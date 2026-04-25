@@ -1,5 +1,13 @@
 // components.js - 独立的 Web Components 模块
 
+// ========== 全局主题初始化 (防止页面闪烁) ==========
+(function() {
+    const isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) {
+        document.body.classList.add('dark-mode');
+    }
+})();
+
 // ========== 侧边栏组件 ==========
 class BlogSidebar extends HTMLElement {
     constructor() {
@@ -164,14 +172,18 @@ class BlogNavbarSecondary extends HTMLElement {
     connectedCallback() {
         this.style.display = 'block';
         this.innerHTML = `
-        <nav class="navbar glass" style="justify-content: flex-start;">
+        <nav class="navbar glass" style="justify-content: space-between; gap: 1rem;">
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div class="logo" style="display: flex; align-items: center; gap: 12px;">
                     <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
                         <img src="./images/logo.svg" alt="Logo" style="width: 28px; height: 28px; mix-blend-mode: multiply;" />
                     </a>
-                    <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px; color: inherit; font-weight: bold;" title="打开侧边栏">星辰空间站</span>
+                    <span id="sidebarToggle" style="cursor: pointer; padding: 4px; color: inherit; font-weight: bold;" title="打开侧边栏">星辰空间站</span>
                 </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <user-menu></user-menu>
+                <night-mode-toggle></night-mode-toggle>
             </div>
         </nav>
         `;

@@ -17,9 +17,11 @@
             font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
         }
         body {
-            background: linear-gradient(145deg, #ffe9f0, #ffd9e5);
+            background: var(--body-bg);
             min-height: 100vh;
             padding: 2rem;
+            color: var(--text-main);
+            transition: all 0.3s ease;
         }
         .admin-container {
             width: 100%;               /* 占满父容器宽度 */
@@ -31,12 +33,12 @@
             min-height: calc(100vh - 4rem); /* 视口高度减去 body 的内边距，使容器撑满 */
         }
         .panel {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(12px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
             border-radius: 32px;
             padding: 2rem;
-            border: 1px solid rgba(251, 114, 153, 0.3);
-            box-shadow: 0 12px 28px rgba(251, 114, 153, 0.1);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 12px 28px var(--card-shadow);
         }
         h2 {
             color: #FB7299;
@@ -64,7 +66,7 @@
         }
         .post-item .title {
             font-weight: 600;
-            color: #2a2a2a;
+            color: var(--text-main);
         }
         .post-actions {
             display: flex;

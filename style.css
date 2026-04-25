@@ -26,37 +26,37 @@
 /* 深色模式变量定义 (系统自动感应) */
 @media (prefers-color-scheme: dark) {
   :root {
-    --body-bg: radial-gradient(rgba(251, 114, 153, 0.08) 1px, transparent 1px),
-               linear-gradient(145deg, #05050a 0%, #0d0d1a 100%);
-    --wallpaper-overlay: rgba(0, 0, 0, 0.7);
-    --glass-bg: rgba(13, 13, 25, 0.75);
-    --glass-bg-hover: rgba(20, 20, 35, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --body-bg: radial-gradient(rgba(251, 114, 153, 0.05) 1px, transparent 1px),
+               linear-gradient(145deg, #23232e 0%, #1a1a24 100%);
+    --wallpaper-overlay: rgba(0, 0, 0, 0.55);
+    --glass-bg: rgba(45, 45, 65, 0.7);
+    --glass-bg-hover: rgba(55, 55, 80, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.12);
     --text-main: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --card-shadow: rgba(0, 0, 0, 0.6);
-    --pink-shadow: rgba(251, 114, 153, 0.15);
-    --nav-bg: rgba(10, 10, 20, 0.85);
-    --glow-pink: 0 0 10px rgba(251, 114, 153, 0.4);
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --card-shadow: rgba(0, 0, 0, 0.4);
+    --pink-shadow: rgba(251, 114, 153, 0.1);
+    --nav-bg: rgba(30, 30, 45, 0.8);
+    --glow-pink: 0 0 10px rgba(251, 114, 153, 0.3);
   }
 }
 
 /* 兼容手动切换逻辑 */
 body.dark-mode {
-  --body-bg: radial-gradient(rgba(251, 114, 153, 0.08) 1px, transparent 1px),
-             linear-gradient(145deg, #05050a 0%, #0d0d1a 100%);
-  --wallpaper-overlay: rgba(0, 0, 0, 0.7);
-  --glass-bg: rgba(13, 13, 25, 0.75);
-  --glass-bg-hover: rgba(20, 20, 35, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --body-bg: radial-gradient(rgba(251, 114, 153, 0.05) 1px, transparent 1px),
+             linear-gradient(145deg, #23232e 0%, #1a1a24 100%);
+  --wallpaper-overlay: rgba(0, 0, 0, 0.55);
+  --glass-bg: rgba(45, 45, 65, 0.7);
+  --glass-bg-hover: rgba(55, 55, 80, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.12);
   --text-main: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --card-shadow: rgba(0, 0, 0, 0.6);
-  --pink-shadow: rgba(251, 114, 153, 0.15);
-  --nav-bg: rgba(10, 10, 20, 0.85);
-  --glow-pink: 0 0 10px rgba(251, 114, 153, 0.4);
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --card-shadow: rgba(0, 0, 0, 0.4);
+  --pink-shadow: rgba(251, 114, 153, 0.1);
+  --nav-bg: rgba(30, 30, 45, 0.8);
+  --glow-pink: 0 0 10px rgba(251, 114, 153, 0.3);
 }
 
 /* ========== 全局重置与主色调 ========== */
