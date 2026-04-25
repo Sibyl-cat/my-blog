@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
     <title>星辰空间站 · 星辰大海</title>
+    <meta name="description" content="星辰空间站 - 探索技术与生活的无限可能。分享编程、设计与个人成长的心得体会。">
+    <meta name="keywords" content="博客, 编程, 技术, 生活, 星辰空间站, 设计">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-blog-url.com/">
+    <meta property="og:title" content="星辰空间站 · 星辰大海">
+    <meta property="og:description" content="探索技术与生活的无限可能。">
+    <meta property="og:image" content="/images/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="星辰空间站 · 星辰大海">
+    <meta property="twitter:description" content="探索技术与生活的无限可能。">
+
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
@@ -68,39 +83,37 @@
 
     <script>
         // 分页配置
-        let allPosts = [];
         let currentPage = 1;
-        const postsPerPage = 6;  // 每页显示文章数
+        const postsPerPage = 6;
+        let totalPostsCount = 0;
         let isLoading = false;
 
-        // 获取所有文章（一次性，用于分页）
-        async function fetchAllPosts() {
+        // 获取文章分页数据
+        async function fetchPosts(page) {
             try {
-                const res = await fetch('/api/posts');
-                allPosts = await res.json();
-                return allPosts;
+                const res = await fetch(`/api/posts?page=${page}&limit=${postsPerPage}`);
+                const data = await res.json();
+                totalPostsCount = data.total;
+                return data.posts;
             } catch (err) {
                 console.error('加载文章失败', err);
                 return [];
             }
         }
 
-        // 渲染当前页的文章
-        function renderPosts() {
+        // 渲染文章
+        function renderPosts(posts, append = false) {
             const container = document.getElementById('post-list');
-            const start = (currentPage - 1) * postsPerPage;
-            const end = start + postsPerPage;
-            const pagePosts = allPosts.slice(start, end);
-            if (!pagePosts.length && currentPage === 1) {
+            if (!posts.length && !append) {
                 container.innerHTML = '<div class="no-posts">✨ 还没有文章，快去写一篇吧～</div>';
                 return;
             }
-            let html = '';
-            pagePosts.forEach(post => {
+            
+            const html = posts.map(post => {
                 const date = new Date(post.updated_at);
                 const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-                html += `
-                    <article class="post-item-card">
+                return `
+                    <article class="post-item-card" style="animation: cardFadeIn 0.5s ease-out both;">
                         <div class="post-item-meta">
                             <span class="post-date"><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
                             <span class="post-author"><i class="fas fa-user"></i> ${post.author || '匿名'}</span>
@@ -114,43 +127,46 @@
                         </div>
                     </article>
                 `;
-            });
-            container.innerHTML = html;
+            }).join('');
+
+            if (append) {
+                container.insertAdjacentHTML('beforeend', html);
+            } else {
+                container.innerHTML = html;
+            }
             updatePaginationInfo();
         }
 
         function updatePaginationInfo() {
-            const totalPages = Math.ceil(allPosts.length / postsPerPage);
+            const totalPages = Math.ceil(totalPostsCount / postsPerPage);
             const infoDiv = document.getElementById('paginationInfo');
             const loadMoreBtn = document.getElementById('loadMoreBtn');
+            
             if (currentPage >= totalPages) {
                 loadMoreBtn.style.display = 'none';
-                infoDiv.textContent = `—— 已经到底了 ——`;
+                infoDiv.textContent = totalPostsCount > 0 ? `—— 已加载全部 ${totalPostsCount} 篇文章 ——` : '';
             } else {
                 loadMoreBtn.style.display = 'inline-flex';
-                infoDiv.textContent = `第 ${currentPage} / ${totalPages} 页 · 共 ${allPosts.length} 篇文章`;
+                infoDiv.textContent = `已加载 ${Math.min(currentPage * postsPerPage, totalPostsCount)} / ${totalPostsCount} 篇文章`;
             }
         }
 
         async function loadMore() {
             if (isLoading) return;
-            isLoading = true;
-            const totalPages = Math.ceil(allPosts.length / postsPerPage);
+            const totalPages = Math.ceil(totalPostsCount / postsPerPage);
             if (currentPage < totalPages) {
+                isLoading = true;
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                const originalText = loadMoreBtn.innerHTML;
+                loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 加载中...';
+                
                 currentPage++;
-                renderPosts();
-                // 平滑滚动到文章列表顶部，并偏移导航栏高度
-                const mainElement = document.querySelector('.home-main');
-                const navbarHeight = document.querySelector('.navbar')?.offsetHeight || 80;
-                const elementPosition = mainElement.getBoundingClientRect().top + window.scrollY;
-                window.scrollTo({
-                    top: elementPosition - navbarHeight,
-                    behavior: 'smooth'
-                });
-            } else {
-                updatePaginationInfo();
+                const newPosts = await fetchPosts(currentPage);
+                renderPosts(newPosts, true);
+                
+                loadMoreBtn.innerHTML = originalText;
+                isLoading = false;
             }
-            isLoading = false;
         }
 
         async function initHome() {
@@ -162,10 +178,9 @@
                 document.getElementById('totalUsers').textContent = stats.usersCount;
             } catch (err) { console.error(err); }
 
-            // 加载文章数据
-            await fetchAllPosts();
-            currentPage = 1;
-            renderPosts();
+            // 初始加载第一页
+            const initialPosts = await fetchPosts(1);
+            renderPosts(initialPosts);
 
             // 绑定加载更多按钮
             const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -174,5 +189,11 @@
 
         document.addEventListener('DOMContentLoaded', initHome);
     </script>
+    <style>
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </body>
 </html>

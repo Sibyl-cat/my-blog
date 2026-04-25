@@ -63,13 +63,12 @@ export async function verifyPassword(password, saltHex, storedHash) {
  */
 export async function getCurrentUserId(request, env) {
     const cookieHeader = request.headers.get('Cookie') || '';
-    const cookies = Object.fromEntries(
-        cookieHeader.split('; ').map(c => {
-            const [key, value] = c.split('=');
-            return [key, value];
-        })
-    );
-    const sessionId = cookies.session_id;
+    const sessionId = cookieHeader
+        .split(';')
+        .map(c => c.trim())
+        .find(c => c.startsWith('session_id='))
+        ?.split('=')[1];
+
     if (!sessionId) return null;
 
     const { results } = await env.DB.prepare(
@@ -87,16 +86,14 @@ export async function getCurrentUserId(request, env) {
  * @param {number} keepCount - 保留的会话数，默认 3
  */
 export async function cleanUserSessions(env, userId, keepCount = 3) {
-    // 查询该用户的所有会话，按 created_at 降序（最新的在前）
-    const { results } = await env.DB.prepare(
-        'SELECT id FROM sessions WHERE user_id = ? ORDER BY created_at DESC'
-    ).bind(userId).all();
-
-    if (results.length > keepCount) {
-        // 需要删除的会话 ID 列表（从第 keepCount 个之后）
-        const toDelete = results.slice(keepCount).map(row => row.id);
-        for (const id of toDelete) {
-            await env.DB.prepare('DELETE FROM sessions WHERE id = ?').bind(id).run();
-        }
-    }
+    // 使用 IN 子查询一次性删除超出 keepCount 的旧会话
+    await env.DB.prepare(`
+        DELETE FROM sessions 
+        WHERE user_id = ? AND id NOT IN (
+            SELECT id FROM sessions 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC 
+            LIMIT ?
+        )
+    `).bind(userId, userId, keepCount).run();
 }

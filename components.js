@@ -530,11 +530,19 @@ class RuntimeDisplay extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
+        // 默认启动时间，若组件设置了 start-date 属性则优先使用
         this.startTime = new Date(2026, 1, 25, 9, 7, 0);
         this.timer = null;
     }
 
     connectedCallback() {
+        const attrDate = this.getAttribute('start-date');
+        if (attrDate) {
+            const parsed = new Date(attrDate);
+            if (!isNaN(parsed.getTime())) {
+                this.startTime = parsed;
+            }
+        }
         this.render();
         this.startTimer();
     }
