@@ -9,39 +9,108 @@
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
     <style>
-        /* 关于页额外样式 */
+        /* 关于页独立样式（融合变量） */
+        .about-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .about-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 2rem;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 12px 28px var(--card-shadow);
+        }
+        .about-title {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary-pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .about-title i {
+            font-size: 2.5rem;
+            animation: floatIcon 3s infinite ease;
+        }
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
         .about-section {
             margin-bottom: 2rem;
             padding: 1.5rem;
-            background: rgba(255,255,255,0.2);
-            border-radius: 24px;
-            border: 1px solid rgba(251,114,153,0.3);
-        }
-        .about-section h3 {
-            color: #FB7299;
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            border-left: 5px solid #FB7299;
-            padding-left: 1rem;
-        }
-        .about-section p {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #2a2a2a;
-        }
-        .contact-icons {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-        }
-        .contact-icons a {
-            color: #FB7299;
-            font-size: 2rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 32px;
+            border: 1px solid var(--glass-border);
             transition: all 0.2s;
         }
-        .contact-icons a:hover {
-            transform: scale(1.2);
+        .about-section:hover {
+            border-color: var(--primary-pink);
+            box-shadow: 0 8px 20px var(--pink-shadow);
+        }
+        .about-section h3 {
+            color: var(--primary-pink);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid var(--primary-pink);
+            padding-left: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .about-section p, .about-section li {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        .milestone-list {
+            list-style: none;
+            padding: 0;
+        }
+        .milestone-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+        .milestone-date {
+            background: var(--primary-pink);
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .milestone-desc {
+            flex: 1;
+        }
+        .stats-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: var(--glass-bg);
+            border-radius: 24px;
+            padding: 1rem;
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+            border: 1px solid var(--glass-border);
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-pink);
         }
         .tech-stack {
             display: flex;
@@ -49,179 +118,276 @@
             gap: 0.8rem;
         }
         .tech-stack span {
-            background: rgba(251,114,153,0.15);
-            border: 1px solid #FB7299;
-            border-radius: 30px;
+            background: var(--primary-pink-alpha);
+            border: 1px solid var(--primary-pink);
+            border-radius: 40px;
             padding: 0.3rem 1.2rem;
-            font-size: 1rem;
-            color: #FB7299;
+            font-size: 0.9rem;
+            color: var(--primary-pink);
+            transition: all 0.2s;
+            cursor: pointer;
         }
-        /* 贡献者卡片 */
+        .tech-stack span:hover {
+            background: var(--primary-pink);
+            color: white;
+            transform: scale(1.02);
+        }
+        .contact-icons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .contact-icons a {
+            color: var(--primary-pink);
+            font-size: 2rem;
+            transition: all 0.2s;
+        }
+        .contact-icons a:hover {
+            transform: scale(1.2) rotate(5deg);
+        }
         .contributor-card {
             display: flex;
             align-items: center;
             gap: 2rem;
             padding: 1.5rem;
-            margin-top: 1.5rem;
-            background: none;
+            margin-bottom: 1rem;
+            background: rgba(255,255,255,0.05);
             border-radius: 32px;
-            border: 1px solid rgba(251,114,153,0.3);
+            border: 1px solid var(--glass-border);
             transition: all 0.2s;
         }
         .contributor-card:hover {
-            border-color: #FB7299;
-            box-shadow: 0 8px 20px rgba(251,114,153,0.15);
+            border-color: var(--primary-pink);
+            background: var(--primary-pink-alpha);
+            transform: translateX(4px);
         }
         .contributor-avatar {
-            width: 100px;
-            height: 100px;
+            width: 90px;
+            height: 90px;
             flex-shrink: 0;
             border-radius: 50%;
-            border: 3px solid #FB7299;
+            border: 3px solid var(--primary-pink);
             overflow: hidden;
-            background: rgba(251,114,153,0.1);
+            background: rgba(251,114,153,0.2);
         }
-        .contributor-avatar img {
+        .contributor-avatar img, .contributor-avatar i {
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        .contributor-avatar i {
-            font-size: 5rem;
-            color: #FB7299;
-            line-height: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            font-size: 3rem;
+            color: var(--primary-pink);
         }
         .contributor-info {
             flex: 1;
         }
         .contributor-name {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            color: #FB7299;
-            margin-bottom: 0.3rem;
+            color: var(--primary-pink);
         }
         .contributor-role {
-            font-size: 1rem;
-            color: #888;
-            margin-bottom: 0.8rem;
-        }
-        .contributor-social {
-            display: flex;
-            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0.2rem 0 0.5rem;
         }
         .contributor-social a {
-            color: #FB7299;
-            font-size: 1.5rem;
+            color: var(--primary-pink);
+            font-size: 1.3rem;
+            margin-right: 1rem;
             transition: transform 0.2s;
         }
         .contributor-social a:hover {
             transform: scale(1.2);
         }
-        
-        /* 移动端适配 */
-        @media (max-width: 600px) {
-            .contributor-card {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-            .contributor-social {
-                justify-content: center;
-            }
+        .easter-egg {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            z-index: 999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        @media (max-width: 680px) {
+            .about-card { padding: 1.5rem; }
+            .about-title { font-size: 2rem; }
+            .about-section h3 { font-size: 1.4rem; }
+            .contributor-card { flex-direction: column; text-align: center; gap: 1rem; }
+            .contributor-social { justify-content: center; }
+            .milestone-list li { flex-direction: column; gap: 0.3rem; }
+            .milestone-date { align-self: flex-start; }
         }
     </style>
 </head>
 <body>
-<div class="blog-container">
-   <!-- 二级页面组件化导航栏 -->
-        <blog-navbar-secondary></blog-navbar-secondary>
+    <blog-navbar-secondary></blog-navbar-secondary>
+    <blog-sidebar></blog-sidebar>
 
-        <!-- 全局侧边栏组件 -->
-        <blog-sidebar></blog-sidebar>
-    <!-- 关于内容主卡片 -->
-    <div class="profile-card glass" style="flex-direction: column; align-items: stretch;">
-        <h1 style="color: #FB7299; font-size: 3rem; margin-bottom: 1rem; text-align: center;">关于本站</h1>
-        
-        <!-- 博客简介 -->
-        <div class="about-section">
-            <h3>博客简介</h3>
-            <p>「星辰空间站」是一个记录技术、生活与思考的个人博客。这里既有毛玻璃特效的代码笔记，也有日常随想。希望你能在这里找到有趣的内容。</p>
-        </div>
-
-        <!-- 站长介绍 -->
-        <div class="about-section">
-            <h3>关于站长</h3>
-            <p>一个热爱折腾的代码爱好者，喜欢研究各种新技术，尤其钟情于 Cloudflare 生态和前端毛玻璃设计。不精通任何代码，但好在有 DeepSeek 这样的 AI 助手帮忙，让想法变成现实。</p>
-            <div style="display: flex; align-items: center; gap: 2rem; margin-top: 1rem;">
-                <img src="images/avatar.jpg" alt="头像" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FB7299;">
-                <div>
-                    <p style="font-size: 1.2rem;"><strong>Sibyl</strong></p>
-                    <p>一个无聊但喜欢代码的家伙</p>
-                </div>
+    <div class="about-container">
+        <div class="about-card glass">
+            <div class="about-title">
+                <i class="fas fa-star"></i> 关于本站 <i class="fas fa-star"></i>
             </div>
-        </div>
 
+            <!-- 博客简介 -->
+            <div class="about-section">
+                <h3><i class="fas fa-pen-fancy"></i> 博客简介</h3>
+                <p>「星辰空间站」是一个开放的个人创作平台，记录技术、生活与思考。这里既有毛玻璃特效的代码笔记，也有日常随想。希望你能在这里找到有趣的内容。</p>
+            </div>
 
-        <!-- 贡献者卡片 -->
-        <div class="about-section">
-            <h3>贡献者</h3>
-            <div class="contributor-card glass">
-                <div class="contributor-avatar">
-                    <img src="images/zzh.jpg" alt="zzh的头像">
-                </div>
-                <div class="contributor-info">
-                    <div class="contributor-name">Sunny081209</div>
-                    <div class="contributor-role">前端优化 · 样式贡献者</div>
-                    <div class="contributor-social">
-                        <a href="https://github.com/Sunny090623" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
-                        <a href="https://space.bilibili.com/691968295" target="_blank" title="B站"><i class="fab fa-bilibili"></i></a>
+            <!-- 站长介绍（含彩蛋） -->
+            <div class="about-section" id="masterSection">
+                <h3><i class="fas fa-user-astronaut"></i> 关于站长</h3>
+                <p>一个热爱折腾的代码爱好者，喜欢研究各种新技术，尤其钟情于 Cloudflare 生态和前端毛玻璃设计。不精通任何代码，但好在有 DeepSeek 这样的 AI 助手帮忙，让想法变成现实。</p>
+                <div style="display: flex; align-items: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
+                    <div id="masterAvatar" style="cursor: pointer;">
+                        <img src="images/avatar.jpg" alt="头像" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary-pink); transition: all 0.2s;">
+                    </div>
+                    <div>
+                        <p style="font-size: 1.2rem;"><strong>Sibyl</strong></p>
+                        <p>一个无聊但喜欢代码的家伙</p>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- 建站历程 -->
-        <div class="about-section">
-            <h3>建站历程</h3>
-            <ul style="list-style: none; padding: 0;">
-                <li style="margin-bottom: 0.5rem;">🔹 <strong>2026-02-20</strong> · 萌生想法，开始搭建</li>
-                <li style="margin-bottom: 0.5rem;">🔹 <strong>2026-02-22</strong> · 完成静态毛玻璃页面</li>
-                <li style="margin-bottom: 0.5rem;">🔹 <strong>2026-02-25</strong> · 集成 Cloudflare D1 数据库，实现动态文章</li>
-                <li style="margin-bottom: 0.5rem;">🔹 <strong>2026-03-01</strong> · 添加多用户、标签、作者系统</li>
-                <li style="margin-bottom: 0.5rem;">🔹 <strong>2026-03-05</strong> · 草稿箱、修复模式等实用功能上线</li>
-            </ul>
-        </div>
 
-        <!-- 技术栈 -->
-        <div class="about-section">
-            <h3>技术栈</h3>
-            <div class="tech-stack">
-                <span>HTML5</span>
-                <span>CSS3</span>
-                <span>JavaScript</span>
-                <span>Font Awesome</span>
-                <span>marked.js</span>
-                <span>Cloudflare Pages</span>
-                <span>Cloudflare D1</span>
-                <span>GitHub</span>
+            <!-- 贡献者 -->
+            <div class="about-section">
+                <h3><i class="fas fa-hand-sparkles"></i> 贡献者</h3>
+                <div class="contributor-card">
+                    <div class="contributor-avatar">
+                        <img src="images/zzh.jpg" alt="zzh头像" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user-astronaut\'></i>';">
+                    </div>
+                    <div class="contributor-info">
+                        <div class="contributor-name">Sunny081209</div>
+                        <div class="contributor-role">前端优化 · 样式贡献者 · 测试工程师</div>
+                        <div class="contributor-social">
+                            <a href="https://github.com/Sunny090623" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="https://space.bilibili.com/691968295" target="_blank"><i class="fab fa-bilibili"></i></a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
 
+            <!-- 建站历程（大幅拓展） -->
+            <div class="about-section">
+                <h3><i class="fas fa-timeline"></i> 建站历程</h3>
+                <ul class="milestone-list">
+                    <li><span class="milestone-date">2026-02-20</span><span class="milestone-desc">✨ 萌生想法，开始搭建首个静态版本</span></li>
+                    <li><span class="milestone-date">2026-02-22</span><span class="milestone-desc">🎨 完成毛玻璃风格首页，确立粉色主题</span></li>
+                    <li><span class="milestone-date">2026-02-25</span><span class="milestone-desc">🗄️ 集成 Cloudflare D1 数据库，文章动态化</span></li>
+                    <li><span class="milestone-date">2026-02-28</span><span class="milestone-desc">👤 用户系统上线，支持注册登录</span></li>
+                    <li><span class="milestone-date">2026-03-01</span><span class="milestone-desc">👥 添加多用户、标签、作者系统</span></li>
+                    <li><span class="milestone-date">2026-03-03</span><span class="milestone-desc">📝 富文本编辑器集成，支持 Markdown 和 HTML 双模式</span></li>
+                    <li><span class="milestone-date">2026-03-05</span><span class="milestone-desc">📦 草稿箱、修复模式等实用功能上线</span></li>
+                    <li><span class="milestone-date">2026-03-10</span><span class="milestone-desc">🏷️ 标签云与作者归档页面发布</span></li>
+                    <li><span class="milestone-date">2026-03-15</span><span class="milestone-desc">🌙 夜间模式 + 主题设置页面完成</span></li>
+                    <li><span class="milestone-date">2026-03-20</span><span class="milestone-desc">📊 公开榜单、浏览量统计上线</span></li>
+                    <li><span class="milestone-date">2026-04-01</span><span class="milestone-desc">🎮 文章页嵌入小游戏（猜数字、拼图等）</span></li>
+                    <li><span class="milestone-date">2026-04-10</span><span class="milestone-desc">📱 移动端全面优化，重构首页布局</span></li>
+                    <li><span class="milestone-date">2026-04-18</span><span class="milestone-desc">🎵 支持插入音乐、视频多媒体内容</span></li>
+                    <li><span class="milestone-date">2026-04-25</span><span class="milestone-desc">❤️ 关于页加入彩蛋，建站历史充实</span></li>
+                </ul>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-number">68</div><div>总文章</div></div>
+                    <div class="stat-card"><div class="stat-number">23</div><div>总用户</div></div>
+                    <div class="stat-card"><div class="stat-number">61</div><div>天运行</div></div>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: center;">数据统计截止 2026-04-25</p>
+            </div>
 
-        <!-- 感谢 -->
-        <div class="about-section" style="text-align: center;">
-            <p>感谢 DeepSeek 全程技术指导</p>
-            <p>感谢每一位代码贡献者</p>
-            <p>感谢每一位来访的朋友</p>
+            <!-- 未来计划 -->
+            <div class="about-section">
+                <h3><i class="fas fa-rocket"></i> 未来计划</h3>
+                <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
+                    <li>📬 评论系统接入（基于 GitHub Issues 或自建）</li>
+                    <li>🔍 全文搜索功能</li>
+                    <li>📱 PWA 支持，可安装到手机桌面</li>
+                    <li>🎨 更多主题皮肤（一键切换）</li>
+                    <li>📈 个人创作中心，数据可视化</li>
+                </ul>
+            </div>
+
+            <!-- 技术栈（可点击显示彩蛋） -->
+            <div class="about-section">
+                <h3><i class="fas fa-code"></i> 技术栈</h3>
+                <div class="tech-stack" id="techStack">
+                    <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Font Awesome</span>
+                    <span>marked.js</span><span>Cloudflare Pages</span><span>Cloudflare D1</span><span>GitHub</span>
+                    <span>Quill</span><span>Chart.js</span>
+                </div>
+            </div>
+
+            <!-- 感谢与联系方式 -->
+            <div class="about-section" style="text-align: center;">
+                <h3><i class="fas fa-heart"></i> 致谢</h3>
+                <p>感谢 DeepSeek 全程技术指导 ❤️</p>
+                <p>感谢每一位代码贡献者 ❤️</p>
+                <p>感谢每一位来访的朋友 ❤️</p>
+                <div class="contact-icons">
+                    <a href="https://space.bilibili.com/1722712378" target="_blank"><i class="fab fa-bilibili"></i></a>
+                    <a href="https://github.com/Sibyl-cat" target="_blank"><i class="fab fa-github"></i></a>
+                    <a href="mailto:1703023351@qq.com"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 页脚 -->
-        <blog-footer></blog-footer>
+    <blog-footer></blog-footer>
 
+    <!-- 彩蛋提示条 -->
+    <div id="easterEggMsg" class="easter-egg">🎉 发现彩蛋！点击站长头像试试～</div>
+
+    <script>
+        // 彩蛋1：点击站长头像飘出爱心
+        const masterAvatar = document.getElementById('masterAvatar');
+        if (masterAvatar) {
+            masterAvatar.addEventListener('click', (e) => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.style.position = 'fixed';
+                heart.style.left = e.pageX + 'px';
+                heart.style.top = e.pageY + 'px';
+                heart.style.fontSize = '2rem';
+                heart.style.pointerEvents = 'none';
+                heart.style.zIndex = '9999';
+                heart.style.opacity = '1';
+                heart.style.transition = 'all 1s ease-out';
+                document.body.appendChild(heart);
+                setTimeout(() => {
+                    heart.style.transform = 'translateY(-100px) rotate(20deg)';
+                    heart.style.opacity = '0';
+                }, 10);
+                setTimeout(() => heart.remove(), 1000);
+                
+                // 显示提示（仅第一次）
+                const msgDiv = document.getElementById('easterEggMsg');
+                if (!localStorage.getItem('eggShown')) {
+                    msgDiv.style.opacity = '1';
+                    setTimeout(() => {
+                        msgDiv.style.opacity = '0';
+                    }, 2000);
+                    localStorage.setItem('eggShown', 'true');
+                }
+            });
+        }
+        
+        // 彩蛋2：点击技术栈标签弹出感谢
+        const techSpans = document.querySelectorAll('.tech-stack span');
+        techSpans.forEach(span => {
+            span.addEventListener('click', () => {
+                const tech = span.innerText;
+                alert(`✨ ${tech} 是本站使用的核心技术之一，感谢开源！`);
+            });
+        });
+    </script>
 </body>
 </html>
