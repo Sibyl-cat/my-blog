@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
-    <title>全能搜索中心 · 小电视の日常</title>
+    <title>全能搜索中心 · 织星屿</title>
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
@@ -423,11 +423,11 @@
                 container.innerHTML = `
                     <div class="no-results">
                         <i class="far fa-compass" style="font-size: 4rem; display: block; margin-bottom: 1.5rem; color: var(--primary-pink); opacity: 0.4;"></i>
-                        未能在星辰中找到与 "<b>${keyword}</b>" 相关的痕迹<br>
+                        未能在岛屿中找到与 "<b>${keyword}</b>" 相关的痕迹<br>
                         <button onclick="clearSearch()" style="margin-top:2rem; padding:0.8rem 2rem; background:var(--primary-pink); color:white; border:none; border-radius:30px; cursor:pointer; font-weight:600; box-shadow: 0 4px 15px var(--pink-shadow);">查看全部标签</button>
                     </div>`;
             } else {
-                stats.innerHTML = `星辰反馈：找到 <b style="color:var(--primary-pink)">${posts.length}</b> 篇文章，<b style="color:var(--primary-pink)">${tags.length}</b> 个标签，<b style="color:var(--primary-pink)">${authors.length}</b> 位作者`;
+                stats.innerHTML = `织星屿反馈：找到 <b style="color:var(--primary-pink)">${posts.length}</b> 篇文章，<b style="color:var(--primary-pink)">${tags.length}</b> 个标签，<b style="color:var(--primary-pink)">${authors.length}</b> 位作者`;
                 stats.classList.add('show');
 
                 let html = '';

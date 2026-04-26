@@ -130,7 +130,7 @@ class BlogSidebar extends HTMLElement {
                     <li><a href="./about.html"><i class="fas fa-code"></i> 关于</a></li>
                 </ul>
                 <div class="sidebar-footer">
-                    <p>© 2026 星辰空间站</p>
+                    <p>© 2026 织星屿</p>
                 </div>
             </div>
             <div class="overlay" id="overlay"></div>
@@ -243,7 +243,7 @@ class BlogNavbarSecondary extends HTMLElement {
                     <a href="./index.html" title="返回首页">
                         <img src="./images/logo.svg" alt="Logo" />
                     </a>
-                    <span id="sidebarToggle" title="打开侧边栏">星辰空间站</span>
+                    <span id="sidebarToggle" title="打开侧边栏">织星屿</span>
                 </div>
                 <div class="navbar-tools">
                     <user-menu></user-menu>
@@ -755,7 +755,7 @@ class BlogFooter extends HTMLElement {
             <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <footer class="footer">
                 <div class="copyright">
-                    <i class="fas fa-copyright"></i> 2026 星辰空间站 · 星辰大海
+                    <i class="fas fa-copyright"></i> 2026 织星屿
                     <i class="fas fa-heart" style="color: #FB7299;"></i>
                 </div>
                 <div class="runtime">
@@ -950,7 +950,7 @@ class BlogNavbarHome extends HTMLElement {
                         <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
                             <img src="./images/logo.svg" alt="Logo" style="width: 36px; height: 36px;" />
                         </a>
-                        <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px;" title="打开侧边栏">星辰</span>
+                        <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px;" title="打开侧边栏">织星</span>
                     </div>
                 </div>
                 <div class="navbar-links">
