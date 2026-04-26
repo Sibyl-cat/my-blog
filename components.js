@@ -176,9 +176,9 @@ class BlogNavbarSecondary extends HTMLElement {
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <div class="logo" style="display: flex; align-items: center; gap: 12px;">
                     <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
-                        <img src="./images/logo.svg" alt="Logo" style="width: 28px; height: 28px; mix-blend-mode: multiply;" />
+                        <img src="./images/logo.svg" alt="Logo" style="width: 28px; height: 28px;" />
                     </a>
-                    <span id="sidebarToggle" style="cursor: pointer; padding: 4px; color: inherit; font-weight: bold;" title="打开侧边栏">星辰空间站</span>
+                    <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px; color: inherit; font-weight: bold;" title="打开侧边栏">星辰空间站</span>
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -868,7 +868,7 @@ class BlogNavbarHome extends HTMLElement {
                 <div class="navbar-brand">
                     <div class="logo">
                         <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
-                            <img src="./images/logo.svg" alt="Logo" style="width: 36px; height: 36px; mix-blend-mode: multiply;" />
+                            <img src="./images/logo.svg" alt="Logo" style="width: 36px; height: 36px;" />
                         </a>
                         <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px;" title="打开侧边栏">星辰</span>
                     </div>

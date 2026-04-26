@@ -118,8 +118,15 @@
 </head>
 
 <body>
-    <div class="register-container">
-        <div class="register-card glass">
+    <div class="blog-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+        
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+
+        <div class="register-container" style="margin: 4rem auto;">
+            <div class="register-card glass">
             <div class="register-title">
                 <i class="fas fa-user-plus"></i>
                 <h1>加入星辰空间站</h1>
@@ -204,6 +211,8 @@
             messageDiv.style.display = 'block';
         }
     </script>
+        </div>
+    </div>
 </body>
 
 </html>

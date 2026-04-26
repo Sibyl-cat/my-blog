@@ -204,7 +204,14 @@
     </style>
 </head>
 <body>
-<div class="editor-container">
+    <div class="blog-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+        
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+
+        <div class="editor-container">
     <div class="editor-card" style="padding: 1rem 2rem;">
         <div class="editor-header">
             <a href="admin.html" class="back-btn"><i class="fas fa-arrow-left"></i></a>
@@ -667,5 +674,6 @@
         });
     });
 </script>
+    </div>
 </body>
 </html>

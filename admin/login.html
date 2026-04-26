@@ -174,7 +174,14 @@
     </style>
 </head>
 <body>
-    <div class="login-card">
+    <div class="blog-container">
+        <!-- 二级页面组件化导航栏 -->
+        <blog-navbar-secondary></blog-navbar-secondary>
+        
+        <!-- 全局侧边栏组件 -->
+        <blog-sidebar></blog-sidebar>
+
+        <div class="login-card" style="margin: 4rem auto;">
         <div class="login-header">
             <i class="fas fa-user-astronaut"></i>
             <h1>✨ 星辰空间站 ✨</h1>
@@ -231,5 +238,6 @@
             }
         });
     </script>
+    </div>
 </body>
 </html>
