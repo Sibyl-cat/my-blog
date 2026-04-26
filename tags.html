@@ -9,89 +9,139 @@
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
-    <style>
-        /* 标签云额外样式 */
-        .search-box {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: center;
-        }
-
-        .search-box input {
-            width: 100%;
-            max-width: 500px;
-            padding: 0.8rem 1.5rem;
-            border: 1px solid var(--glass-border);
-            border-radius: 60px;
-            background: var(--glass-bg);
-            color: var(--text-main);
-            font-size: 1rem;
-            backdrop-filter: blur(20px);
-            transition: all 0.2s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #FB7299;
-            box-shadow: 0 0 0 3px rgba(251, 114, 153, 0.2);
-        }
-
-        .tags-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            justify-content: center;
-            padding: 2rem;
+        /* 标签云重构：滚动轨道样式 */
+        .tags-container {
+            position: relative;
+            padding: 4rem 0;
+            overflow: hidden;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border-radius: 48px;
             border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .marquee-row {
+            display: flex;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .marquee-track {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0 0.75rem;
+            will-change: transform;
+        }
+
+        /* 向左滚动 */
+        .scroll-left .marquee-track {
+            animation: scrollLeft 40s linear infinite;
+        }
+
+        /* 向右滚动 */
+        .scroll-right .marquee-track {
+            animation: scrollRight 40s linear infinite;
+        }
+
+        .marquee-row:hover .marquee-track {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @keyframes scrollRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
         }
 
         .tag-item {
-            background: rgba(251, 114, 153, 0.1);
-            border: 1px solid #FB7299;
-            border-radius: 30px;
-            padding: 0.5rem 1.2rem;
-            font-size: 1rem;
-            color: #FB7299;
+            background: var(--primary-pink-alpha);
+            border: 1px solid var(--primary-pink);
+            border-radius: 50px;
+            padding: 0.6rem 1.5rem;
+            font-size: 1.1rem;
+            color: var(--primary-pink);
             text-decoration: none;
-            transition: all 0.2s;
-            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px var(--pink-shadow);
+            backdrop-filter: blur(10px);
         }
 
         .tag-item:hover {
-            background: #FB7299;
-            color: white;
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(251, 114, 153, 0.3);
+            background: var(--primary-pink);
+            color: white !important;
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(251, 114, 153, 0.5);
+            z-index: 10;
         }
 
         .tag-count {
-            margin-left: 0.3rem;
-            font-size: 0.8rem;
-            color: inherit;
-            opacity: 0.8;
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+
+        .tag-item:hover .tag-count {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 搜索状态下的样式 */
+        .tags-cloud.searching {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tags-cloud.searching .marquee-row {
+            display: contents;
+        }
+
+        .tags-cloud.searching .marquee-track {
+            display: contents;
+            animation: none !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .no-tags {
             text-align: center;
-            color: #666;
-            padding: 2rem;
+            color: var(--text-muted);
+            padding: 3rem;
+            font-size: 1.2rem;
+            width: 100%;
         }
 
         @media (max-width: 768px) {
-            .tags-cloud {
-                padding: 1.5rem;
-                gap: 0.5rem;
+            .tags-container {
+                padding: 2rem 0;
+                border-radius: 32px;
             }
-
             .tag-item {
-                font-size: 0.9rem;
-                padding: 0.4rem 1rem;
+                font-size: 0.95rem;
+                padding: 0.5rem 1.2rem;
+            }
+            .scroll-left .marquee-track,
+            .scroll-right .marquee-track {
+                animation-duration: 30s; /* 移动端稍快一点 */
             }
         }
-    </style>
 </head>
 
 <body>
@@ -111,7 +161,7 @@
         </div>
 
         <!-- 标签云容器 -->
-        <div id="tags-cloud" class="tags-cloud">
+        <div id="tags-cloud" class="tags-container">
             <p class="no-tags">加载中...</p>
         </div>
 
@@ -120,41 +170,98 @@
     </div>
 
     <script>
-        let allTags = []; // 存储所有标签
+        let allTags = []; 
 
         async function loadTags() {
             try {
                 const res = await fetch('/api/tags');
+                if (!res.ok) throw new Error('API not available');
                 allTags = await res.json();
                 renderTags(allTags);
             } catch (err) {
-                console.error('加载标签失败:', err);
-                document.getElementById('tags-cloud').innerHTML = '<p class="no-tags">加载失败</p>';
+                console.warn('加载标签 API 失败，使用 Mock 数据展示效果:', err);
+                // Mock 数据仅用于效果展示
+                allTags = [
+                    {name: "JavaScript", count: 12}, {name: "CSS3", count: 8}, {name: "HTML5", count: 5},
+                    {name: "Vue.js", count: 20}, {name: "React", count: 15}, {name: "Node.js", count: 10},
+                    {name: "Animation", count: 7}, {name: "Design", count: 9}, {name: "Frontend", count: 25},
+                    {name: "Backend", count: 18}, {name: "Database", count: 6}, {name: "Git", count: 11},
+                    {name: "Python", count: 14}, {name: "Go", count: 4}, {name: "Docker", count: 9},
+                    {name: "TypeScript", count: 13}, {name: "Tailwind", count: 16}, {name: "UI/UX", count: 22}
+                ];
+                renderTags(allTags);
             }
         }
 
-        function renderTags(tags) {
+        function renderTags(tags, isFiltered = false) {
             const container = document.getElementById('tags-cloud');
             if (!tags || tags.length === 0) {
                 container.innerHTML = '<p class="no-tags">暂无标签</p>';
+                container.classList.add('searching');
                 return;
             }
-            let html = '';
-            tags.forEach(tag => {
-                html += `<a href="tag.html?name=${encodeURIComponent(tag.name)}" class="tag-item">#${tag.name}<span class="tag-count">(${tag.count})</span></a>`;
-            });
-            container.innerHTML = html;
+
+            if (isFiltered) {
+                // 搜索时采用普通网格布局
+                container.classList.add('searching');
+                let html = '';
+                tags.forEach(tag => {
+                    html += createTagHtml(tag);
+                });
+                container.innerHTML = html;
+            } else {
+                // 默认状态采用滚动轨道布局
+                container.classList.remove('searching');
+                const rowCount = 4; // 轨道数量
+                const shuffled = [...tags].sort(() => 0.5 - Math.random());
+                const rows = Array.from({ length: rowCount }, () => []);
+                
+                shuffled.forEach((tag, i) => {
+                    rows[i % rowCount].push(tag);
+                });
+
+                let html = '';
+                rows.forEach((rowTags, index) => {
+                    if (rowTags.length === 0) return;
+                    const directionClass = index % 2 === 0 ? 'scroll-left' : 'scroll-right';
+                    const speed = 30 + Math.random() * 20; // 随机速度让视觉更错落
+                    
+                    // 构造轨道 HTML，内容重复一份以实现无缝滚动
+                    let trackHtml = '';
+                    rowTags.forEach(tag => trackHtml += createTagHtml(tag));
+                    
+                    html += `
+                        <div class="marquee-row ${directionClass}">
+                            <div class="marquee-track" style="animation-duration: ${speed}s">
+                                ${trackHtml}
+                                ${trackHtml} 
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
         }
 
-        // 搜索过滤（模糊匹配）
+        function createTagHtml(tag) {
+            return `
+                <a href="tag.html?name=${encodeURIComponent(tag.name)}" class="tag-item">
+                    <i class="fas fa-hashtag" style="font-size:0.8em; opacity:0.6;"></i>
+                    ${tag.name}
+                    <span class="tag-count">${tag.count}</span>
+                </a>
+            `;
+        }
+
+        // 搜索过滤
         document.getElementById('tagSearch').addEventListener('input', (e) => {
             const keyword = e.target.value.trim().toLowerCase();
             if (!keyword) {
-                renderTags(allTags);
+                renderTags(allTags, false);
                 return;
             }
             const filtered = allTags.filter(tag => tag.name.toLowerCase().includes(keyword));
-            renderTags(filtered);
+            renderTags(filtered, true);
         });
 
         loadTags();
