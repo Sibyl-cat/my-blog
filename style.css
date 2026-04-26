@@ -131,6 +131,7 @@ body::before {
   border: 1px solid var(--glass-border);
   box-shadow: 0 12px 40px var(--card-shadow), 0 4px 15px var(--pink-shadow);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border-radius: 24px;
 }
 
 .glass:hover, .article-card:hover, .post-item-card:hover {
@@ -220,7 +221,7 @@ body::before {
   margin-top: 2rem;
   border: 1px solid var(--glass-border);
   width: 100%;
-  border-radius: 0;
+  border-radius: 24px;
 }
 @keyframes fadeUp {
   0% { opacity: 0; transform: translateY(20px); }
