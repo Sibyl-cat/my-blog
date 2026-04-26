@@ -877,6 +877,7 @@ class BlogNavbarHome extends HTMLElement {
                     <a href="rankings.html"><i class="fas fa-chart-line"></i> 榜单</a>
                     <a href="register.html"><i class="fas fa-user-plus"></i> 注册</a>
                     <a href="tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a>
+                     <a href="https://travel.moe/go.html" target="_blank" title="萌备异时空迁跃"><i class="fas fa-rocket"></i> 迁跃</a>
                 </div>
                 <div class="navbar-tools">
                     <user-menu></user-menu>
