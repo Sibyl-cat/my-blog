@@ -169,24 +169,99 @@ class BlogSidebar extends HTMLElement {
 customElements.define('blog-sidebar', BlogSidebar);
 // ========== 二级页面精简导航栏 ==========
 class BlogNavbarSecondary extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
     connectedCallback() {
-        this.style.display = 'block';
-        this.innerHTML = `
-        <nav class="navbar glass" style="justify-content: space-between; gap: 1rem;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div class="logo" style="display: flex; align-items: center; gap: 12px;">
-                    <a href="./index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
-                        <img src="./images/logo.svg" alt="Logo" style="width: 28px; height: 28px;" />
+        this.render();
+    }
+
+    render() {
+        this.shadowRoot.innerHTML = `
+            <style>
+                :host {
+                    display: block;
+                    width: 100%;
+                    z-index: 100;
+                }
+                .navbar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0.8rem 2rem;
+                    margin: 0 auto 2rem auto;
+                    background: var(--nav-bg, rgba(255, 255, 255, 0.2));
+                    backdrop-filter: blur(20px) saturate(180%);
+                    -webkit-backdrop-filter: blur(20px) saturate(180%);
+                    border-radius: 60px;
+                    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
+                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    position: sticky;
+                    top: 1rem;
+                    width: auto;
+                    max-width: 95%;
+                    font-family: 'Inter', sans-serif;
+                    color: var(--text-main, #1f1f1f);
+                }
+                .logo-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .logo-container a {
+                    display: flex;
+                    align-items: center;
+                    text-decoration: none;
+                }
+                .logo-container img {
+                    width: 28px;
+                    height: 28px;
+                }
+                #sidebarToggle {
+                    cursor: pointer;
+                    padding: 4px;
+                    font-weight: bold;
+                    color: var(--text-main, #1f1f1f);
+                }
+                .navbar-tools {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+                @media (max-width: 768px) {
+                    .navbar {
+                        padding: 0.6rem 1.2rem;
+                        max-width: 98%;
+                    }
+                }
+            </style>
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+            <nav class="navbar">
+                <div class="logo-container">
+                    <a href="./index.html" title="返回首页">
+                        <img src="./images/logo.svg" alt="Logo" />
                     </a>
-                    <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px; color: inherit; font-weight: bold;" title="打开侧边栏">星辰空间站</span>
+                    <span id="sidebarToggle" title="打开侧边栏">星辰空间站</span>
                 </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <user-menu></user-menu>
-                <night-mode-toggle></night-mode-toggle>
-            </div>
-        </nav>
+                <div class="navbar-tools">
+                    <user-menu></user-menu>
+                    <night-mode-toggle></night-mode-toggle>
+                </div>
+            </nav>
         `;
+
+        // 绑定侧边栏事件
+        const toggle = this.shadowRoot.getElementById('sidebarToggle');
+        if (toggle) {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (typeof window.openSidebar === 'function') {
+                    window.openSidebar();
+                }
+            });
+        }
     }
 }
 customElements.define('blog-navbar-secondary', BlogNavbarSecondary);
@@ -635,6 +710,7 @@ class BlogFooter extends HTMLElement {
             <style>
                 :host {
                     display: block;
+                    width: 100%;
                 }
                 .footer {
                     display: flex;
@@ -642,33 +718,37 @@ class BlogFooter extends HTMLElement {
                     align-items: center;
                     padding: 1.6rem 2.5rem;
                     border-radius: 60px;
-                    background: rgba(255, 255, 255, 0.18);
+                    background: var(--glass-bg, rgba(255, 255, 255, 0.18));
                     backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
                     margin-top: 1rem;
-                    border: 1px solid rgba(255,255,255,0.4);
+                    border: 1px solid var(--glass-border, rgba(255,255,255,0.4));
                     animation: fadeUp 0.8s 0.3s both;
+                    color: var(--text-main, #3d3d3d);
                 }
                 @keyframes fadeUp {
                     0% { opacity: 0; transform: translateY(20px); }
                     100% { opacity: 1; transform: translateY(0); }
                 }
                 .copyright {
-                    color: #3d3d3d;
                     font-size: 1.1rem;
+                    color: inherit;
                 }
                 .copyright i {
                     color: #FB7299;
                     margin: 0 4px;
                 }
                 .runtime {
-                    color: #3d3d3d;
                     font-size: 1rem;
+                    color: inherit;
                 }
                 @media (max-width: 680px) {
                     .footer {
                         flex-direction: column;
                         gap: 1rem;
                         text-align: center;
+                        padding: 1.5rem;
+                        border-radius: 30px;
                     }
                 }
             </style>
@@ -801,7 +881,7 @@ class BlogNavbarHome extends HTMLElement {
                 }
                 .navbar-scrolled {
                     padding: 0.5rem 2rem;
-                    background: rgba(255, 255, 255, 0.3);
+                    background: var(--nav-bg, rgba(255, 255, 255, 0.3));
                     backdrop-filter: blur(16px);
                     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
                 }
