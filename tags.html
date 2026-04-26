@@ -5,24 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
-    <title>标签云 · 小电视の日常</title>
+    <title>全能搜索中心 · 小电视の日常</title>
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
-        /* 标签云重构：滚动轨道样式 */
+    <style>
+        /* 1. 基础布局与容器 */
         .tags-container {
             position: relative;
-            padding: 4rem 0;
+            padding: 3rem 0;
             overflow: hidden;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            border-radius: 48px;
+            border-radius: 40px;
             border: 1px solid var(--glass-border);
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            min-height: 400px;
+            transition: all 0.5s ease;
         }
 
+        /* 2. 滚动轨道动效 */
         .marquee-row {
             display: flex;
             white-space: nowrap;
@@ -36,19 +40,10 @@
             will-change: transform;
         }
 
-        /* 向左滚动 */
-        .scroll-left .marquee-track {
-            animation: scrollLeft 40s linear infinite;
-        }
+        .scroll-left .marquee-track { animation: scrollLeft 45s linear infinite; }
+        .scroll-right .marquee-track { animation: scrollRight 45s linear infinite; }
 
-        /* 向右滚动 */
-        .scroll-right .marquee-track {
-            animation: scrollRight 40s linear infinite;
-        }
-
-        .marquee-row:hover .marquee-track {
-            animation-play-state: paused;
-        }
+        .marquee-row:hover .marquee-track { animation-play-state: paused; }
 
         @keyframes scrollLeft {
             0% { transform: translateX(0); }
@@ -60,18 +55,86 @@
             100% { transform: translateX(0); }
         }
 
+        /* 3. 增强搜索框样式 */
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto 3rem;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1.1rem 4rem 1.1rem 1.8rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 60px;
+            background: var(--glass-bg);
+            color: var(--text-main);
+            font-size: 1.15rem;
+            backdrop-filter: blur(25px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 32px var(--pink-shadow);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-pink);
+            box-shadow: 0 0 0 5px var(--primary-pink-alpha), 0 15px 45px var(--pink-shadow);
+            transform: translateY(-3px);
+        }
+
+        .clear-search {
+            position: absolute;
+            right: 1.2rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--primary-pink-alpha);
+            color: var(--primary-pink);
+            border: none;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .clear-search:hover {
+            background: var(--primary-pink);
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .search-stats {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .search-stats.show { opacity: 1; }
+
+        /* 4. 标签项样式 */
         .tag-item {
             background: var(--primary-pink-alpha);
             border: 1px solid var(--primary-pink);
             border-radius: 50px;
-            padding: 0.6rem 1.5rem;
+            padding: 0.7rem 1.6rem;
             font-size: 1.1rem;
             color: var(--primary-pink);
             text-decoration: none;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             box-shadow: 0 4px 15px var(--pink-shadow);
             backdrop-filter: blur(10px);
         }
@@ -80,89 +143,179 @@
             background: var(--primary-pink);
             color: white !important;
             transform: scale(1.1) translateY(-5px);
-            box-shadow: 0 10px 25px rgba(251, 114, 153, 0.5);
+            box-shadow: 0 12px 28px rgba(251, 114, 153, 0.45);
             z-index: 10;
         }
 
         .tag-count {
             font-size: 0.85rem;
             background: rgba(255, 255, 255, 0.2);
-            padding: 2px 8px;
+            padding: 2px 10px;
             border-radius: 20px;
-            transition: background 0.3s;
         }
 
-        .tag-item:hover .tag-count {
-            background: rgba(255, 255, 255, 0.3);
+        .tag-item:hover .tag-count { background: rgba(255, 255, 255, 0.3); }
+
+        /* 5. 搜索结果布局 */
+        .tags-container.searching {
+            display: block;
+            padding: 2.5rem;
+            overflow-y: auto;
         }
 
-        /* 搜索状态下的样式 */
-        .tags-cloud.searching {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem;
-            padding: 2rem;
-            animation: fadeIn 0.5s ease;
+        .search-results-section {
+            margin-bottom: 3.5rem;
+            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
         }
 
-        .tags-cloud.searching .marquee-row {
-            display: contents;
-        }
-
-        .tags-cloud.searching .marquee-track {
-            display: contents;
-            animation: none !important;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .no-tags {
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid var(--primary-pink-alpha);
+            color: var(--primary-pink);
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .section-count {
+            font-size: 0.9rem;
+            background: var(--primary-pink-alpha);
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .highlight {
+            background: rgba(251, 114, 153, 0.25);
+            color: var(--primary-pink);
+            padding: 0 3px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* 6. 文章与作者结果卡片 */
+        .search-post-card {
+            background: var(--glass-bg);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 1.2rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .search-post-card:hover {
+            border-color: var(--primary-pink);
+            background: var(--glass-bg-hover);
+            transform: translateX(12px) scale(1.01);
+            box-shadow: 0 10px 30px var(--pink-shadow);
+        }
+
+        .search-post-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            color: var(--text-main);
+        }
+
+        .search-post-excerpt {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .search-authors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .search-author-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 1.2rem;
+            background: var(--glass-bg);
+            border-radius: 60px;
+            border: 1px solid var(--glass-border);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+        }
+
+        .search-author-card:hover {
+            border-color: var(--primary-pink);
+            background: var(--primary-pink-alpha);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--pink-shadow);
+        }
+
+        .search-author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-pink);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .search-author-name { font-size: 1.1rem; font-weight: 600; }
+
+        .no-results {
             text-align: center;
+            padding: 5rem 2rem;
             color: var(--text-muted);
-            padding: 3rem;
-            font-size: 1.2rem;
-            width: 100%;
         }
 
         @media (max-width: 768px) {
-            .tags-container {
-                padding: 2rem 0;
-                border-radius: 32px;
-            }
-            .tag-item {
-                font-size: 0.95rem;
-                padding: 0.5rem 1.2rem;
-            }
-            .scroll-left .marquee-track,
-            .scroll-right .marquee-track {
-                animation-duration: 30s; /* 移动端稍快一点 */
-            }
+            .tags-container { padding: 2rem 0; }
+            .tags-container.searching { padding: 1.5rem; }
+            .search-box input { font-size: 1rem; padding-right: 3rem; }
+            .section-header { font-size: 1.2rem; }
         }
+    </style>
 </head>
 
 <body>
     <div class="blog-container">
 
-        <!-- 二级页面组件化导航栏 -->
+        <!-- 导航栏组件 -->
         <blog-navbar-secondary></blog-navbar-secondary>
 
-        <!-- 全局侧边栏组件 -->
+        <!-- 侧边栏组件 -->
         <blog-sidebar></blog-sidebar>
 
-        <h2 class="section-title"><i class="fas fa-tags" style="color:#FB7299; margin-right:12px;"></i>标签云</h2>
+        <h2 class="section-title"><i class="fas fa-search" style="color:#FB7299; margin-right:12px;"></i>发现中心</h2>
 
-        <!-- 搜索框 -->
-        <div class="search-box">
-            <input type="text" id="tagSearch" placeholder="搜索标签" autofocus>
+        <!-- 搜索区域 -->
+        <div class="search-wrapper">
+            <div class="search-box">
+                <input type="text" id="tagSearch" placeholder="搜索文章、标签、博主... (按 / 聚焦)" autofocus autocomplete="off">
+                <button id="clearSearch" class="clear-search" title="清空搜索 (ESC)"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="searchStats" class="search-stats"></div>
         </div>
 
-        <!-- 标签云容器 -->
+        <!-- 结果展示容器 -->
         <div id="tags-cloud" class="tags-container">
-            <p class="no-tags">加载中...</p>
+            <div class="no-results"><i class="fas fa-spinner fa-spin"></i> 正在准备内容...</div>
         </div>
 
         <!-- 页脚 -->
@@ -170,17 +323,18 @@
     </div>
 
     <script>
-        let allTags = []; 
+        let allTags = [];
+        let searchTimeout = null;
 
+        // 1. 初始化数据加载
         async function loadTags() {
             try {
                 const res = await fetch('/api/tags');
-                if (!res.ok) throw new Error('API not available');
+                if (!res.ok) throw new Error('API Unavailable');
                 allTags = await res.json();
-                renderTags(allTags);
+                renderDefaultView(allTags);
             } catch (err) {
-                console.warn('加载标签 API 失败，使用 Mock 数据展示效果:', err);
-                // Mock 数据仅用于效果展示
+                console.warn('API 加载失败，启用演示数据:', err);
                 allTags = [
                     {name: "JavaScript", count: 12}, {name: "CSS3", count: 8}, {name: "HTML5", count: 5},
                     {name: "Vue.js", count: 20}, {name: "React", count: 15}, {name: "Node.js", count: 10},
@@ -189,79 +343,188 @@
                     {name: "Python", count: 14}, {name: "Go", count: 4}, {name: "Docker", count: 9},
                     {name: "TypeScript", count: 13}, {name: "Tailwind", count: 16}, {name: "UI/UX", count: 22}
                 ];
-                renderTags(allTags);
+                renderDefaultView(allTags);
             }
         }
 
-        function renderTags(tags, isFiltered = false) {
+        // 2. 默认滚动视图渲染
+        function renderDefaultView(tags) {
             const container = document.getElementById('tags-cloud');
+            const stats = document.getElementById('searchStats');
+            const clearBtn = document.getElementById('clearSearch');
+
+            container.classList.remove('searching');
+            stats.classList.remove('show');
+            clearBtn.style.display = 'none';
+
             if (!tags || tags.length === 0) {
-                container.innerHTML = '<p class="no-tags">暂无标签</p>';
-                container.classList.add('searching');
+                container.innerHTML = '<div class="no-results">暂无标签内容</div>';
                 return;
             }
 
-            if (isFiltered) {
-                // 搜索时采用普通网格布局
-                container.classList.add('searching');
-                let html = '';
-                tags.forEach(tag => {
-                    html += createTagHtml(tag);
-                });
-                container.innerHTML = html;
+            const rowCount = 4;
+            const shuffled = [...tags].sort(() => 0.5 - Math.random());
+            const rows = Array.from({ length: rowCount }, () => []);
+            shuffled.forEach((tag, i) => rows[i % rowCount].push(tag));
+
+            let html = '';
+            rows.forEach((rowTags, index) => {
+                if (rowTags.length === 0) return;
+                const directionClass = index % 2 === 0 ? 'scroll-left' : 'scroll-right';
+                const speed = 35 + Math.random() * 25;
+                let trackHtml = '';
+                rowTags.forEach(tag => trackHtml += createTagItemHtml(tag));
+                html += `
+                    <div class="marquee-row ${directionClass}">
+                        <div class="marquee-track" style="animation-duration: ${speed}s">
+                            ${trackHtml}${trackHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // 3. 执行全能搜索
+        async function performSearch(keyword) {
+            const container = document.getElementById('tags-cloud');
+            const stats = document.getElementById('searchStats');
+            const clearBtn = document.getElementById('clearSearch');
+
+            if (!keyword) {
+                renderDefaultView(allTags);
+                return;
+            }
+
+            clearBtn.style.display = 'flex';
+            container.classList.add('searching');
+            container.innerHTML = '<div class="no-results"><i class="fas fa-circle-notch fa-spin"></i> 正在穿梭时空检索...</div>';
+
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(keyword)}`);
+                const data = await res.json();
+                renderSearchResults(data, keyword);
+            } catch (err) {
+                console.error('搜索出错:', err);
+                container.innerHTML = '<div class="no-results">服务开小差了，请稍后再试</div>';
+            }
+        }
+
+        // 4. 渲染搜索结果
+        function renderSearchResults(data, keyword) {
+            const container = document.getElementById('tags-cloud');
+            const stats = document.getElementById('searchStats');
+            const { posts = [], tags = [], authors = [] } = data;
+
+            const total = posts.length + tags.length + authors.length;
+
+            if (total === 0) {
+                stats.classList.remove('show');
+                container.innerHTML = `
+                    <div class="no-results">
+                        <i class="far fa-compass" style="font-size: 4rem; display: block; margin-bottom: 1.5rem; color: var(--primary-pink); opacity: 0.4;"></i>
+                        未能在星辰中找到与 "<b>${keyword}</b>" 相关的痕迹<br>
+                        <button onclick="clearSearch()" style="margin-top:2rem; padding:0.8rem 2rem; background:var(--primary-pink); color:white; border:none; border-radius:30px; cursor:pointer; font-weight:600; box-shadow: 0 4px 15px var(--pink-shadow);">查看全部标签</button>
+                    </div>`;
             } else {
-                // 默认状态采用滚动轨道布局
-                container.classList.remove('searching');
-                const rowCount = 4; // 轨道数量
-                const shuffled = [...tags].sort(() => 0.5 - Math.random());
-                const rows = Array.from({ length: rowCount }, () => []);
-                
-                shuffled.forEach((tag, i) => {
-                    rows[i % rowCount].push(tag);
-                });
+                stats.innerHTML = `星辰反馈：找到 <b style="color:var(--primary-pink)">${posts.length}</b> 篇文章，<b style="color:var(--primary-pink)">${tags.length}</b> 个标签，<b style="color:var(--primary-pink)">${authors.length}</b> 位作者`;
+                stats.classList.add('show');
 
                 let html = '';
-                rows.forEach((rowTags, index) => {
-                    if (rowTags.length === 0) return;
-                    const directionClass = index % 2 === 0 ? 'scroll-left' : 'scroll-right';
-                    const speed = 30 + Math.random() * 20; // 随机速度让视觉更错落
-                    
-                    // 构造轨道 HTML，内容重复一份以实现无缝滚动
-                    let trackHtml = '';
-                    rowTags.forEach(tag => trackHtml += createTagHtml(tag));
-                    
+
+                // 标签结果
+                if (tags.length > 0) {
                     html += `
-                        <div class="marquee-row ${directionClass}">
-                            <div class="marquee-track" style="animation-duration: ${speed}s">
-                                ${trackHtml}
-                                ${trackHtml} 
+                        <div class="search-results-section" style="animation-delay: 0.1s">
+                            <div class="section-header"><i class="fas fa-tags"></i> 匹配标签 <span class="section-count">${tags.length}</span></div>
+                            <div style="display:flex; flex-wrap:wrap; gap:1.2rem;">
+                                ${tags.map(tag => createTagItemHtml(tag, keyword)).join('')}
                             </div>
-                        </div>
-                    `;
-                });
+                        </div>`;
+                }
+
+                // 文章结果
+                if (posts.length > 0) {
+                    html += `
+                        <div class="search-results-section" style="animation-delay: 0.2s">
+                            <div class="section-header"><i class="fas fa-feather-pointed"></i> 相关文章 <span class="section-count">${posts.length}</span></div>
+                            <div class="search-posts-list">
+                                ${posts.map(post => `
+                                    <a href="post.html?slug=${post.slug}" class="search-post-card">
+                                        <div class="search-post-title">${highlight(post.title, keyword)}</div>
+                                        <div class="search-post-excerpt">${highlight(post.excerpt || '暂无摘要描述...', keyword)}</div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
+
+                // 作者结果
+                if (authors.length > 0) {
+                    html += `
+                        <div class="search-results-section" style="animation-delay: 0.3s">
+                            <div class="section-header"><i class="fas fa-user-astronaut"></i> 相关博主 <span class="section-count">${authors.length}</span></div>
+                            <div class="search-authors-grid">
+                                ${authors.map(author => `
+                                    <a href="author.html?name=${encodeURIComponent(author.username)}" class="search-author-card">
+                                        <div class="search-author-avatar"><i class="fas fa-user-circle"></i></div>
+                                        <div class="search-author-name">${highlight(author.username, keyword)}</div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>`;
+                }
                 container.innerHTML = html;
             }
         }
 
-        function createTagHtml(tag) {
+        // 5. 辅助函数
+        function createTagItemHtml(tag, keyword = '') {
             return `
                 <a href="tag.html?name=${encodeURIComponent(tag.name)}" class="tag-item">
                     <i class="fas fa-hashtag" style="font-size:0.8em; opacity:0.6;"></i>
-                    ${tag.name}
+                    ${keyword ? highlight(tag.name, keyword) : tag.name}
                     <span class="tag-count">${tag.count}</span>
                 </a>
             `;
         }
 
-        // 搜索过滤
-        document.getElementById('tagSearch').addEventListener('input', (e) => {
-            const keyword = e.target.value.trim().toLowerCase();
-            if (!keyword) {
-                renderTags(allTags, false);
-                return;
+        function highlight(text, keyword) {
+            if (!keyword) return text;
+            const safeKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const reg = new RegExp(`(${safeKeyword})`, 'gi');
+            return text.replace(reg, '<span class="highlight">$1</span>');
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('tagSearch');
+            input.value = '';
+            renderDefaultView(allTags);
+            input.focus();
+        }
+
+        // 6. 事件监听
+        const searchInput = document.getElementById('tagSearch');
+        
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.trim();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(keyword);
+            }, 350);
+        });
+
+        document.getElementById('clearSearch').addEventListener('click', clearSearch);
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === '/') {
+                if (document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            } else if (e.key === 'Escape') {
+                if (searchInput.value) clearSearch();
             }
-            const filtered = allTags.filter(tag => tag.name.toLowerCase().includes(keyword));
-            renderTags(filtered, true);
         });
 
         loadTags();
