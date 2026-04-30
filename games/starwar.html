@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星际战机 · 织星游艺场</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        #game-canvas {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000 100%);
+            border: 2px solid #ff4757;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 71, 87, 0.2);
+        }
+
+        .ui-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            min-width: 150px;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            border-radius: 20px;
+        }
+
+        .btn-start {
+            margin-top: 2rem;
+            padding: 1rem 3rem;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
+            background: rgba(255,255,255,0.05); padding: 12px 24px; border-radius: 30px;
+            backdrop-filter: blur(10px); z-index: 200;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回游艺场</a>
+
+    <div style="position: relative;">
+        <canvas id="game-canvas" width="500" height="700"></canvas>
+        
+        <div class="ui-panel">
+            <div style="font-size: 10px; text-transform: uppercase; color: #ff4757;">Score</div>
+            <div id="score" style="font-size: 32px; font-weight: 800;">0</div>
+            <div style="margin-top: 15px; font-size: 10px; text-transform: uppercase; color: #ff4757;">Health</div>
+            <div id="health" style="font-size: 24px; font-weight: 800;">100%</div>
+        </div>
+
+        <div id="overlay" class="overlay">
+            <h1 style="font-size: 3rem; color: #ff4757; margin: 0;">STAR DEFENDER</h1>
+            <p style="color: white; opacity: 0.6; margin-top: 10px;">移动鼠标操控战机，自动射击</p>
+            <button class="btn-start" onclick="startGame()">进入星战</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const healthEl = document.getElementById('health');
+        const overlay = document.getElementById('overlay');
+
+        let score = 0, health = 100, gameActive = false;
+        let player = { x: 250, y: 600, w: 40, h: 40 };
+        let bullets = [], enemies = [], stars = [];
+
+        function initStars() {
+            stars = [];
+            for(let i=0; i<100; i++) {
+                stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2 });
+            }
+        }
+
+        function startGame() {
+            score = 0; health = 100;
+            bullets = []; enemies = [];
+            updateUI();
+            gameActive = true;
+            overlay.style.display = 'none';
+            initStars();
+            spawnEnemy();
+            gameLoop();
+        }
+
+        function spawnEnemy() {
+            if (!gameActive) return;
+            enemies.push({
+                x: Math.random() * (canvas.width - 40),
+                y: -40,
+                w: 40,
+                h: 40,
+                hp: 1 + Math.floor(score/100),
+                speed: 1 + Math.random() * 2
+            });
+            setTimeout(spawnEnemy, Math.max(500, 1500 - score));
+        }
+
+        function gameLoop() {
+            if (!gameActive) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background stars
+            ctx.fillStyle = 'white';
+            stars.forEach(s => {
+                ctx.fillRect(s.x, s.y, s.s, s.s);
+                s.y += s.s * 2;
+                if (s.y > canvas.height) s.y = 0;
+            });
+
+            // Player
+            ctx.fillStyle = '#ff4757';
+            ctx.shadowBlur = 15; ctx.shadowColor = '#ff4757';
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y);
+            ctx.lineTo(player.x - player.w/2, player.y + player.h);
+            ctx.lineTo(player.x + player.w/2, player.y + player.h);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Auto shoot
+            if (Date.now() % 200 < 20) {
+                bullets.push({ x: player.x, y: player.y, r: 4 });
+            }
+
+            // Bullets
+            ctx.fillStyle = '#00f2ff';
+            bullets.forEach((b, bi) => {
+                b.y -= 10;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+                ctx.fill();
+                if (b.y < 0) bullets.splice(bi, 1);
+            });
+
+            // Enemies
+            enemies.forEach((e, ei) => {
+                e.y += e.speed;
+                ctx.fillStyle = '#bc13fe';
+                ctx.beginPath();
+                ctx.roundRect(e.x, e.y, e.w, e.h, 5);
+                ctx.fill();
+
+                // Collision with bullet
+                bullets.forEach((b, bi) => {
+                    if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+                        e.hp--;
+                        bullets.splice(bi, 1);
+                        if (e.hp <= 0) {
+                            enemies.splice(ei, 1);
+                            score += 10;
+                            updateUI();
+                        }
+                    }
+                });
+
+                // Collision with player
+                if (e.x < player.x + 20 && e.x + 40 > player.x - 20 && e.y < player.y + 40 && e.y + 40 > player.y) {
+                    health -= 20;
+                    enemies.splice(ei, 1);
+                    updateUI();
+                    if (health <= 0) gameOver();
+                }
+
+                if (e.y > canvas.height) {
+                    enemies.splice(ei, 1);
+                    health -= 5;
+                    updateUI();
+                    if (health <= 0) gameOver();
+                }
+            });
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function updateUI() {
+            scoreEl.textContent = score;
+            healthEl.textContent = Math.max(0, health) + '%';
+            healthEl.style.color = health < 30 ? '#ff4757' : 'white';
+        }
+
+        function gameOver() {
+            gameActive = false;
+            overlay.style.display = 'flex';
+            overlay.querySelector('h1').textContent = "GAME OVER";
+            overlay.querySelector('p').textContent = `最终得分: ${score}`;
+        }
+
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            player.x = e.clientX - rect.left;
+            player.y = e.clientY - rect.top;
+            // Bound
+            if (player.x < 20) player.x = 20;
+            if (player.x > canvas.width - 20) player.x = canvas.width - 20;
+        });
+
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+                this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r); this.closePath(); return this;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,105 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>织星小游戏中心</title>
+    <title>织星游艺场 · Starry Arcade</title>
     <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <style>
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+        :root {
+            --accent-blue: #00f2ff;
+            --accent-purple: #bc13fe;
         }
-        .game-card {
-            padding: 2rem;
+
+        body {
+            padding: 0;
+            margin: 0;
+            background: var(--body-bg);
+        }
+
+        .arcade-hero {
+            padding: 5rem 2rem;
             text-align: center;
+            background: linear-gradient(135deg, rgba(251, 114, 153, 0.1) 0%, rgba(0, 242, 255, 0.05) 100%);
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 3rem;
+        }
+
+        .arcade-title {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #FB7299, #ff8aa5, #00f2ff);
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2.5rem;
+            padding: 0 2rem 5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .game-card {
+            position: relative;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            border-radius: 32px;
+            height: 100%;
         }
-        .game-icon {
-            font-size: 3rem;
-            color: var(--primary-pink);
-        }
-        .game-preview {
+
+        .game-thumb {
             width: 100%;
-            height: 400px;
-            border: none;
-            border-radius: 16px;
-            background: rgba(0, 0, 0, 0.1);
+            height: 200px;
+            background: rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: var(--primary-pink);
+            transition: all 0.5s;
+            position: relative;
         }
-        .btn-play {
-            padding: 0.8rem 1.5rem;
+
+        .game-thumb::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4));
+        }
+
+        .game-card:hover .game-thumb {
+            transform: scale(1.05);
+            color: var(--accent-blue);
+        }
+
+        .game-info {
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .game-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: var(--primary-pink-alpha);
+            color: var(--primary-pink);
+            width: fit-content;
+        }
+
+        .game-btn {
+            margin-top: auto;
+            padding: 1rem;
             background: var(--primary-pink);
             color: white;
-            border-radius: 30px;
+            text-align: center;
             text-decoration: none;
-            font-weight: 600;
+            border-radius: 16px;
+            font-weight: 700;
             transition: all 0.3s;
+            box-shadow: 0 4px 15px var(--pink-shadow);
         }
-        .btn-play:hover {
+
+        .game-btn:hover {
+            background: var(--primary-pink-hover);
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px var(--pink-shadow);
+            box-shadow: 0 8px 25px var(--pink-shadow);
         }
-        .code-box {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            text-align: left;
-            overflow-x: auto;
-            color: #ff8aa5;
+
+        /* Rank Section Preview */
+        .rank-section {
+            background: var(--glass-bg);
+            margin: 0 2rem 5rem;
+            padding: 3rem;
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .rank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .arcade-title { font-size: 2.5rem; }
+            .game-grid { grid-template-columns: 1fr; padding: 0 1rem 3rem; }
         }
     </style>
 </head>
 <body>
-    <div class="blog-container">
-        <header style="text-align: center; margin-bottom: 3rem;">
-            <h1 style="font-size: 3rem; color: var(--primary-pink);">织星小游戏中心</h1>
-            <p style="color: var(--text-secondary);">为你的博客文章增添趣味互动</p>
-        </header>
+    <blog-navbar-secondary></blog-navbar-secondary>
 
-        <div class="games-grid">
+    <div class="arcade-hero">
+        <h1 class="arcade-title">织星游艺场</h1>
+        <p style="font-size: 1.2rem; opacity: 0.8;">在这里，每一颗星辰都是你的游乐场</p>
+    </div>
+
+    <main class="blog-container">
+        <div class="game-grid">
             <!-- 2048 -->
             <div class="glass game-card">
-                <div class="game-icon"><i class="fas fa-th-large"></i></div>
-                <h2>Star 2048</h2>
-                <p>经典 2048 的星际版，唯美透明设计。</p>
-                <div class="code-box">
-                    &lt;iframe src="/games/star2048.html" width="100%" height="500" frameborder="0"&gt;&lt;/iframe&gt;
+                <div class="game-thumb"><i class="fas fa-th-large"></i></div>
+                <div class="game-info">
+                    <span class="game-tag">Puzzle</span>
+                    <h2 style="font-size: 1.8rem;">星际 2048</h2>
+                    <p>挑战逻辑极限，合成 2048 级超级恒星。</p>
+                    <a href="star2048.html" class="game-btn">进入游戏</a>
                 </div>
-                <a href="star2048.html" class="btn-play">立即试玩</a>
             </div>
 
             <!-- Snake -->
             <div class="glass game-card">
-                <div class="game-icon"><i class="fas fa-worm"></i></div>
-                <h2>Neon Snake</h2>
-                <p>霓虹灯光效的贪吃蛇，支持手机操作。</p>
-                <div class="code-box">
-                    &lt;iframe src="/games/neonsnake.html" width="100%" height="550" frameborder="0"&gt;&lt;/iframe&gt;
+                <div class="game-thumb" style="color: var(--accent-blue);"><i class="fas fa-worm"></i></div>
+                <div class="game-info">
+                    <span class="game-tag" style="background: rgba(0, 242, 255, 0.1); color: var(--accent-blue);">Arcade</span>
+                    <h2 style="font-size: 1.8rem;">霓虹贪吃蛇</h2>
+                    <p>速度随竞技感飙升，在霓虹迷宫中穿梭。</p>
+                    <a href="neonsnake.html" class="game-btn" style="background: var(--accent-blue);">进入游戏</a>
                 </div>
-                <a href="neonsnake.html" class="btn-play">立即试玩</a>
             </div>
 
-            <!-- Breaker -->
+            <!-- Planet Breaker -->
             <div class="glass game-card">
-                <div class="game-icon"><i class="fas fa-rocket"></i></div>
-                <h2>Planet Breaker</h2>
-                <p>击碎星辰！爽快的弹球消除游戏。</p>
-                <div class="code-box">
-                    &lt;iframe src="/games/planetbreaker.html" width="100%" height="550" frameborder="0"&gt;&lt;/iframe&gt;
+                <div class="game-thumb" style="color: #bc13fe;"><i class="fas fa-rocket"></i></div>
+                <div class="game-info">
+                    <span class="game-tag" style="background: rgba(188, 19, 254, 0.1); color: #bc13fe;">Action</span>
+                    <h2 style="font-size: 1.8rem;">行星粉碎者</h2>
+                    <p>多级关卡挑战，击碎守卫星系的层层防御。</p>
+                    <a href="planetbreaker.html" class="game-btn" style="background: #bc13fe;">进入游戏</a>
                 </div>
-                <a href="planetbreaker.html" class="btn-play">立即试玩</a>
+            </div>
+
+            <!-- Starry Dino (NEW) -->
+            <div class="glass game-card">
+                <div class="game-thumb" style="color: #ff9f43;"><i class="fas fa-dragon"></i></div>
+                <div class="game-info">
+                    <span class="game-tag" style="background: rgba(255, 159, 67, 0.1); color: #ff9f43;">Runner</span>
+                    <h2 style="font-size: 1.8rem;">织星小恐龙</h2>
+                    <p>在月球表面奔跑，躲避坠落的彗星与仙人掌。</p>
+                    <a href="dinorun.html" class="game-btn" style="background: #ff9f43;">进入游戏</a>
+                </div>
+            </div>
+
+            <!-- Star Defender (NEW) -->
+            <div class="glass game-card">
+                <div class="game-thumb" style="color: #ff4757;"><i class="fas fa-fighter-jet"></i></div>
+                <div class="game-info">
+                    <span class="game-tag" style="background: rgba(255, 71, 87, 0.1); color: #ff4757;">Shooter</span>
+                    <h2 style="font-size: 1.8rem;">星际战机</h2>
+                    <p>经典的弹幕射击，保卫你的星球不受入侵。</p>
+                    <a href="starwar.html" class="game-btn" style="background: #ff4757;">进入游戏</a>
+                </div>
             </div>
         </div>
 
-        <div style="text-align: center; margin-top: 4rem;">
-            <a href="../index.html" style="color: var(--primary-pink); text-decoration: none;">
-                <i class="fas fa-arrow-left"></i> 返回首页
-            </a>
+        <!-- Rank Preview Section -->
+        <div class="rank-section">
+            <div class="rank-header">
+                <h2 style="font-size: 2.2rem;"><i class="fas fa-trophy" style="color: #FFD700;"></i> 星际排行榜</h2>
+                <span style="color: var(--text-muted);">即将上线...</span>
+            </div>
+            <div style="text-align: center; padding: 2rem; border: 2px dashed var(--glass-border); border-radius: 20px; color: var(--text-muted);">
+                <p>竞技系统正在建设中，届时你可以与全服旅人一较高下！</p>
+            </div>
         </div>
-    </div>
+    </main>
+
+    <blog-footer></blog-footer>
+    <script src="../components.js"></script>
 </body>
 </html>

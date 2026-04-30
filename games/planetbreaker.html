@@ -3,352 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planet Breaker</title>
+    <title>Planet Breaker · 织星游艺场</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <style>
-        :root {
-            --primary-pink: #FB7299;
-            --primary-pink-glow: rgba(251, 114, 153, 0.4);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.2);
-        }
-
-        * {
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #050510;
             margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            overflow: hidden;
             font-family: 'Outfit', sans-serif;
         }
 
-        body {
-            background: transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 480px;
-            color: white;
-            overflow: hidden;
-        }
-
-        .game-container {
+        .game-wrapper {
             position: relative;
-            width: 340px;
-            padding: 15px;
-            background: rgba(15, 15, 25, 0.4);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .stats {
-            display: flex;
-            gap: 15px;
-            font-size: 14px;
-            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
         }
 
         #game-canvas {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 16px;
-            display: block;
-            margin: 0 auto;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            cursor: crosshair;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050510 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(188, 19, 254, 0.3);
         }
+
+        .game-header {
+            position: absolute;
+            top: -70px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 10px;
+        }
+
+        .stat-group { display: flex; gap: 20px; }
+        .stat-item { text-align: center; }
+        .stat-label { font-size: 10px; color: #bc13fe; text-transform: uppercase; }
+        .stat-value { font-size: 24px; font-weight: 800; color: white; }
 
         .overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            border-radius: 24px;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 10;
+            z-index: 100;
             text-align: center;
+            transition: all 0.4s;
         }
 
         .btn-play {
-            padding: 12px 35px;
-            background: linear-gradient(135deg, var(--primary-pink), #ff8aa5);
-            border: none;
-            border-radius: 30px;
+            margin-top: 2rem;
+            padding: 1.2rem 3.5rem;
+            background: linear-gradient(135deg, #bc13fe, #7a2ff7);
             color: white;
-            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.3rem;
             cursor: pointer;
-            box-shadow: 0 5px 20px var(--primary-pink-glow);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(188, 19, 254, 0.4);
+            transition: all 0.3s;
         }
 
-        .btn-play:hover {
-            transform: scale(1.1) translateY(-3px);
-            box-shadow: 0 8px 25px var(--primary-pink-glow);
-        }
+        .btn-play:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 35px rgba(188, 19, 254, 0.6); }
 
-        .controls-hint {
-            margin-top: 15px;
-            font-size: 12px;
-            opacity: 0.5;
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
+            background: rgba(255,255,255,0.05); padding: 12px 24px; border-radius: 30px;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <div class="header">
-            <h2 style="font-size: 20px; color: var(--primary-pink); letter-spacing: 1px;">Planet Breaker</h2>
-            <div class="stats">
-                <div>Score: <span id="score">0</span></div>
-                <div>Lives: <span id="lives">3</span></div>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回游艺场</a>
+
+    <div class="game-wrapper">
+        <div class="game-header">
+            <h1 style="color: #bc13fe; font-size: 2rem; margin: 0;">Planet Breaker</h1>
+            <div class="stat-group">
+                <div class="stat-item"><div class="stat-label">Level</div><div id="level" class="stat-value">1</div></div>
+                <div class="stat-item"><div class="stat-label">Score</div><div id="score" class="stat-value">0</div></div>
+                <div class="stat-item"><div class="stat-label">Lives</div><div id="lives" class="stat-value">3</div></div>
             </div>
         </div>
 
-        <canvas id="game-canvas" width="310" height="320"></canvas>
+        <canvas id="game-canvas" width="600" height="500"></canvas>
 
         <div class="overlay" id="overlay">
-            <h1 id="msg" style="font-size: 32px; background: linear-gradient(to right, #FB7299, #00f2ff); -webkit-background-clip: text; color: transparent;">READY?</h1>
-            <p id="sub-msg" style="margin-top: 10px; opacity: 0.8;">击碎星辰，开启星际之旅</p>
-            <button class="btn-play" onclick="startGame()">开始挑战</button>
-        </div>
-
-        <div class="controls-hint">
-            使用鼠标或左右滑动控制挡板
+            <h2 id="msg-title" style="font-size: 3.5rem; background: linear-gradient(to right, #bc13fe, #00f2ff); -webkit-background-clip: text; color: transparent; margin: 0;">LEVEL 1</h2>
+            <p id="msg-desc" style="color: white; opacity: 0.6; font-size: 1.2rem; margin-top: 1rem;">击碎障碍，进入下一星域</p>
+            <button class="btn-play" onclick="startLevel()">开始挑战</button>
         </div>
     </div>
 
     <script>
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
-        const livesElement = document.getElementById('lives');
+        const levelEl = document.getElementById('level');
+        const scoreEl = document.getElementById('score');
+        const livesEl = document.getElementById('lives');
         const overlay = document.getElementById('overlay');
-        const msgElement = document.getElementById('msg');
-        const subMsgElement = document.getElementById('sub-msg');
+        const msgTitle = document.getElementById('msg-title');
+        const msgDesc = document.getElementById('msg-desc');
 
-        let score = 0;
-        let lives = 3;
+        let score = 0, lives = 3, level = 1;
         let gameRunning = false;
 
         // Paddle
-        const paddleHeight = 10;
-        const paddleWidth = 75;
+        const paddleWidth = 100, paddleHeight = 15;
         let paddleX = (canvas.width - paddleWidth) / 2;
 
         // Ball
-        let x = canvas.width / 2;
-        let y = canvas.height - 30;
-        let dx = 2.5;
-        let dy = -2.5;
-        const ballRadius = 6;
+        let x, y, dx, dy;
+        const ballRadius = 8;
 
         // Bricks
-        const brickRowCount = 5;
-        const brickColumnCount = 4;
-        const brickWidth = 65;
-        const brickHeight = 20;
-        const brickPadding = 10;
-        const brickOffsetTop = 30;
-        const brickOffsetLeft = 15;
-
         let bricks = [];
-        function initBricks() {
+        const brickPadding = 10;
+        const brickOffsetTop = 40;
+        const brickOffsetLeft = 35;
+
+        const levels = [
+            { rows: 3, cols: 6, speed: 4 },
+            { rows: 4, cols: 7, speed: 5 },
+            { rows: 5, cols: 8, speed: 6 },
+            { rows: 6, cols: 8, speed: 7 }
+        ];
+
+        function initLevel() {
+            const config = levels[Math.min(level - 1, levels.length - 1)];
+            const brickWidth = (canvas.width - 2 * brickOffsetLeft - (config.cols - 1) * brickPadding) / config.cols;
+            
             bricks = [];
-            for (let c = 0; c < brickColumnCount; c++) {
+            for (let c = 0; c < config.cols; c++) {
                 bricks[c] = [];
-                for (let r = 0; r < brickRowCount; r++) {
-                    bricks[c][r] = { x: 0, y: 0, status: 1, color: `hsla(${340 + r * 10}, 90%, 70%, 0.8)` };
+                for (let r = 0; r < config.rows; r++) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1, w: brickWidth };
                 }
             }
+            
+            x = canvas.width / 2;
+            y = canvas.height - 40;
+            dx = config.speed * (Math.random() > 0.5 ? 1 : -1);
+            dy = -config.speed;
+            paddleX = (canvas.width - paddleWidth) / 2;
         }
 
-        // Input
-        let rightPressed = false;
-        let leftPressed = false;
-
-        document.addEventListener("keydown", keyDownHandler, false);
-        document.addEventListener("keyup", keyUpHandler, false);
-        document.addEventListener("mousemove", mouseMoveHandler, false);
-        canvas.addEventListener("touchmove", touchMoveHandler, { passive: false });
-
-        function keyDownHandler(e) {
-            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
-            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
-        }
-
-        function keyUpHandler(e) {
-            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
-            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
-        }
-
-        function mouseMoveHandler(e) {
-            const relativeX = e.clientX - canvas.getBoundingClientRect().left;
-            if (relativeX > 0 && relativeX < canvas.width) {
-                paddleX = relativeX - paddleWidth / 2;
-            }
-        }
-
-        function touchMoveHandler(e) {
-            e.preventDefault();
-            const relativeX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
-            if (relativeX > 0 && relativeX < canvas.width) {
-                paddleX = relativeX - paddleWidth / 2;
-            }
-        }
-
-        function collisionDetection() {
-            for (let c = 0; c < brickColumnCount; c++) {
-                for (let r = 0; r < brickRowCount; r++) {
-                    const b = bricks[c][r];
-                    if (b.status === 1) {
-                        if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
-                            dy = -dy;
-                            b.status = 0;
-                            score++;
-                            scoreElement.textContent = score;
-                            if (score === brickRowCount * brickColumnCount) {
-                                winGame();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        function drawBall() {
-            ctx.beginPath();
-            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-            ctx.fillStyle = "#fff";
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "#FB7299";
-            ctx.fill();
-            ctx.closePath();
-            ctx.shadowBlur = 0;
-        }
-
-        function drawPaddle() {
-            ctx.beginPath();
-            ctx.roundRect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight, 5);
-            ctx.fillStyle = "#FB7299";
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function drawBricks() {
-            for (let c = 0; c < brickColumnCount; c++) {
-                for (let r = 0; r < brickRowCount; r++) {
-                    if (bricks[c][r].status === 1) {
-                        const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
-                        const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
-                        bricks[c][r].x = brickX;
-                        bricks[c][r].y = brickY;
-                        ctx.beginPath();
-                        ctx.roundRect(brickX, brickY, brickWidth, brickHeight, 4);
-                        ctx.fillStyle = bricks[c][r].color;
-                        ctx.fill();
-                        ctx.closePath();
-                    }
-                }
-            }
+        function startLevel() {
+            initLevel();
+            gameRunning = true;
+            overlay.style.display = 'none';
+            draw();
         }
 
         function draw() {
             if (!gameRunning) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             drawBricks();
             drawBall();
             drawPaddle();
             collisionDetection();
 
-            if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-                dx = -dx;
-            }
-            if (y + dy < ballRadius) {
-                dy = -dy;
-            } else if (y + dy > canvas.height - ballRadius) {
+            // Wall bounce
+            if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
+            if (y + dy < ballRadius) dy = -dy;
+            else if (y + dy > canvas.height - ballRadius - 10) {
                 if (x > paddleX && x < paddleX + paddleWidth) {
                     dy = -dy;
-                    // Add some speed
-                    dx *= 1.05;
-                    dy *= 1.05;
+                    // Physics adjustment based on where it hits the paddle
+                    let delta = x - (paddleX + paddleWidth / 2);
+                    dx = delta * 0.15;
                 } else {
                     lives--;
-                    livesElement.textContent = lives;
-                    if (!lives) {
-                        gameOver();
-                    } else {
-                        x = canvas.width / 2;
-                        y = canvas.height - 30;
-                        dx = 2.5;
-                        dy = -2.5;
-                        paddleX = (canvas.width - paddleWidth) / 2;
+                    livesEl.textContent = lives;
+                    if (!lives) return gameOver();
+                    else {
+                        gameRunning = false;
+                        msgTitle.textContent = "OOPS!";
+                        msgDesc.textContent = "损失了一次机会，准备重回星场";
+                        overlay.style.display = 'flex';
                     }
                 }
             }
 
-            if (rightPressed && paddleX < canvas.width - paddleWidth) {
-                paddleX += 7;
-            } else if (leftPressed && paddleX > 0) {
-                paddleX -= 7;
-            }
+            // Paddle move
+            if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 8;
+            else if (leftPressed && paddleX > 0) paddleX -= 8;
 
-            x += dx;
-            y += dy;
+            x += dx; y += dy;
             requestAnimationFrame(draw);
         }
 
-        function startGame() {
-            score = 0;
-            lives = 3;
-            scoreElement.textContent = score;
-            livesElement.textContent = lives;
-            initBricks();
-            x = canvas.width / 2;
-            y = canvas.height - 30;
-            dx = 2.5;
-            dy = -2.5;
-            gameRunning = true;
-            overlay.style.display = "none";
-            draw();
+        function drawBricks() {
+            bricks.forEach((col, c) => {
+                col.forEach((b, r) => {
+                    if (b.status === 1) {
+                        const bx = (c * (b.w + brickPadding)) + brickOffsetLeft;
+                        const by = (r * (30 + brickPadding)) + brickOffsetTop;
+                        b.x = bx; b.y = by;
+                        
+                        const gradient = ctx.createLinearGradient(bx, by, bx, by + 30);
+                        gradient.addColorStop(0, `hsla(${280 + r * 15}, 80%, 60%, 1)`);
+                        gradient.addColorStop(1, `hsla(${280 + r * 15}, 80%, 40%, 1)`);
+                        
+                        ctx.beginPath();
+                        ctx.roundRect(bx, by, b.w, 30, 8);
+                        ctx.fillStyle = gradient;
+                        ctx.fill();
+                        ctx.strokeStyle = "rgba(255,255,255,0.2)";
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                });
+            });
+        }
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+            ctx.fillStyle = "white";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#bc13fe";
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.closePath();
+        }
+
+        function drawPaddle() {
+            const grad = ctx.createLinearGradient(paddleX, 0, paddleX + paddleWidth, 0);
+            grad.addColorStop(0, "#bc13fe"); grad.addColorStop(1, "#00f2ff");
+            ctx.beginPath();
+            ctx.roundRect(paddleX, canvas.height - 20, paddleWidth, paddleHeight, 10);
+            ctx.fillStyle = grad;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function collisionDetection() {
+            let activeBricks = 0;
+            bricks.forEach(col => {
+                col.forEach(b => {
+                    if (b.status === 1) {
+                        activeBricks++;
+                        if (x > b.x && x < b.x + b.w && y > b.y && y < b.y + 30) {
+                            dy = -dy;
+                            b.status = 0;
+                            score += 10;
+                            scoreEl.textContent = score;
+                        }
+                    }
+                });
+            });
+            if (activeBricks === 0) levelWin();
+        }
+
+        function levelWin() {
+            gameRunning = false;
+            level++;
+            levelEl.textContent = level;
+            msgTitle.textContent = "星际跃迁!";
+            msgDesc.textContent = `准备进入第 ${level} 星域`;
+            overlay.style.display = 'flex';
         }
 
         function gameOver() {
             gameRunning = false;
-            msgElement.textContent = "GAME OVER";
-            subMsgElement.textContent = "你的得分为: " + score;
-            overlay.style.display = "flex";
+            msgTitle.textContent = "GAME OVER";
+            msgDesc.textContent = `最终得分: ${score}`;
+            level = 1; score = 0; lives = 3;
+            overlay.style.display = 'flex';
         }
 
-        function winGame() {
-            gameRunning = false;
-            msgElement.textContent = "MISSION CLEAR!";
-            subMsgElement.textContent = "你成功守护了星系！";
-            overlay.style.display = "flex";
-        }
+        // Controls
+        let rightPressed = false, leftPressed = false;
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
+            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+        });
+        document.addEventListener("keyup", (e) => {
+            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
+            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
+        });
+        canvas.addEventListener("mousemove", (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const rx = e.clientX - rect.left;
+            if (rx > 0 && rx < canvas.width) paddleX = rx - paddleWidth / 2;
+        });
 
-        // roundRect polyfill
         if (!CanvasRenderingContext2D.prototype.roundRect) {
             CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
-                if (w < 2 * r) r = w / 2;
-                if (h < 2 * r) r = h / 2;
-                this.moveTo(x + r, y);
-                this.arcTo(x + w, y, x + w, y + h, r);
-                this.arcTo(x + w, y + h, x, y + h, r);
-                this.arcTo(x, y + h, x, y, r);
-                this.arcTo(x, y, x + w, y, r);
-                this.closePath();
-                return this;
+                if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+                this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r); this.closePath(); return this;
             }
         }
     </script>

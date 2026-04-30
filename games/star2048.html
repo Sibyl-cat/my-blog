@@ -3,170 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Star 2048</title>
+    <title>星际 2048 · 织星游艺场</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <style>
-        :root {
-            --primary-pink: #FB7299;
-            --primary-pink-hover: #ff8aa5;
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-main: #ffffff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Outfit', 'Inter', sans-serif;
-        }
-
         body {
-            background: transparent;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 450px;
-            color: var(--text-main);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%);
+            margin: 0;
             overflow: hidden;
+            font-family: 'Outfit', sans-serif;
         }
 
-        .game-container {
-            width: 320px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        .game-wrapper {
             position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
         }
 
         .score-container {
-            background: var(--glass-bg);
-            padding: 5px 15px;
-            border-radius: 10px;
-            border: 1px solid var(--glass-border);
+            background: rgba(251, 114, 153, 0.1);
+            padding: 10px 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(251, 114, 153, 0.3);
             text-align: center;
         }
 
-        .score-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            opacity: 0.7;
-        }
-
-        .score-value {
-            font-size: 18px;
-            font-weight: 700;
-        }
+        .score-label { font-size: 10px; text-transform: uppercase; color: #FB7299; letter-spacing: 1px; }
+        .score-value { font-size: 28px; font-weight: 800; color: white; }
 
         .grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-gap: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            border-radius: 12px;
+            grid-gap: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 25px;
             position: relative;
         }
 
         .cell {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
+            width: 85px;
+            height: 85px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            font-weight: 700;
-            transition: all 0.15s ease;
+            font-size: 28px;
+            font-weight: 800;
+            transition: all 0.1s ease;
             position: relative;
-            z-index: 2;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Tile colors */
-        .tile-2 { background: rgba(251, 114, 153, 0.2); color: #fff; box-shadow: 0 0 10px rgba(251, 114, 153, 0.2); }
-        .tile-4 { background: rgba(251, 114, 153, 0.3); color: #fff; box-shadow: 0 0 15px rgba(251, 114, 153, 0.3); }
-        .tile-8 { background: rgba(251, 114, 153, 0.4); color: #fff; box-shadow: 0 0 20px rgba(251, 114, 153, 0.4); }
-        .tile-16 { background: rgba(251, 114, 153, 0.5); color: #fff; }
-        .tile-32 { background: rgba(251, 114, 153, 0.6); color: #fff; }
-        .tile-64 { background: rgba(251, 114, 153, 0.7); color: #fff; }
-        .tile-128 { background: rgba(251, 114, 153, 0.8); color: #fff; font-size: 18px; box-shadow: 0 0 25px rgba(251, 114, 153, 0.5); }
-        .tile-256 { background: rgba(251, 114, 153, 0.9); color: #fff; font-size: 18px; box-shadow: 0 0 30px rgba(251, 114, 153, 0.6); }
-        .tile-512 { background: #FB7299; color: #fff; font-size: 18px; box-shadow: 0 0 35px rgba(251, 114, 153, 0.7); }
-        .tile-1024 { background: #ff8aa5; color: #fff; font-size: 16px; box-shadow: 0 0 40px rgba(251, 114, 153, 0.8); }
-        .tile-2048 { background: #ffb3c1; color: #fff; font-size: 16px; box-shadow: 0 0 45px rgba(251, 114, 153, 0.9); }
+        /* Tile colors with premium gradients */
+        .tile-2 { background: linear-gradient(135deg, rgba(251, 114, 153, 0.2), rgba(251, 114, 153, 0.1)); color: #fff; box-shadow: 0 4px 15px rgba(251, 114, 153, 0.2); }
+        .tile-4 { background: linear-gradient(135deg, rgba(251, 114, 153, 0.4), rgba(251, 114, 153, 0.2)); color: #fff; box-shadow: 0 4px 15px rgba(251, 114, 153, 0.3); }
+        .tile-8 { background: linear-gradient(135deg, rgba(251, 114, 153, 0.6), rgba(251, 114, 153, 0.3)); color: #fff; }
+        .tile-16 { background: #FB7299; color: #fff; }
+        .tile-32 { background: #ff8aa5; color: #fff; }
+        .tile-64 { background: #ff4757; color: #fff; }
+        .tile-128 { background: #00f2ff; color: #000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
+        .tile-256 { background: #7a2ff7; color: #fff; box-shadow: 0 0 25px rgba(122, 47, 247, 0.5); }
+        .tile-512 { background: #ff9f43; color: #000; box-shadow: 0 0 30px rgba(255, 159, 67, 0.5); }
+        .tile-1024 { background: #1dd1a1; color: #000; }
+        .tile-2048 { background: linear-gradient(135deg, #FFD700, #ff9f43); color: #000; box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); }
 
-        .game-over {
+        .overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 20px;
-            z-index: 10;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            border-radius: 40px;
+            z-index: 100;
         }
 
         .btn-restart {
-            margin-top: 20px;
-            padding: 10px 25px;
-            background: var(--primary-pink);
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: #FB7299;
             border: none;
-            border-radius: 30px;
+            border-radius: 50px;
             color: white;
-            font-weight: 600;
+            font-weight: 800;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 10px 20px rgba(251, 114, 153, 0.3);
         }
 
-        .btn-restart:hover {
-            transform: scale(1.05);
-            background: var(--primary-pink-hover);
+        .btn-restart:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(251, 114, 153, 0.5); }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
+            background: rgba(255,255,255,0.05); padding: 12px 24px; border-radius: 30px;
+            backdrop-filter: blur(10px);
         }
 
-        .controls {
-            margin-top: 15px;
-            font-size: 12px;
-            opacity: 0.6;
-            text-align: center;
-        }
-
-        /* Animations */
-        @keyframes pop {
-            0% { transform: scale(0); }
-            100% { transform: scale(1); }
-        }
-
-        .new-tile {
-            animation: pop 0.2s ease;
+        @media (max-width: 500px) {
+            .cell { width: 65px; height: 65px; font-size: 20px; }
+            .grid { grid-gap: 10px; }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回游艺场</a>
+
+    <div class="game-wrapper">
         <div class="header">
-            <h2 style="font-size: 24px; color: var(--primary-pink);">Star 2048</h2>
+            <h1 style="font-size: 2.5rem; color: #FB7299; margin: 0; letter-spacing: -1px;">Star 2048</h1>
             <div class="score-container">
                 <div class="score-label">Score</div>
                 <div class="score-value" id="score">0</div>
@@ -174,21 +139,16 @@
         </div>
 
         <div class="grid" id="grid">
-            <!-- 16 cells -->
             <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
             <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
             <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
             <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
         </div>
 
-        <div class="game-over" id="game-over">
-            <h2 style="font-size: 32px;">Game Over</h2>
-            <p id="final-score">Final Score: 0</p>
+        <div class="overlay" id="overlay">
+            <h2 style="font-size: 3.5rem; color: #FB7299; margin: 0;">GAME OVER</h2>
+            <p id="final-score" style="color: white; opacity: 0.7; font-size: 1.5rem; margin-top: 10px;">最终得分: 0</p>
             <button class="btn-restart" onclick="resetGame()">再来一局</button>
-        </div>
-
-        <div class="controls">
-            使用方向键或滑动来移动方块
         </div>
     </div>
 
@@ -197,7 +157,7 @@
         let score = 0;
         const gridElement = document.getElementById('grid');
         const scoreElement = document.getElementById('score');
-        const gameOverElement = document.getElementById('game-over');
+        const overlay = document.getElementById('overlay');
         const finalScoreElement = document.getElementById('final-score');
 
         function init() {
@@ -224,9 +184,6 @@
                 const value = board[idx];
                 cell.textContent = value === 0 ? '' : value;
                 cell.className = 'cell' + (value ? ` tile-${value}` : '');
-                if (value === 2 || value === 4) {
-                    // Check if it's a newly added tile (rough approximation)
-                }
             });
             scoreElement.textContent = score;
         }
@@ -235,25 +192,8 @@
             let moved = false;
             const size = 4;
 
-            function getLine(i, isRow) {
-                let line = [];
-                for (let j = 0; j < size; j++) {
-                    line.push(isRow ? board[i * size + j] : board[j * size + i]);
-                }
-                return line;
-            }
-
-            function setLine(i, isRow, line) {
-                for (let j = 0; j < size; j++) {
-                    const idx = isRow ? i * size + j : j * size + i;
-                    if (board[idx] !== line[j]) moved = true;
-                    board[idx] = line[j];
-                }
-            }
-
             function slide(line, reverse) {
                 if (reverse) line.reverse();
-                
                 let nonZero = line.filter(x => x !== 0);
                 for (let j = 0; j < nonZero.length - 1; j++) {
                     if (nonZero[j] === nonZero[j + 1]) {
@@ -264,7 +204,6 @@
                 }
                 nonZero = nonZero.filter(x => x !== 0);
                 while (nonZero.length < size) nonZero.push(0);
-                
                 if (reverse) nonZero.reverse();
                 return nonZero;
             }
@@ -273,17 +212,22 @@
             const isReverse = direction === 'right' || direction === 'down';
 
             for (let i = 0; i < size; i++) {
-                let line = getLine(i, !isVertical);
+                let line = [];
+                for (let j = 0; j < size; j++) {
+                    line.push(isVertical ? board[j * size + i] : board[i * size + j]);
+                }
                 let newLine = slide(line, isReverse);
-                setLine(i, !isVertical, newLine);
+                for (let j = 0; j < size; j++) {
+                    const idx = isVertical ? j * size + i : i * size + j;
+                    if (board[idx] !== newLine[j]) moved = true;
+                    board[idx] = newLine[j];
+                }
             }
 
             if (moved) {
                 addRandomTile();
                 updateBoard();
-                if (isGameOver()) {
-                    gameOver();
-                }
+                if (isGameOver()) gameOver();
             }
         }
 
@@ -300,12 +244,12 @@
         }
 
         function gameOver() {
-            gameOverElement.style.display = 'flex';
+            overlay.style.display = 'flex';
             finalScoreElement.textContent = `最终得分: ${score}`;
         }
 
         function resetGame() {
-            gameOverElement.style.display = 'none';
+            overlay.style.display = 'none';
             init();
         }
 
@@ -315,25 +259,6 @@
             if (e.key === 'ArrowLeft') move('left');
             if (e.key === 'ArrowRight') move('right');
         });
-
-        // Touch support
-        let touchStartX, touchStartY;
-        window.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        window.addEventListener('touchend', e => {
-            if (!touchStartX || !touchStartY) return;
-            const dx = e.changedTouches[0].clientX - touchStartX;
-            const dy = e.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (Math.abs(dx) > 30) move(dx > 0 ? 'right' : 'left');
-            } else {
-                if (Math.abs(dy) > 30) move(dy > 0 ? 'down' : 'up');
-            }
-            touchStartX = touchStartY = null;
-        }, { passive: true });
 
         init();
     </script>
