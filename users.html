@@ -37,261 +37,282 @@
         }
 
         .users-container {
-            max-width: 1300px;
+            max-width: 1400px;
             width: 100%;
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            grid-template-columns: 400px 1fr;
             gap: 2rem;
+            height: 80vh;
+            min-height: 700px;
         }
 
         .panel {
             padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #FB7299;
         }
 
         h2 {
             color: #FB7299;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #FB7299;
-            padding-bottom: 0.5rem;
+            font-size: 1.6rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .stats-badge {
+            background: #FB7299;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #FB7299;
+        }
+
+        .search-box input {
+            padding-left: 2.8rem;
+            background: rgba(255, 255, 255, 0.4);
         }
 
         .user-list {
-            max-height: 500px;
+            flex: 1;
             overflow-y: auto;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            padding-right: 0.5rem;
+        }
+
+        /* 滚动条美化 */
+        .user-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .user-list::-webkit-scrollbar-thumb {
+            background: rgba(251, 114, 153, 0.2);
+            border-radius: 10px;
         }
 
         .user-item {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
             padding: 1rem;
-            border-bottom: 1px solid rgba(251, 114, 153, 0.2);
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(251, 114, 153, 0.1);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 20px;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.8rem;
         }
 
         .user-item:hover {
             background: rgba(251, 114, 153, 0.1);
+            transform: translateX(5px);
         }
 
         .user-item.selected {
-            background: rgba(251, 114, 153, 0.2);
+            background: white;
             border: 1px solid #FB7299;
-            box-shadow: 0 4px 10px rgba(251, 114, 153, 0.2);
-        }
-
-        .user-avatar {
-            width: 40px;
-            text-align: center;
+            box-shadow: 0 8px 20px rgba(251, 114, 153, 0.15);
         }
 
         .user-avatar i {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: #FB7299;
         }
 
         .user-details {
-            flex: 3;
-            min-width: 180px;
+            flex: 1;
         }
 
         .user-name {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+            color: #333;
         }
 
-        .user-meta {
+        .user-meta-brief {
             font-size: 0.75rem;
-            color: #666;
-            margin-top: 0.2rem;
+            color: #888;
+            margin-top: 0.1rem;
         }
 
-        .user-status {
-            flex: 0 0 100px;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .user-role {
-            flex: 0 0 100px;
-        }
-
-        .role-select {
-            padding: 0.3rem 0.5rem;
-            border-radius: 30px;
-            border: 1px solid rgba(251,114,153,0.5);
-            background: rgba(255,255,255,0.5);
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        /* 开关样式 */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 22px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 22px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 2px;
-            bottom: 2px;
-            background-color: white;
-            transition: .4s;
+        .status-dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
+            background: #ccc;
+        }
+        .status-dot.active {
+            background: #2ecc71;
+            box-shadow: 0 0 8px #2ecc71;
         }
 
-        input:checked + .slider {
-            background-color: #FB7299;
+        /* 右侧面板详情样式 */
+        .detail-panel {
+            background: rgba(255, 255, 255, 0.4);
         }
 
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2a2a2a;
-            font-weight: 500;
-        }
-
-        input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid rgba(251, 114, 153, 0.3);
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #FB7299;
-            box-shadow: 0 0 0 3px rgba(251, 114, 153, 0.2);
-        }
-
-        .btn-group {
+        .empty-state {
+            height: 100%;
             display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.7rem 1.5rem;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.2s;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(251, 114, 153, 0.3);
-            color: #2a2a2a;
-            display: inline-flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            flex: 1;
+            color: rgba(251, 114, 153, 0.4);
+            gap: 1.5rem;
         }
 
-        .btn:hover {
-            background: #FB7299;
-            color: white;
-            border-color: #FB7299;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(251, 114, 153, 0.3);
+        .empty-state i {
+            font-size: 5rem;
         }
 
-        .btn-danger {
-            background: rgba(255, 100, 100, 0.15);
-            border-color: #ff7d7d;
-            color: #b30000;
+        .user-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
         }
 
-        .btn-danger:hover {
-            background: #ff4d4d;
-            color: white;
-            border-color: #ff4d4d;
-        }
-
-        .message {
-            margin-top: 1.5rem;
-            padding: 0.8rem 1.2rem;
-            border-radius: 30px;
-            display: none;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .message.success {
-            background: rgba(0, 200, 0, 0.15);
-            border: 1px solid #2ecc71;
-            color: #27ae60;
-        }
-
-        .message.error {
-            background: rgba(255, 0, 0, 0.1);
-            border: 1px solid #ff7d7d;
-            color: #c0392b;
-        }
-
-        .refresh-btn {
-            width: 100%;
-            margin-top: 1rem;
-            padding: 0.8rem;
-            background: rgba(251, 114, 153, 0.1);
-            border: 1px dashed #FB7299;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s;
+        .large-avatar i {
+            font-size: 5rem;
             color: #FB7299;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
         }
 
-        .refresh-btn:hover {
-            background: rgba(251, 114, 153, 0.2);
-            border-style: solid;
+        .header-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .role-tag {
+            padding: 0.3rem 1rem;
+            background: rgba(251, 114, 153, 0.1);
+            color: #FB7299;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            background: rgba(255,255,255,0.5);
+            padding: 1rem;
+            border-radius: 16px;
+        }
+
+        .info-item label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-item .value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .role-select-large {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(251, 114, 153, 0.2);
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FB7299' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        .status-control {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem;
+            background: rgba(255,255,255,0.5);
+            border-radius: 16px;
+        }
+
+        .sub-label {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .danger-zone {
+            margin-top: 3rem;
+            padding: 1.5rem;
+            border: 1px dashed #ff4d4d;
+            border-radius: 20px;
+            background: rgba(255, 77, 77, 0.02);
+        }
+
+        .danger-zone h4 {
+            color: #ff4d4d;
+            margin-bottom: 0.5rem;
+        }
+
+        .danger-zone p {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .skeleton-item {
+            height: 80px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 20px;
+            margin-bottom: 0.8rem;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @media (max-width: 1024px) {
+            .users-container {
+                grid-template-columns: 320px 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -301,25 +322,12 @@
 
             .users-container {
                 grid-template-columns: 1fr;
-                gap: 1rem;
+                height: auto;
+                min-height: auto;
             }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .user-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .user-status, .user-role {
-                flex: auto;
-                width: 100%;
+            
+            .user-list {
+                max-height: 400px;
             }
         }
     </style>
@@ -333,34 +341,115 @@
         <div class="users-container">
             <!-- 左侧：用户列表卡片 -->
             <div class="panel glass">
-                <h2><i class="fas fa-users"></i> 用户列表</h2>
-                <div class="user-list" id="user-list"></div>
+                <div class="panel-header">
+                    <h2><i class="fas fa-users"></i> 用户列表</h2>
+                    <div class="stats-badge" id="totalUsersBadge">0 用户</div>
+                </div>
+                
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="userSearch" placeholder="搜索用户名...">
+                </div>
+
+                <div class="user-list" id="user-list">
+                    <!-- 骨架屏加载状态 -->
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                </div>
+                
                 <button class="refresh-btn" id="refreshUsersBtn">
                     <i class="fas fa-sync-alt"></i> 刷新列表
                 </button>
             </div>
 
             <!-- 右侧：操作卡片 -->
-            <div class="panel glass">
-                <h2><i class="fas fa-user-edit"></i> 用户操作</h2>
-                <form id="userForm">
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> 用户名</label>
-                        <input type="text" id="username" disabled>
+            <div class="panel glass detail-panel" id="detailPanel">
+                <div class="empty-state" id="emptyState">
+                    <i class="fas fa-user-shield"></i>
+                    <p>请从左侧选择一个用户进行管理</p>
+                </div>
+                
+                <div class="user-detail-content" id="userDetailContent" style="display: none;">
+                    <h2><i class="fas fa-user-edit"></i> 用户详情与操作</h2>
+                    
+                    <div class="user-profile-header">
+                        <div class="large-avatar" id="detailAvatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="header-info">
+                            <h3 id="detailUsernameDisplay">用户名</h3>
+                            <span class="role-tag" id="detailRoleBadge">普通用户</span>
+                        </div>
                     </div>
-                    <div class="btn-group">
-                        <button type="button" id="deleteUserBtn" class="btn btn-danger"><i class="fas fa-trash"></i> 删除用户</button>
-                    </div>
-                    <div id="message" class="message"></div>
-                </form>
+
+                    <form id="userForm">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label><i class="fas fa-calendar-alt"></i> 注册时间</label>
+                                <div class="value" id="detailRegDate">-</div>
+                            </div>
+                            <div class="info-item">
+                                <label><i class="fas fa-clock"></i> 最后登录</label>
+                                <div class="value" id="detailLastLogin">-</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tag"></i> 修改权限</label>
+                            <select class="role-select-large" id="detailRoleSelect">
+                                <option value="user">普通用户</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="status-control">
+                                <div>
+                                    <label><i class="fas fa-toggle-on"></i> 账号状态</label>
+                                    <p class="sub-label">禁用后用户将无法登录</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="detailActiveToggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="danger-zone">
+                            <h4><i class="fas fa-exclamation-triangle"></i> 危险区域</h4>
+                            <p>这些操作无法撤销，请谨慎操作。</p>
+                            <div class="btn-group">
+                                <button type="button" id="deleteUserBtn" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> 删除该用户
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="message" class="message"></div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        let selectedUserId = null;
+        let allUsers = [];
+        let selectedUser = null;
+        
         const userListDiv = document.getElementById('user-list');
-        const usernameInput = document.getElementById('username');
+        const userSearchInput = document.getElementById('userSearch');
+        const totalBadge = document.getElementById('totalUsersBadge');
+        const emptyState = document.getElementById('emptyState');
+        const detailContent = document.getElementById('userDetailContent');
+        
+        // 详情面板元素
+        const detailUsername = document.getElementById('detailUsernameDisplay');
+        const detailRoleBadge = document.getElementById('detailRoleBadge');
+        const detailRegDate = document.getElementById('detailRegDate');
+        const detailLastLogin = document.getElementById('detailLastLogin');
+        const detailRoleSelect = document.getElementById('detailRoleSelect');
+        const detailActiveToggle = document.getElementById('detailActiveToggle');
         const deleteBtn = document.getElementById('deleteUserBtn');
         const refreshBtn = document.getElementById('refreshUsersBtn');
         const messageDiv = document.getElementById('message');
@@ -378,145 +467,147 @@
             try {
                 const res = await fetch('/api/admin/users');
                 if (!res.ok) throw new Error('加载失败');
-                const users = await res.json();
-                let html = '';
-                users.forEach(user => {
-                    const selectedClass = selectedUserId === user.id ? 'selected' : '';
-                    const regDate = new Date(user.created_at).toLocaleString('zh-CN', { hour12: false });
-                    const lastLogin = user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN', { hour12: false }): '从未登录';
-                    const roleText = user.role === 'admin' ? '管理员' : '普通用户';
-                    html += `
-                        <div class="user-item ${selectedClass}" data-id="${user.id}" data-username="${user.username}">
-                            <div class="user-avatar">
-                                <i class="fas fa-user-circle"></i>
-                            </div>
-                            <div class="user-details">
-                                <div class="user-name">${user.username}</div>
-                                <div class="user-meta">
-                                    注册: ${regDate}<br>
-                                    最后登录: ${lastLogin}
-                                </div>
-                            </div>
-                            <div class="user-status">
-                                <label class="switch">
-                                    <input type="checkbox" class="active-toggle" data-id="${user.id}" ${user.is_active ? 'checked' : ''}>
-                                    <span class="slider round"></span>
-                                </label>
-                                <span style="font-size:0.75rem;">${user.is_active ? '启用' : '禁用'}</span>
-                            </div>
-                            <div class="user-role">
-                                <select class="role-select" data-id="${user.id}">
-                                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>用户</option>
-                                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>管理员</option>
-                                </select>
-                            </div>
-                        </div>
-                    `;
-                });
-                userListDiv.innerHTML = html || '<p style="text-align:center; padding:2rem; color:#666;">暂无用户</p>';
-
-                // 绑定角色修改
-                document.querySelectorAll('.role-select').forEach(select => {
-                    select.addEventListener('change', async (e) => {
-                        e.stopPropagation();
-                        const userId = parseInt(select.dataset.id);
-                        const newRole = select.value;
-                        try {
-                            const res = await fetch('/api/admin/user/role', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ targetUserId: userId, newRole })
-                            });
-                            const data = await res.json();
-                            if (res.ok) {
-                                showMessage('角色已更新', 'success');
-                                loadUsers(); // 刷新列表以更新选中状态
-                            } else {
-                                showMessage(data.error || '更新失败', 'error');
-                                loadUsers(); // 恢复原状
-                            }
-                        } catch (err) {
-                            showMessage('网络错误', 'error');
-                            loadUsers();
-                        }
-                    });
-                });
-
-                // 绑定启用/禁用开关
-                document.querySelectorAll('.active-toggle').forEach(toggle => {
-                    toggle.addEventListener('change', async (e) => {
-                        e.stopPropagation();
-                        const userId = parseInt(toggle.dataset.id);
-                        const active = toggle.checked;
-                        try {
-                            const res = await fetch('/api/admin/user/toggle-active', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ targetUserId: userId, active })
-                            });
-                            const data = await res.json();
-                            if (!res.ok) {
-                                showMessage(data.error || '操作失败', 'error');
-                                loadUsers(); // 恢复
-                            } else {
-                                showMessage(active ? '用户已启用' : '用户已禁用', 'success');
-                            }
-                        } catch (err) {
-                            showMessage('网络错误', 'error');
-                            loadUsers();
-                        }
-                    });
-                });
-
-                // 绑定选择用户（点击条目）
-                document.querySelectorAll('.user-item').forEach(item => {
-                    item.addEventListener('click', (e) => {
-                        // 避免点击内部控件时触发
-                        if (e.target.closest('.role-select') || e.target.closest('.active-toggle')) return;
-                        document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
-                        item.classList.add('selected');
-                        selectedUserId = parseInt(item.dataset.id);
-                        usernameInput.value = item.dataset.username;
-                    });
-                });
-
-                // 如果之前选中的用户仍在列表中，保持选中样式
-                if (selectedUserId) {
-                    const selectedItem = document.querySelector(`.user-item[data-id="${selectedUserId}"]`);
-                    if (selectedItem) {
-                        selectedItem.classList.add('selected');
-                        usernameInput.value = selectedItem.dataset.username;
-                    } else {
-                        selectedUserId = null;
-                        usernameInput.value = '';
-                    }
-                }
+                allUsers = await res.json();
+                renderUserList(allUsers);
+                updateStats();
             } catch (err) {
                 console.error(err);
-                userListDiv.innerHTML = '<p style="color:red; text-align:center;">加载失败</p>';
+                userListDiv.innerHTML = '<p style="color:red; text-align:center; padding: 2rem;">加载失败</p>';
             }
         }
 
+        function renderUserList(users) {
+            let html = '';
+            users.forEach(user => {
+                const isSelected = selectedUser && selectedUser.id === user.id;
+                const statusClass = user.is_active ? 'active' : '';
+                html += `
+                    <div class="user-item ${isSelected ? 'selected' : ''}" data-id="${user.id}">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-details">
+                            <div class="user-name">${user.username}</div>
+                            <div class="user-meta-brief">${user.role === 'admin' ? '管理员' : '普通用户'}</div>
+                        </div>
+                        <div class="status-dot ${statusClass}" title="${user.is_active ? '正常' : '禁用'}"></div>
+                    </div>
+                `;
+            });
+            userListDiv.innerHTML = html || '<p style="text-align:center; padding:2rem; color:#666;">暂无用户</p>';
+            
+            // 绑定选择事件
+            document.querySelectorAll('.user-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const userId = parseInt(item.dataset.id);
+                    selectUser(userId);
+                });
+            });
+        }
+
+        function updateStats() {
+            totalBadge.textContent = `${allUsers.length} 用户`;
+        }
+
+        function selectUser(userId) {
+            selectedUser = allUsers.find(u => u.id === userId);
+            if (!selectedUser) return;
+
+            // 更新样式
+            document.querySelectorAll('.user-item').forEach(item => {
+                item.classList.toggle('selected', parseInt(item.dataset.id) === userId);
+            });
+
+            // 填充详情
+            emptyState.style.display = 'none';
+            detailContent.style.display = 'block';
+
+            detailUsername.textContent = selectedUser.username;
+            detailRoleBadge.textContent = selectedUser.role === 'admin' ? '管理员' : '普通用户';
+            detailRegDate.textContent = new Date(selectedUser.created_at).toLocaleString('zh-CN', { hour12: false });
+            detailLastLogin.textContent = selectedUser.last_login_at ? new Date(selectedUser.last_login_at).toLocaleString('zh-CN', { hour12: false }) : '从未登录';
+            
+            detailRoleSelect.value = selectedUser.role;
+            detailActiveToggle.checked = selectedUser.is_active;
+        }
+
+        // 搜索功能
+        userSearchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = allUsers.filter(u => u.username.toLowerCase().includes(query));
+            renderUserList(filtered);
+        });
+
+        // 修改角色
+        detailRoleSelect.addEventListener('change', async () => {
+            if (!selectedUser) return;
+            const newRole = detailRoleSelect.value;
+            try {
+                const res = await fetch('/api/admin/user/role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUserId: selectedUser.id, newRole })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage('角色已更新', 'success');
+                    selectedUser.role = newRole;
+                    detailRoleBadge.textContent = newRole === 'admin' ? '管理员' : '普通用户';
+                    renderUserList(allUsers); // 更新列表中的身份标记
+                } else {
+                    showMessage(data.error || '更新失败', 'error');
+                    detailRoleSelect.value = selectedUser.role; // 恢复
+                }
+            } catch (err) {
+                showMessage('网络错误', 'error');
+            }
+        });
+
+        // 修改状态
+        detailActiveToggle.addEventListener('change', async () => {
+            if (!selectedUser) return;
+            const active = detailActiveToggle.checked;
+            try {
+                const res = await fetch('/api/admin/user/toggle-active', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetUserId: selectedUser.id, active })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showMessage(active ? '用户已启用' : '用户已禁用', 'success');
+                    selectedUser.is_active = active;
+                    renderUserList(allUsers); // 更新列表中的状态点
+                } else {
+                    showMessage(data.error || '操作失败', 'error');
+                    detailActiveToggle.checked = !active; // 恢复
+                }
+            } catch (err) {
+                showMessage('网络错误', 'error');
+            }
+        });
+
         // 删除用户
         deleteBtn.addEventListener('click', async () => {
-            if (!selectedUserId) {
-                showMessage('请先选择一个用户', 'error');
-                return;
-            }
-            if (!confirm('确定要删除该用户吗？此操作不可撤销。')) return;
+            if (!selectedUser) return;
+            if (!confirm(`确定要删除用户 "${selectedUser.username}" 吗？此操作不可撤销。`)) return;
+            
             try {
                 const res = await fetch('/api/admin/user/delete', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: selectedUserId })
+                    body: JSON.stringify({ id: selectedUser.id })
                 });
-                const data = await res.json();
                 if (res.ok) {
                     showMessage('用户删除成功', 'success');
-                    selectedUserId = null;
-                    usernameInput.value = '';
-                    loadUsers();
+                    allUsers = allUsers.filter(u => u.id !== selectedUser.id);
+                    selectedUser = null;
+                    detailContent.style.display = 'none';
+                    emptyState.style.display = 'flex';
+                    renderUserList(allUsers);
+                    updateStats();
                 } else {
+                    const data = await res.json();
                     showMessage(data.error || '删除失败', 'error');
                 }
             } catch (err) {
