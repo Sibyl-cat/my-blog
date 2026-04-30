@@ -32,6 +32,7 @@
             background: radial-gradient(circle at center, #1a1a2e 0%, #050510 100%);
             border-radius: 24px;
             border: 1px solid rgba(188, 19, 254, 0.3);
+            cursor: none;
         }
 
         .game-header {
@@ -122,15 +123,12 @@
         let score = 0, lives = 3, level = 1;
         let gameRunning = false;
 
-        // Paddle
-        const paddleWidth = 100, paddleHeight = 15;
+        const paddleWidth = 120, paddleHeight = 15;
         let paddleX = (canvas.width - paddleWidth) / 2;
 
-        // Ball
         let x, y, dx, dy;
         const ballRadius = 8;
 
-        // Bricks
         let bricks = [];
         const brickPadding = 10;
         const brickOffsetTop = 40;
@@ -140,7 +138,7 @@
             { rows: 3, cols: 6, speed: 4 },
             { rows: 4, cols: 7, speed: 5 },
             { rows: 5, cols: 8, speed: 6 },
-            { rows: 6, cols: 8, speed: 7 }
+            { rows: 6, cols: 9, speed: 7 }
         ];
 
         function initLevel() {
@@ -166,7 +164,14 @@
             initLevel();
             gameRunning = true;
             overlay.style.display = 'none';
+            updateUI();
             draw();
+        }
+
+        function updateUI() {
+            levelEl.textContent = level;
+            scoreEl.textContent = score;
+            livesEl.textContent = lives;
         }
 
         function draw() {
@@ -178,20 +183,20 @@
             drawPaddle();
             collisionDetection();
 
-            // Wall bounce
             if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
             if (y + dy < ballRadius) dy = -dy;
             else if (y + dy > canvas.height - ballRadius - 10) {
                 if (x > paddleX && x < paddleX + paddleWidth) {
                     dy = -dy;
-                    // Physics adjustment based on where it hits the paddle
                     let delta = x - (paddleX + paddleWidth / 2);
                     dx = delta * 0.15;
                 } else {
                     lives--;
-                    livesEl.textContent = lives;
-                    if (!lives) return gameOver();
-                    else {
+                    updateUI();
+                    if (lives <= 0) {
+                        gameOver();
+                        return;
+                    } else {
                         gameRunning = false;
                         msgTitle.textContent = "OOPS!";
                         msgDesc.textContent = "损失了一次机会，准备重回星场";
@@ -200,7 +205,6 @@
                 }
             }
 
-            // Paddle move
             if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 8;
             else if (leftPressed && paddleX > 0) paddleX -= 8;
 
@@ -263,7 +267,7 @@
                             dy = -dy;
                             b.status = 0;
                             score += 10;
-                            scoreEl.textContent = score;
+                            updateUI();
                         }
                     }
                 });
@@ -274,7 +278,6 @@
         function levelWin() {
             gameRunning = false;
             level++;
-            levelEl.textContent = level;
             msgTitle.textContent = "星际跃迁!";
             msgDesc.textContent = `准备进入第 ${level} 星域`;
             overlay.style.display = 'flex';
@@ -288,7 +291,6 @@
             overlay.style.display = 'flex';
         }
 
-        // Controls
         let rightPressed = false, leftPressed = false;
         document.addEventListener("keydown", (e) => {
             if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;

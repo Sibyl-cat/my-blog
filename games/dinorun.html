@@ -133,6 +133,7 @@
         const overlay = document.getElementById('overlay');
         const msg = document.getElementById('msg');
 
+        let dinoY = 0;
         let isJumping = false;
         let gravity = 0.9;
         let score = 0;
@@ -142,25 +143,23 @@
         function jump() {
             if (isJumping || !gameActive) return;
             isJumping = true;
-            let position = 0;
-            let timerId = setInterval(function () {
+            let upTimerId = setInterval(function () {
                 // Move up
-                if (position >= 150) {
-                    clearInterval(timerId);
+                if (dinoY >= 150) {
+                    clearInterval(upTimerId);
                     // Move down
                     let downTimerId = setInterval(function () {
-                        if (position <= 0) {
+                        if (dinoY <= 0) {
                             clearInterval(downTimerId);
                             isJumping = false;
+                            dinoY = 0;
                         }
-                        position -= 5;
-                        position = position * gravity;
-                        dino.style.bottom = position + 'px';
+                        dinoY -= 5;
+                        dino.style.bottom = dinoY + 'px';
                     }, 20);
                 }
-                position += 30;
-                position = position * gravity;
-                dino.style.bottom = position + 'px';
+                dinoY += 30;
+                dino.style.bottom = dinoY + 'px';
             }, 20);
         }
 
@@ -175,7 +174,7 @@
             obstacle.style.left = obstaclePosition + 'px';
 
             let timerId = setInterval(function() {
-                if (obstaclePosition > 50 && obstaclePosition < 94 && parseInt(dino.style.bottom) < 40) {
+                if (obstaclePosition > 50 && obstaclePosition < 94 && dinoY < 40) {
                     gameOver();
                     clearInterval(timerId);
                 }

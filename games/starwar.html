@@ -24,6 +24,7 @@
             border: 2px solid #ff4757;
             border-radius: 20px;
             box-shadow: 0 0 50px rgba(255, 71, 87, 0.2);
+            cursor: crosshair;
         }
 
         .ui-panel {
@@ -62,7 +63,10 @@
             font-weight: 800;
             cursor: pointer;
             box-shadow: 0 5px 20px rgba(255, 71, 87, 0.4);
+            transition: 0.3s;
         }
+
+        .btn-start:hover { transform: scale(1.1); }
 
         .back-btn {
             position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
@@ -85,8 +89,8 @@
         </div>
 
         <div id="overlay" class="overlay">
-            <h1 style="font-size: 3rem; color: #ff4757; margin: 0;">STAR DEFENDER</h1>
-            <p style="color: white; opacity: 0.6; margin-top: 10px;">移动鼠标操控战机，自动射击</p>
+            <h1 id="msg-title" style="font-size: 3rem; color: #ff4757; margin: 0;">STAR DEFENDER</h1>
+            <p id="msg-desc" style="color: white; opacity: 0.6; margin-top: 10px;">移动鼠标操控战机，自动射击</p>
             <button class="btn-start" onclick="startGame()">进入星战</button>
         </div>
     </div>
@@ -97,6 +101,8 @@
         const scoreEl = document.getElementById('score');
         const healthEl = document.getElementById('health');
         const overlay = document.getElementById('overlay');
+        const msgTitle = document.getElementById('msg-title');
+        const msgDesc = document.getElementById('msg-desc');
 
         let score = 0, health = 100, gameActive = false;
         let player = { x: 250, y: 600, w: 40, h: 40 };
@@ -127,10 +133,11 @@
                 y: -40,
                 w: 40,
                 h: 40,
-                hp: 1 + Math.floor(score/100),
-                speed: 1 + Math.random() * 2
+                hp: 1 + Math.floor(score/200),
+                speed: 1 + Math.random() * 2 + (score/500)
             });
-            setTimeout(spawnEnemy, Math.max(500, 1500 - score));
+            let nextSpawn = Math.max(300, 1500 - (score/2));
+            setTimeout(spawnEnemy, nextSpawn);
         }
 
         function gameLoop() {
@@ -156,22 +163,24 @@
             ctx.shadowBlur = 0;
 
             // Auto shoot
-            if (Date.now() % 200 < 20) {
+            if (Date.now() % 200 < 30) {
                 bullets.push({ x: player.x, y: player.y, r: 4 });
             }
 
             // Bullets
-            ctx.fillStyle = '#00f2ff';
-            bullets.forEach((b, bi) => {
+            for (let bi = bullets.length - 1; bi >= 0; bi--) {
+                let b = bullets[bi];
                 b.y -= 10;
+                ctx.fillStyle = '#00f2ff';
                 ctx.beginPath();
-                ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+                ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
                 ctx.fill();
                 if (b.y < 0) bullets.splice(bi, 1);
-            });
+            }
 
             // Enemies
-            enemies.forEach((e, ei) => {
+            for (let ei = enemies.length - 1; ei >= 0; ei--) {
+                let e = enemies[ei];
                 e.y += e.speed;
                 ctx.fillStyle = '#bc13fe';
                 ctx.beginPath();
@@ -179,7 +188,9 @@
                 ctx.fill();
 
                 // Collision with bullet
-                bullets.forEach((b, bi) => {
+                let enemyDestroyed = false;
+                for (let bi = bullets.length - 1; bi >= 0; bi--) {
+                    let b = bullets[bi];
                     if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
                         e.hp--;
                         bullets.splice(bi, 1);
@@ -187,25 +198,27 @@
                             enemies.splice(ei, 1);
                             score += 10;
                             updateUI();
+                            enemyDestroyed = true;
+                            break;
                         }
                     }
-                });
+                }
+
+                if (enemyDestroyed) continue;
 
                 // Collision with player
                 if (e.x < player.x + 20 && e.x + 40 > player.x - 20 && e.y < player.y + 40 && e.y + 40 > player.y) {
                     health -= 20;
                     enemies.splice(ei, 1);
                     updateUI();
-                    if (health <= 0) gameOver();
-                }
-
-                if (e.y > canvas.height) {
+                    if (health <= 0) { gameOver(); return; }
+                } else if (e.y > canvas.height) {
                     enemies.splice(ei, 1);
                     health -= 5;
                     updateUI();
-                    if (health <= 0) gameOver();
+                    if (health <= 0) { gameOver(); return; }
                 }
-            });
+            }
 
             requestAnimationFrame(gameLoop);
         }
@@ -219,17 +232,18 @@
         function gameOver() {
             gameActive = false;
             overlay.style.display = 'flex';
-            overlay.querySelector('h1').textContent = "GAME OVER";
-            overlay.querySelector('p').textContent = `最终得分: ${score}`;
+            msgTitle.textContent = "GAME OVER";
+            msgDesc.textContent = `最终得分: ${score}`;
         }
 
         canvas.addEventListener('mousemove', e => {
             const rect = canvas.getBoundingClientRect();
             player.x = e.clientX - rect.left;
             player.y = e.clientY - rect.top;
-            // Bound
             if (player.x < 20) player.x = 20;
             if (player.x > canvas.width - 20) player.x = canvas.width - 20;
+            if (player.y < 20) player.y = 20;
+            if (player.y > canvas.height - 40) player.y = canvas.height - 40;
         });
 
         if (!CanvasRenderingContext2D.prototype.roundRect) {
