@@ -1,4 +1,4 @@
-# 📺 织星屿 · 粉系毛玻璃全栈博客
+# 📺 织星屿 · 坠落人间的星海 · 粉系毛玻璃全栈博客
 
 <p align="center">
   <img src="https://img.shields.io/badge/Version-1.2.0-FB7299?style=for-the-badge" alt="Version">
@@ -9,7 +9,7 @@
 
 ---
 
-**织星屿** 是一个纯粹基于 **Cloudflare 边缘计算生态** 构建的高性能、全栈式个人/多作者博客系统。本项目深度融合了 **哔哩哔哩主题色 (#FB7299)** 与 **毛玻璃（Glassmorphism）** 设计语言，采用无框架（Vanilla JS）开发，通过 Web Components 实现高度组件化，提供极致的加载速度与视觉体验。
+**织星屿 · 坠落人间的星海** 是一个纯粹基于 **Cloudflare 边缘计算生态** 构建的高性能、全栈式个人/多作者博客系统。本项目深度融合了 **哔哩哔哩主题色 (#FB7299)** 与 **毛玻璃（Glassmorphism）** 设计语言，采用无框架（Vanilla JS）开发，通过 Web Components 实现高度组件化，提供极致的加载速度与视觉体验。
 
 > [!IMPORTANT]
 > 本项目核心逻辑完全运行在 Cloudflare 边缘节点，通过 D1 数据库存储数据，利用 Web Crypto API 确保账户安全，是一个真正意义上的 Serverless 云原生应用。
