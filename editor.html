@@ -104,6 +104,36 @@
             background: #ff8aa5;
             transform: scale(1.02);
         }
+        
+        /* 模式切换器样式 */
+        .mode-switcher {
+            display: flex;
+            background: rgba(251,114,153,0.1);
+            border-radius: 30px;
+            padding: 0.3rem;
+            margin-bottom: 1.5rem;
+            width: fit-content;
+            border: 1px solid rgba(251,114,153,0.2);
+        }
+        .mode-btn {
+            background: transparent;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #FB7299;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .mode-btn.active {
+            background: #FB7299;
+            color: white;
+            box-shadow: 0 4px 12px rgba(251,114,153,0.3);
+        }
+        
         .suggested-tag {
             background: rgba(251,114,153,0.1);
             border: 1px solid #FB7299;
@@ -123,6 +153,24 @@
             background: #FB7299;
             color: white;
         }
+        
+        .editor-section-title {
+            color: #FB7299;
+            font-size: 1.1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px dashed rgba(251,114,153,0.3);
+            padding-bottom: 0.5rem;
+        }
+        .help-text {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 0.3rem;
+            display: block;
+        }
+
         #editor-container {
             height: 500px;
             margin-bottom: 1rem;
@@ -158,7 +206,10 @@
             background: rgba(255,255,255,0.2);
             border-radius: 12px;
             display: none;
+            border: 1px solid rgba(251,114,153,0.2);
         }
+        
+        /* 移动端底部固定操作栏 */
         .action-buttons {
             display: flex;
             gap: 1rem;
@@ -191,14 +242,35 @@
             .editor-card {
                 padding: 1.5rem;
             }
+            .mode-switcher {
+                width: 100%;
+                justify-content: center;
+            }
+            .mode-btn {
+                flex: 1;
+                justify-content: center;
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
             #editor-container, #markdown-textarea {
                 height: 400px;
             }
             .action-buttons {
-                flex-direction: column;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(10px);
+                padding: 1rem;
+                margin: 0;
+                box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+                z-index: 100;
+                flex-direction: row;
             }
-            .btn {
-                width: 100%;
+            /* 避免被底部栏遮挡 */
+            body {
+                padding-bottom: 80px; 
             }
         }
     </style>
@@ -222,37 +294,56 @@
     <div class="editor-card">
         <input type="hidden" id="slug" name="slug" value="">
 
+        <!-- 模式切换区 -->
+        <div class="mode-switcher">
+            <button type="button" class="mode-btn active" data-mode="rich" id="btnRichMode">
+                <i class="fas fa-magic"></i> 小白模式
+            </button>
+            <button type="button" class="mode-btn" data-mode="markdown" id="btnMdMode">
+                <i class="fab fa-markdown"></i> 专家模式
+            </button>
+        </div>
+
+        <div class="editor-section-title"><i class="fas fa-info-circle"></i> 基础信息</div>
+        
         <div class="form-row">
             <div class="form-group">
-                <label>标题</label>
-                <input type="text" id="title" placeholder="文章标题">
+                <label>给文章起个好名字吧</label>
+                <input type="text" id="title" placeholder="例如：我的第一篇博客">
             </div>
             <div class="form-group">
-                <label>标签 (逗号分隔)</label>
-                <input type="text" id="tags" placeholder="教程,Cloudflare,前端">
+                <label>添加标签 <span class="help-text">用逗号分隔，方便分类归档</span></label>
+                <input type="text" id="tags" placeholder="例如：日记, 随笔, 教程">
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
-            <button type="button" id="suggestTagsBtn" class="btn">推荐标签</button>
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+            <button type="button" id="suggestTagsBtn" class="btn"><i class="fas fa-lightbulb"></i> 智能推荐标签</button>
             <div id="suggested-tags" style="display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1;"></div>
         </div>
 
-        <div class="form-group">
-            <label>摘要</label>
-            <textarea id="excerpt" rows="3" placeholder="简短介绍..."></textarea>
+        <div class="form-group" style="margin-bottom: 2rem;">
+            <label>文章摘要 <span class="help-text">一段简短的话，吸引读者点进来看看（选填）</span></label>
+            <textarea id="excerpt" rows="2" placeholder="这篇内容主要讲了什么..."></textarea>
         </div>
 
+        <div class="editor-section-title"><i class="fas fa-pen-nib"></i> 开始创作</div>
+
         <div id="rich-editor-container">
-            <label>正文</label>
+            <label>正文内容 <span class="help-text">就像用 Word 一样简单</span></label>
             <div id="editor-container"></div>
         </div>
 
         <div id="markdown-editor-container">
-            <label>正文 (Markdown)</label>
-            <textarea id="markdown-textarea" placeholder="在此输入 Markdown 格式的文章..."></textarea>
+            <label>Markdown 源码 <span class="help-text">支持标准的 Markdown 语法</span></label>
+            <div style="position: relative;">
+                <textarea id="markdown-textarea" placeholder="# 在此输入标题..."></textarea>
+                <label for="uploadMd" class="btn" style="position: absolute; top: 1rem; right: 1.5rem; cursor: pointer; padding: 0.3rem 0.8rem; background: rgba(251,114,153,0.1); border: 1px solid #FB7299; color: #FB7299;">
+                    <i class="fas fa-file-upload"></i> 导入 .md 文件
+                </label>
+            </div>
             <div style="margin-top: 0.5rem;">
-                <button id="previewMdBtn" class="btn" style="padding: 0.3rem 1rem;">预览</button>
+                <button id="previewMdBtn" class="btn" style="padding: 0.3rem 1rem;"><i class="fas fa-eye"></i> 实时预览</button>
             </div>
             <div id="markdown-preview" class="md-preview"></div>
         </div>
@@ -346,7 +437,13 @@
 
     function initMode(mode) {
         currentMode = mode;
+        
+        // 更新UI按钮状态
+        const btnRich = document.getElementById('btnRichMode');
+        const btnMd = document.getElementById('btnMdMode');
         if (mode === 'rich') {
+            btnRich.classList.add('active');
+            btnMd.classList.remove('active');
             richContainer.style.display = 'block';
             markdownContainer.style.display = 'none';
             if (!quill) {
@@ -366,14 +463,40 @@
                             ['clean']
                         ]
                     },
-                    placeholder: '在这里写文章...'
+                    placeholder: '在这里写下你的灵感...'
                 });
             }
         } else {
+            btnRich.classList.remove('active');
+            btnMd.classList.add('active');
             richContainer.style.display = 'none';
             markdownContainer.style.display = 'block';
         }
     }
+
+    // 绑定模式切换按钮事件
+    document.getElementById('btnRichMode').addEventListener('click', () => {
+        if (currentMode !== 'rich') {
+            // 同步内容 (可选：把 MD 转成 HTML 放进富文本)
+            const mdContent = markdownTextarea.value;
+            if (mdContent && !quill.root.innerHTML.trim()) {
+                quill.root.innerHTML = marked.parse(mdContent);
+            }
+            initMode('rich');
+        }
+    });
+
+    document.getElementById('btnMdMode').addEventListener('click', () => {
+        if (currentMode !== 'markdown') {
+            // 同步内容 (可选：这里把 HTML 转 Markdown 比较复杂，暂时提示用户)
+            const richContent = quill ? quill.root.innerHTML : '';
+            if (richContent.trim() && richContent !== '<p><br></p>' && !markdownTextarea.value) {
+                // 如果需要转换HTML到MD，可以使用第三方库，这里为了轻量化暂不自动双向转换
+                markdownTextarea.value = "<!-- 请注意：从富文本切换到 Markdown，格式可能需要手动调整 -->\n\n" + richContent;
+            }
+            initMode('markdown');
+        }
+    });
 
     // ========== 文章加载 ==========
         async function loadPost(slug) {
@@ -427,18 +550,16 @@
         const isNew = !slugHidden.value;
         if (isNew) {
             container.innerHTML = `
-                <label for="uploadMd" class="btn" style="cursor: pointer;">上传MD</label>
-                <button id="saveDraftBtn" class="btn">保存草稿</button>
-                <button id="publishNewBtn" class="btn btn-primary">直接发布</button>
+                <button id="saveDraftBtn" class="btn"><i class="fas fa-save"></i> 存为草稿</button>
+                <button id="publishNewBtn" class="btn btn-primary"><i class="fas fa-paper-plane"></i> 直接发布</button>
             `;
             document.getElementById('saveDraftBtn').addEventListener('click', () => savePost(0));
             document.getElementById('publishNewBtn').addEventListener('click', () => savePost(1));
         } else {
             const isPublished = currentPost && currentPost.is_published === 1;
-            const toggleText = isPublished ? '撤回为草稿' : '发布';
+            const toggleText = isPublished ? '<i class="fas fa-undo"></i> 撤回为草稿' : '<i class="fas fa-paper-plane"></i> 重新发布';
             container.innerHTML = `
-                <label for="uploadMd" class="btn" style="cursor: pointer;">上传MD</label>
-                <button id="saveBtn" class="btn">保存</button>
+                <button id="saveBtn" class="btn"><i class="fas fa-save"></i> 仅保存更改</button>
                 <button id="toggleStatusBtn" class="btn btn-primary">${toggleText}</button>
             `;
             document.getElementById('saveBtn').addEventListener('click', () => savePost());
