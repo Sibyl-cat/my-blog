@@ -10,7 +10,7 @@ export async function onRequest(context) {
     }
 
     const { results } = await env.DB.prepare(
-        'SELECT username, role, created_at, avatar FROM users WHERE id = ?'
+        'SELECT username, role, created_at, avatar, signature FROM users WHERE id = ?'
     ).bind(userId).all();
 
     if (results.length === 0) {

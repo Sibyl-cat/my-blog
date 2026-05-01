@@ -12,143 +12,404 @@
         /* 个人主页额外样式 */
         .profile-header {
             display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            align-items: flex-start;
+            gap: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .profile-avatar-container {
+            position: relative;
         }
         .profile-avatar {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
-            border: 4px solid #FB7299;
-            background: rgba(251,114,153,0.2);
+            border: 4px solid rgba(251,114,153,0.8);
+            background: linear-gradient(135deg, rgba(251,114,153,0.2), rgba(255,255,255,0.4));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 5rem;
+            font-size: 6rem;
             color: #FB7299;
             overflow: hidden;
+            box-shadow: 0 8px 25px rgba(251,114,153,0.3);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 12px 30px rgba(251,114,153,0.4);
         }
         .profile-avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+        
         .profile-details {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: 0.5rem;
+        }
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
         .profile-name {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #FB7299;
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #FB7299, #ff9a9e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.05);
+            letter-spacing: -1px;
+            line-height: 1.2;
         }
         .profile-role {
-            font-size: 1.1rem;
-            color: #666;
-            margin: 0.5rem 0;
+            font-size: 0.95rem;
+            color: #fff;
+            background: linear-gradient(135deg, #FB7299, #ff9a9e);
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(251,114,153,0.3);
+            display: inline-block;
         }
+        
+        /* 签名区 */
+        .signature-container {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 2.5rem;
+        }
+        .signature-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .signature-display.hidden {
+            display: none;
+        }
+        .signature-text {
+            font-size: 1.1rem;
+            color: #555;
+            font-style: italic;
+            transition: color 0.3s;
+            position: relative;
+            line-height: 1.5;
+        }
+        .signature-text::before {
+            content: "“";
+            color: rgba(251,114,153,0.5);
+            font-size: 1.5rem;
+            margin-right: 4px;
+            font-family: serif;
+        }
+        .signature-text::after {
+            content: "”";
+            color: rgba(251,114,153,0.5);
+            font-size: 1.5rem;
+            margin-left: 4px;
+            font-family: serif;
+        }
+        .signature-edit-btn {
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        .signature-container:hover .signature-edit-btn {
+            opacity: 1;
+            transform: translateX(0);
+            color: #FB7299;
+            background: rgba(251,114,153,0.1);
+        }
+        
+        /* 签名编辑态 */
+        .signature-edit-mode {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 500px;
+        }
+        .signature-edit-mode.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        .signature-input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            border: 2px solid rgba(251,114,153,0.4);
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(5px);
+            font-size: 1rem;
+            color: #333;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .signature-input:focus {
+            border-color: #FB7299;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 10px rgba(251,114,153,0.2);
+        }
+        .sig-btn {
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .sig-save {
+            background: #FB7299;
+            color: white;
+            box-shadow: 0 2px 8px rgba(251,114,153,0.4);
+        }
+        .sig-save:hover {
+            background: #ff477e;
+            transform: scale(1.1);
+        }
+        .sig-cancel {
+            background: rgba(0,0,0,0.1);
+            color: #666;
+        }
+        .sig-cancel:hover {
+            background: rgba(0,0,0,0.2);
+            color: #333;
+        }
+
         .profile-stats {
             display: flex;
-            gap: 2rem;
-            margin-top: 1rem;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
         }
         .stat {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
             border-radius: 30px;
-            padding: 0.3rem 1rem;
-            font-size: 0.9rem;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.95rem;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+        }
+        .stat:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.6);
         }
         .stat i {
             color: #FB7299;
-            margin-right: 0.3rem;
+            font-size: 1.1rem;
         }
+        .stat span {
+            font-weight: 600;
+            color: #222;
+        }
+
+        /* Tabs 设计 */
         .post-tabs {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid rgba(251,114,153,0.3);
+            gap: 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid rgba(251,114,153,0.2);
+            position: relative;
         }
         .tab-btn {
             background: none;
             border: none;
-            padding: 0.5rem 1.5rem;
-            font-size: 1.1rem;
+            padding: 0.8rem 0;
+            font-size: 1.2rem;
+            font-weight: 600;
             cursor: pointer;
-            color: #666;
-            transition: all 0.2s;
-            border-radius: 30px 30px 0 0;
+            color: #888;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #FB7299;
+            border-radius: 3px 3px 0 0;
+            transform: scaleX(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
         }
         .tab-btn.active {
             color: #FB7299;
-            border-bottom: 2px solid #FB7299;
-            margin-bottom: -2px;
+        }
+        .tab-btn.active::after {
+            transform: scaleX(1);
+        }
+
+        .post-list-container {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .post-list-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 列表项卡片 */
+        .post-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .post-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: #FB7299;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .post-item:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 8px 25px rgba(251,114,153,0.15);
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .post-item:hover::before {
+            opacity: 1;
+        }
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+        .post-item:hover .post-title {
+            color: #FB7299;
+        }
+        .post-meta {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .post-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        /* 按钮 */
+        .post-actions {
+            display: flex;
+            gap: 0.8rem;
         }
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(251, 114, 153, 0.3);
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             text-decoration: none;
-            color: #2a2a2a;
+            border: 1px solid transparent;
+            cursor: pointer;
+            gap: 0.4rem;
         }
-        .btn:hover {
+        .btn-edit {
+            background: rgba(251, 114, 153, 0.1);
+            color: #FB7299;
+            border-color: rgba(251, 114, 153, 0.3);
+        }
+        .btn-edit:hover {
             background: #FB7299;
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(251,114,153,0.3);
         }
         .btn-danger {
-            background: rgba(255, 100, 100, 0.2);
-            border-color: #ff4d4f;
+            background: rgba(255, 77, 79, 0.1);
+            color: #ff4d4f;
+            border-color: rgba(255, 77, 79, 0.3);
         }
         .btn-danger:hover {
             background: #ff4d4f;
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,77,79,0.3);
         }
-        .post-list-container {
-            display: none;
-        }
-        .post-list-container.active {
-            display: block;
-        }
-        .post-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid rgba(251,114,153,0.2);
-            background: rgba(255, 255, 255, 0.4);  /* 增加半透白背景 */
-            border-radius: 20px;
-            margin-bottom: 0.5rem;
-        }
-        .post-title {
-            font-weight: 600;
-             color: #1a1a1a;   /* 更深的标题色 */
-        }
-        .post-meta {
-            font-size: 0.8rem;
-            color: #555;
-        }
-        .post-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        .post-actions .btn {
-            background: rgba(255, 255, 255, 0.7);  /* 按钮背景稍微实一点 */
-            border-color: #FB7299;
-        }
+
+        /* 响应式 */
         @media (max-width: 768px) {
             .profile-header {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
+                gap: 1.5rem;
+            }
+            .profile-name-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .signature-container {
+                justify-content: center;
+            }
+            .signature-edit-mode {
+                justify-content: center;
             }
             .profile-stats {
                 justify-content: center;
+            }
+            .post-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .post-actions {
+                width: 100%;
+                justify-content: flex-end;
             }
         }
     </style>
@@ -162,17 +423,41 @@
         <blog-sidebar></blog-sidebar>
 
         <!-- 个人资料卡片 -->
-        <div class="profile-card glass" style="margin-bottom: 2rem;">
+        <div class="profile-card glass" style="margin-bottom: 2.5rem; padding: 2rem;">
             <div class="profile-header">
-                <div class="profile-avatar" id="profileAvatar">
-                    <i class="fas fa-user-circle"></i>
+                <div class="profile-avatar-container">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
                 </div>
                 <div class="profile-details">
-                    <div class="profile-name" id="profileName">加载中...</div>
-                    <div class="profile-role" id="profileRole"></div>
+                    <div class="profile-name-row">
+                        <div class="profile-name" id="profileName">加载中...</div>
+                        <div class="profile-role" id="profileRole">加载中</div>
+                    </div>
+                    
+                    <!-- 签名区 -->
+                    <div class="signature-container">
+                        <div class="signature-display" id="sigDisplay">
+                            <div class="signature-text" id="signatureText">这个人很懒，什么都没写~</div>
+                            <button class="signature-edit-btn" id="editSigBtn" title="编辑签名">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                        </div>
+                        <div class="signature-edit-mode" id="sigEditMode">
+                            <input type="text" class="signature-input" id="sigInput" placeholder="输入个性签名..." maxlength="100">
+                            <button class="sig-btn sig-save" id="saveSigBtn" title="保存">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="sig-btn sig-cancel" id="cancelSigBtn" title="取消">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="profile-stats">
-                        <div class="stat"><i class="fas fa-calendar-alt"></i> 注册时间: <span id="joinDate">--</span></div>
-                        <div class="stat"><i class="fas fa-pen-fancy"></i> 文章总数: <span id="totalArticles">--</span></div>
+                        <div class="stat"><i class="fas fa-calendar-alt"></i> <span>注册时间:</span> <span id="joinDate">--</span></div>
+                        <div class="stat"><i class="fas fa-pen-fancy"></i> <span>文章总数:</span> <span id="totalArticles">--</span></div>
                     </div>
                 </div>
             </div>
@@ -206,6 +491,7 @@
                 }
                 const user = await res.json();
                 currentUser = user;
+                
                 // 填充基本信息
                 document.getElementById('profileName').textContent = user.username;
                 let roleText = '';
@@ -213,11 +499,17 @@
                 else if (user.role === 'superadmin') roleText = '超级管理员';
                 else roleText = '普通用户';
                 document.getElementById('profileRole').textContent = roleText;
+                
                 if (user.created_at) {
                     const date = new Date(user.created_at);
                     document.getElementById('joinDate').textContent = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
                 } else {
                     document.getElementById('joinDate').textContent = '未知';
+                }
+
+                // 处理签名
+                if (user.signature) {
+                    document.getElementById('signatureText').textContent = user.signature;
                 }
 
                 // 处理头像
@@ -250,7 +542,7 @@
         function renderPublished(posts) {
             const container = document.getElementById('published-list');
             if (posts.length === 0) {
-                container.innerHTML = '<p style="text-align:center;">暂无已发表文章</p>';
+                container.innerHTML = '<div style="text-align:center; padding: 2rem; color: #888;">暂无已发表文章</div>';
                 return;
             }
             let html = '';
@@ -261,11 +553,14 @@
                     <div class="post-item">
                         <div>
                             <div class="post-title">${post.title}</div>
-                            <div class="post-meta"><i class="far fa-calendar"></i> ${formattedDate} | 标签: ${post.tags || '无'}</div>
+                            <div class="post-meta">
+                                <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+                                <span><i class="fas fa-tags"></i> ${post.tags || '无标签'}</span>
+                            </div>
                         </div>
                         <div class="post-actions">
-                            <a href="editor.html?slug=${post.slug}" class="btn" style="padding: 0.3rem 0.8rem;">编辑</a>
-                            <button class="btn btn-danger" style="padding: 0.3rem 0.8rem;" onclick="deletePost('${post.slug}')">删除</button>
+                            <a href="editor.html?slug=${post.slug}" class="btn btn-edit"><i class="fas fa-edit"></i> 编辑</a>
+                            <button class="btn btn-danger" onclick="deletePost('${post.slug}')"><i class="fas fa-trash-alt"></i> 删除</button>
                         </div>
                     </div>
                 `;
@@ -276,7 +571,7 @@
         function renderDrafts(posts) {
             const container = document.getElementById('drafts-list');
             if (posts.length === 0) {
-                container.innerHTML = '<p style="text-align:center;">暂无草稿</p>';
+                container.innerHTML = '<div style="text-align:center; padding: 2rem; color: #888;">暂无草稿</div>';
                 return;
             }
             let html = '';
@@ -287,11 +582,14 @@
                     <div class="post-item">
                         <div>
                             <div class="post-title">${post.title}</div>
-                            <div class="post-meta"><i class="far fa-calendar"></i> ${formattedDate} | 标签: ${post.tags || '无'}</div>
+                            <div class="post-meta">
+                                <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+                                <span><i class="fas fa-tags"></i> ${post.tags || '无标签'}</span>
+                            </div>
                         </div>
                         <div class="post-actions">
-                            <a href="editor.html?slug=${post.slug}" class="btn" style="padding: 0.3rem 0.8rem;">编辑</a>
-                            <button class="btn btn-danger" style="padding: 0.3rem 0.8rem;" onclick="deletePost('${post.slug}')">删除</button>
+                            <a href="editor.html?slug=${post.slug}" class="btn btn-edit"><i class="fas fa-edit"></i> 编辑</a>
+                            <button class="btn btn-danger" onclick="deletePost('${post.slug}')"><i class="fas fa-trash-alt"></i> 删除</button>
                         </div>
                     </div>
                 `;
@@ -310,7 +608,7 @@
                 });
                 const result = await response.json();
                 if (result.success) {
-                    alert('删除成功');
+                    // Optional: show a toast notification here
                     loadUserPosts(); // 刷新列表
                 } else {
                     alert(result.error || '删除失败');
@@ -333,6 +631,68 @@
                     document.getElementById('drafts-list').classList.add('active');
                 }
             });
+        });
+
+        // 签名交互逻辑
+        const sigDisplay = document.getElementById('sigDisplay');
+        const sigEditMode = document.getElementById('sigEditMode');
+        const sigInput = document.getElementById('sigInput');
+        const signatureText = document.getElementById('signatureText');
+        
+        document.getElementById('editSigBtn').addEventListener('click', () => {
+            sigDisplay.classList.add('hidden');
+            sigEditMode.classList.add('active');
+            
+            const currentText = signatureText.textContent;
+            if (currentText !== '这个人很懒，什么都没写~') {
+                sigInput.value = currentText;
+            } else {
+                sigInput.value = '';
+            }
+            sigInput.focus();
+        });
+
+        document.getElementById('cancelSigBtn').addEventListener('click', () => {
+            sigEditMode.classList.remove('active');
+            sigDisplay.classList.remove('hidden');
+        });
+
+        async function saveSignature() {
+            const newSig = sigInput.value.trim();
+            const btn = document.getElementById('saveSigBtn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/user/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ signature: newSig })
+                });
+
+                if (res.ok) {
+                    signatureText.textContent = newSig || '这个人很懒，什么都没写~';
+                    sigEditMode.classList.remove('active');
+                    sigDisplay.classList.remove('hidden');
+                } else {
+                    const data = await res.json();
+                    alert(data.error || '保存失败');
+                }
+            } catch (err) {
+                alert('网络错误，保存失败');
+            } finally {
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('saveSigBtn').addEventListener('click', saveSignature);
+        sigInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                saveSignature();
+            }
         });
 
         // 页面加载
