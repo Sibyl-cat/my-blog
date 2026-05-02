@@ -148,9 +148,7 @@
     <script>
         class StarDefender {
             constructor() {
-                // 设备检测：拦截不适合移动端的游戏
                 if (!GameUtils.checkMobileSupport('星际战机', true)) return;
-
                 this.canvas = document.getElementById('game-canvas');
                 this.ctx = this.canvas.getContext('2d');
                 this.scoreEl = document.getElementById('score');
@@ -158,10 +156,8 @@
                 this.healthBar = document.getElementById('health-bar');
                 this.overlay = document.getElementById('overlay');
                 this.overlayMsg = document.getElementById('overlay-msg');
-
                 this.highScore = GameUtils.getHighScore('starwar');
                 this.highScoreEl.textContent = this.highScore;
-                
                 this.active = false;
                 this.init();
             }
@@ -181,8 +177,6 @@
                 this.lastShot = 0;
                 this.enemyTimer = 0;
                 this.updateUI();
-                
-                // Add click/tap to fire
                 this.canvas.onmousedown = () => this.fire();
                 window.onkeydown = (e) => { if(e.code === 'Space') this.fire(); };
             }
@@ -193,7 +187,6 @@
                 if (now - this.lastShot > 150) {
                     this.bullets.push({ x: this.player.x, y: this.player.y - 20, r: 4 });
                     this.lastShot = now;
-                    // Flash effect
                     this.createExplosion(this.player.x, this.player.y - 20, '#00f2ff', 2, 2);
                 }
             }
@@ -219,23 +212,19 @@
             }
 
             update() {
-                // Stars
                 this.stars.forEach(s => {
                     s.y += s.s * 2;
                     if (s.y > this.canvas.height) s.y = 0;
                 });
 
-                // Bullets
                 for (let i = this.bullets.length - 1; i >= 0; i--) {
                     this.bullets[i].y -= 15;
                     if (this.bullets[i].y < 0) this.bullets.splice(i, 1);
                 }
 
-                // Enemy Bullets
                 for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
                     const eb = this.enemyBullets[i];
                     eb.y += 7;
-                    // Collision with Player
                     const dist = Math.hypot(eb.x - this.player.x, eb.y - this.player.y);
                     if (dist < 20) {
                         this.health -= 10;
@@ -248,7 +237,6 @@
                     if (eb.y > this.canvas.height) this.enemyBullets.splice(i, 1);
                 }
 
-                // Enemies
                 this.enemyTimer++;
                 if (this.enemyTimer > Math.max(15, 60 - this.score / 200)) {
                     this.enemies.push({
@@ -266,14 +254,10 @@
                 for (let i = this.enemies.length - 1; i >= 0; i--) {
                     const e = this.enemies[i];
                     e.y += e.speed;
-
-                    // Enemy firing logic
                     if (Date.now() - e.lastShot > 2000 && Math.random() < 0.01) {
                         this.enemyBullets.push({ x: e.x, y: e.y + 20 });
                         e.lastShot = Date.now();
                     }
-
-                    // Bullet Collision
                     for (let j = this.bullets.length - 1; j >= 0; j--) {
                         const b = this.bullets[j];
                         const dist = Math.hypot(b.x - e.x, b.y - e.y);
@@ -290,8 +274,6 @@
                             }
                         }
                     }
-
-                    // Player Collision
                     if (this.active && e && Math.hypot(e.x - this.player.x, e.y - this.player.y) < 35) {
                         this.health -= 30;
                         this.enemies.splice(i, 1);
@@ -306,7 +288,6 @@
                     }
                 }
 
-                // Particles
                 for (let i = this.particles.length - 1; i >= 0; i--) {
                     const p = this.particles[i];
                     p.x += p.vx;
@@ -333,16 +314,12 @@
             draw() {
                 this.ctx.fillStyle = '#050510';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-                // Stars
                 this.stars.forEach(s => {
                     this.ctx.fillStyle = `rgba(255,255,255,${0.2 + s.s/2})`;
                     this.ctx.beginPath();
                     this.ctx.arc(s.x, s.y, s.s, 0, Math.PI*2);
                     this.ctx.fill();
                 });
-
-                // Bullets
                 this.bullets.forEach(b => {
                     this.ctx.shadowBlur = 10;
                     this.ctx.shadowColor = '#00f2ff';
@@ -352,90 +329,47 @@
                     this.ctx.fill();
                     this.ctx.shadowBlur = 0;
                 });
-
-                // Enemy Bullets
                 this.enemyBullets.forEach(eb => {
                     this.ctx.fillStyle = '#ff4757';
                     this.ctx.beginPath();
                     this.ctx.arc(eb.x, eb.y, 5, 0, Math.PI*2);
                     this.ctx.fill();
-                    // Glow
                     this.ctx.strokeStyle = 'white';
                     this.ctx.lineWidth = 1;
                     this.ctx.stroke();
                 });
-
-                // Enemies
                 this.enemies.forEach(e => {
                     this.ctx.save();
                     this.ctx.translate(e.x, e.y);
-                    
-                    // Body
                     this.ctx.fillStyle = '#bc13fe';
                     this.ctx.beginPath();
-                    this.ctx.moveTo(0, 20);
-                    this.ctx.lineTo(-20, -10);
-                    this.ctx.lineTo(20, -10);
-                    this.ctx.closePath();
-                    this.ctx.fill();
-                    
-                    // Cockpit
+                    this.ctx.moveTo(0, 20); this.ctx.lineTo(-20, -10); this.ctx.lineTo(20, -10);
+                    this.ctx.closePath(); this.ctx.fill();
                     this.ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                    this.ctx.beginPath();
-                    this.ctx.arc(0, 0, 8, 0, Math.PI*2);
-                    this.ctx.fill();
-                    
-                    // Wings/Detail
-                    this.ctx.strokeStyle = '#ff4757';
-                    this.ctx.lineWidth = 2;
-                    this.ctx.stroke();
+                    this.ctx.beginPath(); this.ctx.arc(0, 0, 8, 0, Math.PI*2); this.ctx.fill();
+                    this.ctx.strokeStyle = '#ff4757'; this.ctx.lineWidth = 2; this.ctx.stroke();
                     this.ctx.restore();
                 });
-
-                // Player
                 this.ctx.save();
                 this.ctx.translate(this.player.x, this.player.y);
-                
-                // Engine Flame
                 if (this.active) {
                     const flameH = 15 + Math.random() * 10;
                     const grad = this.ctx.createLinearGradient(0, 20, 0, 20 + flameH);
-                    grad.addColorStop(0, '#00f2ff');
-                    grad.addColorStop(1, 'transparent');
+                    grad.addColorStop(0, '#00f2ff'); grad.addColorStop(1, 'transparent');
                     this.ctx.fillStyle = grad;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(-10, 20);
-                    this.ctx.lineTo(0, 20 + flameH);
-                    this.ctx.lineTo(10, 20);
-                    this.ctx.fill();
+                    this.ctx.beginPath(); this.ctx.moveTo(-10, 20); this.ctx.lineTo(0, 20 + flameH); this.ctx.lineTo(10, 20); this.ctx.fill();
                 }
-
-                // Ship Body
                 this.ctx.fillStyle = '#00f2ff';
-                this.ctx.beginPath();
-                this.ctx.moveTo(0, -25);
-                this.ctx.lineTo(-20, 15);
-                this.ctx.lineTo(20, 15);
-                this.ctx.closePath();
-                this.ctx.fill();
-                
-                // Accents
-                this.ctx.strokeStyle = 'white';
-                this.ctx.lineWidth = 1;
-                this.ctx.stroke();
-                
+                this.ctx.beginPath(); this.ctx.moveTo(0, -25); this.ctx.lineTo(-20, 15); this.ctx.lineTo(20, 15);
+                this.ctx.closePath(); this.ctx.fill();
+                this.ctx.strokeStyle = 'white'; this.ctx.lineWidth = 1; this.ctx.stroke();
                 this.ctx.restore();
-
-                // Particles
                 this.particles.forEach(p => {
                     this.ctx.globalAlpha = p.life;
                     this.ctx.fillStyle = p.color;
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                    this.ctx.fill();
+                    this.ctx.beginPath(); this.ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); this.ctx.fill();
                 });
                 this.ctx.globalAlpha = 1;
-            }
             }
 
             gameOver() {
@@ -458,8 +392,6 @@
             const rect = game.canvas.getBoundingClientRect();
             game.player.x = (clientX - rect.left) * (game.canvas.width / rect.width);
             game.player.y = (clientY - rect.top) * (game.canvas.height / rect.height);
-            
-            // Constrain
             if (game.player.x < 20) game.player.x = 20;
             if (game.player.x > game.canvas.width - 20) game.player.x = game.canvas.width - 20;
             if (game.player.y < 20) game.player.y = 20;
