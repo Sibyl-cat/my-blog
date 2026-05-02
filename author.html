@@ -1,38 +1,290 @@
 <!DOCTYPE html>
 <html lang="zh">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
-    <title>作者文章 · 织星屿</title>
+    <title>作者主页 · 织星屿</title>
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
-</head>
+    <style>
+        /* 从 profile.html 移植的样式，去掉无用的标签页和编辑样式 */
+        .profile-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 2.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        .profile-avatar-container {
+            position: relative;
+        }
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 4px solid rgba(251,114,153,0.8);
+            background: linear-gradient(135deg, rgba(251,114,153,0.2), rgba(255,255,255,0.4));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            color: #FB7299;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(251,114,153,0.3);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .profile-avatar:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 12px 30px rgba(251,114,153,0.4);
+        }
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: 0.5rem;
+        }
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .profile-name {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #FB7299, #ff9a9e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 2px 4px rgba(0,0,0,0.05);
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+        .profile-role {
+            font-size: 0.95rem;
+            color: #fff;
+            background: linear-gradient(135deg, #FB7299, #ff9a9e);
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(251,114,153,0.3);
+            display: inline-block;
+        }
+        
+        /* 签名区 */
+        .signature-container {
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 2.5rem;
+        }
+        .signature-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .signature-text {
+            font-size: 1.1rem;
+            color: #555;
+            font-style: italic;
+            position: relative;
+            line-height: 1.5;
+        }
+        .signature-text::before {
+            content: "“";
+            color: rgba(251,114,153,0.5);
+            font-size: 1.5rem;
+            margin-right: 4px;
+            font-family: serif;
+        }
+        .signature-text::after {
+            content: "”";
+            color: rgba(251,114,153,0.5);
+            font-size: 1.5rem;
+            margin-left: 4px;
+            font-family: serif;
+        }
 
+        .profile-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .stat {
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.95rem;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+        }
+        .stat:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.6);
+        }
+        .stat i {
+            color: #FB7299;
+            font-size: 1.1rem;
+        }
+        .stat span {
+            font-weight: 600;
+            color: #222;
+        }
+
+        .post-list-container {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 列表项卡片 */
+        .post-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+        }
+        .post-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: #FB7299;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .post-item:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 8px 25px rgba(251,114,153,0.15);
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .post-item:hover::before {
+            opacity: 1;
+        }
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+        .post-item:hover .post-title {
+            color: #FB7299;
+        }
+        .post-meta {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .post-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            .profile-name-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .signature-container {
+                justify-content: center;
+            }
+            .profile-stats {
+                justify-content: center;
+            }
+            .post-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
 <body>
     <div class="blog-container">
         <!-- 二级页面组件化导航栏 -->
         <blog-navbar-secondary></blog-navbar-secondary>
-
-        <!-- 全局侧边栏组件 -->
+        
+        <!-- 全局侧边栏 -->
         <blog-sidebar></blog-sidebar>
 
-        <!-- 作者信息卡片（毛玻璃） -->
-        <div class="profile-card glass" id="author-info" style="margin-bottom: 2rem;">
-            <!-- 动态填充作者信息 -->
+        <!-- 个人资料卡片 -->
+        <div class="profile-card glass" style="margin-bottom: 2.5rem; padding: 2rem;">
+            <div class="profile-header">
+                <div class="profile-avatar-container">
+                    <div class="profile-avatar" id="profileAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-name-row">
+                        <div class="profile-name" id="profileName">加载中...</div>
+                        <div class="profile-role" id="profileRole">加载中</div>
+                    </div>
+                    
+                    <!-- 签名区 -->
+                    <div class="signature-container">
+                        <div class="signature-display" id="sigDisplay">
+                            <div class="signature-text" id="signatureText">这个人很懒，什么都没写~</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="stat"><i class="fas fa-calendar-alt"></i> <span>注册时间:</span> <span id="joinDate">--</span></div>
+                        <div class="stat"><i class="fas fa-pen-fancy"></i> <span>文章总数:</span> <span id="totalArticles">--</span></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 文章网格标题 -->
-        <h2 class="section-title"><i class="fas fa-pen-fancy" style="color:#FB7299; margin-right: 12px;"></i>他的文章</h2>
+        <h2 class="section-title" style="margin-bottom: 1.5rem;"><i class="fas fa-book-open" style="color:#FB7299; margin-right: 12px;"></i>Ta 的文章</h2>
 
-        <!-- 文章卡片网格 -->
-        <div class="article-grid" id="post-grid">
-            <!-- 动态加载 -->
+        <div id="published-list" class="post-list-container">
+            <!-- 动态加载已发表文章 -->
+            <div style="text-align:center; padding: 2rem; color: #888;">正在加载文章...</div>
         </div>
-
-        <!-- 页脚 -->
+        
         <blog-footer></blog-footer>
     </div>
 
@@ -42,66 +294,93 @@
         if (!authorName) {
             window.location.href = 'authors.html';
         }
+        
+        document.title = `${authorName} 的主页 · 织星屿`;
 
-        async function loadAuthorAndPosts() {
+        async function loadAuthorData() {
             try {
-                // 获取该作者的文章
-                const postsRes = await fetch(`/api/author/${encodeURIComponent(authorName)}`);
-                const posts = await postsRes.json();
-
-                // 显示作者信息（简单处理，因为没有作者详情 API，我们可复用 posts 中的作者名）
-                document.getElementById('author-info').innerHTML = `
-                <div class="author-info-container">
-                    <div class="author-info-avatar">
-                        <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="author-info-details">
-                    <h1 class="author-profile-name">${authorName}</h1>
-                    <p class="author-profile-stats">共 ${posts.length} 篇文章</p>
-                </div>
-             </div>
-`;
-
-                // 渲染文章卡片
-                const grid = document.getElementById('post-grid');
-                if (posts.length === 0) {
-                    grid.innerHTML = '<p style="text-align: center; color: #666;">该作者暂无文章</p>';
+                const res = await fetch(`/api/author/${encodeURIComponent(authorName)}`);
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        alert('作者不存在');
+                        window.location.href = 'authors.html';
+                    } else {
+                        throw new Error('加载失败');
+                    }
                     return;
                 }
+                const data = await res.json();
+                const user = data.user;
+                const posts = data.posts;
+                
+                // 填充基本信息
+                document.getElementById('profileName').textContent = user.username;
+                let roleText = '';
+                if (user.role === 'admin') roleText = '管理员';
+                else if (user.role === 'superadmin') roleText = '超级管理员';
+                else roleText = '普通用户';
+                document.getElementById('profileRole').textContent = roleText;
+                
+                if (user.created_at) {
+                    const date = new Date(user.created_at);
+                    document.getElementById('joinDate').textContent = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+                } else {
+                    document.getElementById('joinDate').textContent = '未知';
+                }
 
-                let html = '';
-                posts.forEach(post => {
-                    const date = new Date(post.updated_at);
-                    // 强制显示北京时间 (UTC+8)
-                    const formattedDate = date.toLocaleDateString('zh-CN', {
-                        timeZone: 'Asia/Shanghai',
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit'
-                    }).replace(/\//g, '-');
-                    const tags = post.tags ? post.tags.split(',').map(t => `<span class="tag">#${t.trim()}</span>`).join('') : '';
-                    html += `
-                    <article class="article-card glass">
-                        <div class="card-meta">
-                            <span><i class="far fa-calendar"></i> ${formattedDate}</span>
-                        </div>
-                        <a href="post.html?slug=${post.slug}" style="text-decoration: none; color: inherit;">
-                            <h3 class="card-title">${post.title}</h3>
-                        </a>
-                        <p class="card-excerpt">${post.excerpt || ''}</p>
-                        <div class="card-tags">${tags}</div>
-                    </article>
-                `;
-                });
-                grid.innerHTML = html;
+                // 处理签名
+                if (user.signature) {
+                    document.getElementById('signatureText').textContent = user.signature;
+                }
+
+                // 处理头像
+                const avatarDiv = document.getElementById('profileAvatar');
+                if (user.avatar) {
+                    avatarDiv.innerHTML = `<img src="${user.avatar}" alt="头像">`;
+                } else {
+                    avatarDiv.innerHTML = '<i class="fas fa-user-circle"></i>';
+                }
+                
+                // 渲染文章
+                document.getElementById('totalArticles').textContent = posts.length;
+                renderPublished(posts);
+                
             } catch (err) {
-                console.error('加载失败:', err);
-                document.getElementById('author-info').innerHTML = '<p style="color: red;">加载失败</p>';
+                console.error('加载信息失败', err);
+                document.getElementById('published-list').innerHTML = '<div style="text-align:center; padding: 2rem; color: red;">加载失败，请刷新重试</div>';
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadAuthorAndPosts);
+        function renderPublished(posts) {
+            const container = document.getElementById('published-list');
+            if (posts.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding: 2rem; color: #888;">Ta 还没有发表任何文章</div>';
+                return;
+            }
+            let html = '';
+            posts.forEach(post => {
+                const date = new Date(post.updated_at);
+                const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+                const tags = post.tags ? post.tags.split(',').map(t => `<span class="tag" style="background: rgba(251,114,153,0.1); color: #FB7299; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-left: 5px;">#${t.trim()}</span>`).join('') : '';
+                
+                html += `
+                    <a href="post.html?slug=${post.slug}" class="post-item">
+                        <div>
+                            <div class="post-title">${post.title}</div>
+                            <div class="post-meta">
+                                <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+                                <span style="margin-left: 10px;">${tags}</span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            });
+            container.innerHTML = html;
+        }
 
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', loadAuthorData);
+        
         // 侧边栏逻辑
         document.addEventListener('DOMContentLoaded', function () {
             const sidebarToggle = document.getElementById('sidebarToggle');
@@ -132,5 +411,4 @@
         });
     </script>
 </body>
-
 </html>
