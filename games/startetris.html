@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>星冕俄罗斯 · 织星游艺场</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --tetris-bg: rgba(255, 255, 255, 0.03);
+            --neon-pink: #fb7299;
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #39ff14;
+            --neon-orange: #ff9f43;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050510;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+        }
+
+        .game-layout {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        .board-container {
+            position: relative;
+            background: var(--tetris-bg);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            display: block;
+            background: linear-gradient(to bottom, #0a0a20, #050510);
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 150px;
+        }
+
+        .glass-stat {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.8rem; opacity: 0.6; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--neon-pink); }
+
+        .game-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .btn-start {
+            padding: 1rem 2.5rem;
+            background: var(--neon-pink);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-start:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-pink); }
+
+        .controls-hint {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 2rem; opacity: 0.5; font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .game-layout { flex-direction: column; gap: 1rem; align-items: center; }
+            .side-panel { flex-direction: row; width: 100%; justify-content: center; }
+            .glass-stat { padding: 0.8rem 1.2rem; }
+            .stat-value { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" style="position: fixed; top: 20px; left: 20px; color: white; text-decoration: none; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-arrow-left"></i> 返回</a>
+
+    <div class="game-layout">
+        <div class="board-container">
+            <canvas id="tetris" width="240" height="400"></canvas>
+            
+            <div id="overlay" class="game-overlay">
+                <h1 style="color: var(--neon-blue); margin: 0;">CELESTIAL TETRIS</h1>
+                <p style="opacity: 0.6; margin: 1rem 0;">消除星冕，闪耀银河</p>
+                <button class="btn-start" onclick="game.start()">开始挑战</button>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="glass-stat">
+                <div class="stat-label">分数</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="glass-stat">
+                <div class="stat-label">最高分</div>
+                <div class="stat-value" id="highscore" style="color: #ffd700;">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-hint">
+        <span>← → 移动</span>
+        <span>↑ 旋转</span>
+        <span>↓ 加速</span>
+    </div>
+
+    <script src="game-utils.js"></script>
+    <script>
+        const canvas = document.getElementById('tetris');
+        const context = canvas.getContext('2d');
+        context.scale(20, 20);
+
+        function arenaSweep() {
+            let rowCount = 1;
+            outer: for (let y = arena.length - 1; y > 0; --y) {
+                for (let x = 0; x < arena[y].length; ++x) {
+                    if (arena[y][x] === 0) continue outer;
+                }
+                const row = arena.splice(y, 1)[0].fill(0);
+                arena.unshift(row);
+                ++y;
+                player.score += rowCount * 10;
+                rowCount *= 2;
+            }
+            updateScore();
+        }
+
+        function collide(arena, player) {
+            const [m, o] = [player.matrix, player.pos];
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true;
+                }
+            }
+            return false;
+        }
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) matrix.push(new Array(w).fill(0));
+            return matrix;
+        }
+
+        function createPiece(type) {
+            if (type === 'T') return [[0, 0, 0], [1, 1, 1], [0, 1, 0]];
+            if (type === 'O') return [[2, 2], [2, 2]];
+            if (type === 'L') return [[0, 3, 0], [0, 3, 0], [0, 3, 3]];
+            if (type === 'J') return [[0, 4, 0], [0, 4, 0], [4, 4, 0]];
+            if (type === 'I') return [[0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0]];
+            if (type === 'S') return [[0, 6, 6], [6, 6, 0], [0, 0, 0]];
+            if (type === 'Z') return [[7, 7, 0], [0, 7, 7], [0, 0, 0]];
+        }
+
+        function draw() {
+            context.fillStyle = '#000';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            drawMatrix(arena, {x: 0, y: 0});
+            drawMatrix(player.matrix, player.pos);
+        }
+
+        const colors = [
+            null,
+            '#fb7299', // T
+            '#00f2ff', // O
+            '#bc13fe', // L
+            '#39ff14', // J
+            '#ffce00', // I
+            '#ff9f43', // S
+            '#ff4757'  // Z
+        ];
+
+        function drawMatrix(matrix, offset) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        context.fillStyle = colors[value];
+                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
+                        // Add glow/border
+                        context.lineWidth = 0.05;
+                        context.strokeStyle = 'white';
+                        context.strokeRect(x + offset.x, y + offset.y, 1, 1);
+                    }
+                });
+            });
+        }
+
+        function merge(arena, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) arena[y + player.pos.y][x + player.pos.x] = value;
+                });
+            });
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) matrix.forEach(row => row.reverse());
+            else matrix.reverse();
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(arena, player)) {
+                player.pos.y--;
+                merge(arena, player);
+                playerReset();
+                arenaSweep();
+                updateScore();
+            }
+            dropCounter = 0;
+        }
+
+        function playerMove(offset) {
+            player.pos.x += offset;
+            if (collide(arena, player)) player.pos.x -= offset;
+        }
+
+        function playerReset() {
+            const pieces = 'ILJOTSZ';
+            player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+            player.pos.y = 0;
+            player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+            if (collide(arena, player)) {
+                arena.forEach(row => row.fill(0));
+                gameOver();
+            }
+        }
+
+        function playerRotate(dir) {
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, dir);
+            while (collide(arena, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -dir);
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+        }
+
+        let dropCounter = 0;
+        let dropInterval = 1000;
+        let lastTime = 0;
+
+        function update(time = 0) {
+            if (!gameActive) return;
+            const deltaTime = time - lastTime;
+            lastTime = time;
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) playerDrop();
+            draw();
+            requestAnimationFrame(update);
+        }
+
+        function updateScore() {
+            document.getElementById('score').innerText = player.score;
+        }
+
+        function gameOver() {
+            gameActive = false;
+            const isNew = GameUtils.saveScore('startetris', player.score);
+            document.getElementById('overlay').style.display = 'flex';
+            document.querySelector('#overlay h1').textContent = "能量耗尽";
+            document.querySelector('#overlay p').innerHTML = `最终积分: ${player.score}${isNew ? '<br><b style="color:#ffd700">新纪录!</b>' : ''}`;
+            if (isNew) GameUtils.showToast('记录刷新！', 'success');
+            loadHighscore();
+        }
+
+        function loadHighscore() {
+            document.getElementById('highscore').innerText = GameUtils.getHighScore('startetris');
+        }
+
+        const arena = createMatrix(12, 20);
+        const player = { pos: {x: 0, y: 0}, matrix: null, score: 0 };
+        let gameActive = false;
+
+        const game = {
+            start: () => {
+                document.getElementById('overlay').style.display = 'none';
+                player.score = 0;
+                updateScore();
+                arena.forEach(row => row.fill(0));
+                playerReset();
+                gameActive = true;
+                dropInterval = 1000;
+                lastTime = performance.now();
+                update();
+            }
+        };
+
+        document.addEventListener('keydown', event => {
+            if (!gameActive) return;
+            if (event.keyCode === 37) playerMove(-1);
+            else if (event.keyCode === 39) playerMove(1);
+            else if (event.keyCode === 40) playerDrop();
+            else if (event.keyCode === 38) playerRotate(1);
+        });
+
+        loadHighscore();
+    </script>
+</body>
+</html>

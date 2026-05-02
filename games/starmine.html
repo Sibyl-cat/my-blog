@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>星海扫雷 · 织星游艺场</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cell-bg: rgba(255, 255, 255, 0.05);
+            --cell-open: rgba(255, 255, 255, 0.1);
+            --star-color: #ffce00;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #050510;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+        }
+
+        .game-header {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            color: var(--star-color);
+        }
+
+        .mine-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            grid-template-rows: repeat(10, 40px);
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            background: var(--cell-bg);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 800;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .cell:hover { background: rgba(255, 255, 255, 0.15); }
+        .cell.open { background: var(--cell-open); cursor: default; }
+        .cell.mine { background: #ff4757; color: white; }
+        .cell.flag { color: var(--star-color); }
+
+        .num-1 { color: #00f2ff; }
+        .num-2 { color: #39ff14; }
+        .num-3 { color: #ff4757; }
+        .num-4 { color: #bc13fe; }
+
+        .game-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            display: none;
+        }
+
+        .btn-start {
+            padding: 1rem 2.5rem;
+            background: var(--star-color);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" style="position: fixed; top: 20px; left: 20px; color: white; text-decoration: none; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);"><i class="fas fa-arrow-left"></i> 返回</a>
+
+    <div class="game-header">
+        <div class="stat-box">⭐ <span id="mine-count">15</span></div>
+        <div class="stat-box">⏱️ <span id="timer">0</span></div>
+    </div>
+
+    <div class="mine-grid" id="grid"></div>
+
+    <div id="overlay" class="game-overlay">
+        <h1 id="status-title" style="margin: 0; font-size: 3rem;">EXPLOSION!</h1>
+        <p id="status-desc" style="opacity: 0.6; margin: 1rem 0;">星海漫步需谨慎</p>
+        <button class="btn-start" onclick="initGame()">重新挑战</button>
+    </div>
+
+    <script src="game-utils.js"></script>
+    <script>
+        const rows = 10;
+        const cols = 10;
+        const minesCount = 15;
+        let grid = [];
+        let revealedCount = 0;
+        let gameOver = false;
+        let timer = 0;
+        let timerInterval;
+
+        function initGame() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            grid = [];
+            revealedCount = 0;
+            gameOver = false;
+            timer = 0;
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = '0';
+            document.getElementById('mine-count').innerText = minesCount;
+            document.getElementById('overlay').style.display = 'none';
+
+            // Create board
+            for (let r = 0; r < rows; r++) {
+                grid[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    const cell = {
+                        r, c,
+                        isMine: false,
+                        isOpen: false,
+                        isFlagged: false,
+                        neighborMines: 0,
+                        el: document.createElement('div')
+                    };
+                    cell.el.className = 'cell';
+                    cell.el.onclick = () => handleLeftClick(r, c);
+                    cell.el.oncontextmenu = (e) => { e.preventDefault(); handleRightClick(r, c); };
+                    gridEl.appendChild(cell.el);
+                    grid[r][c] = cell;
+                }
+            }
+
+            // Place mines
+            let placed = 0;
+            while (placed < minesCount) {
+                let r = Math.floor(Math.random() * rows);
+                let c = Math.floor(Math.random() * cols);
+                if (!grid[r][c].isMine) {
+                    grid[r][c].isMine = true;
+                    placed++;
+                }
+            }
+
+            // Calc neighbors
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (grid[r][c].isMine) continue;
+                    let count = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            let nr = r + dr, nc = c + dc;
+                            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc].isMine) count++;
+                        }
+                    }
+                    grid[r][c].neighborMines = count;
+                }
+            }
+
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timer++;
+                document.getElementById('timer').innerText = timer;
+            }, 1000);
+        }
+
+        function handleLeftClick(r, c) {
+            if (gameOver || grid[r][c].isOpen || grid[r][c].isFlagged) return;
+            
+            const cell = grid[r][c];
+            if (cell.isMine) {
+                showGameOver(false);
+                return;
+            }
+
+            revealCell(r, c);
+            
+            if (revealedCount === rows * cols - minesCount) {
+                showGameOver(true);
+            }
+        }
+
+        function handleRightClick(r, c) {
+            if (gameOver || grid[r][c].isOpen) return;
+            const cell = grid[r][c];
+            cell.isFlagged = !cell.isFlagged;
+            cell.el.className = cell.isFlagged ? 'cell flag' : 'cell';
+            cell.el.innerHTML = cell.isFlagged ? '<i class="fas fa-star"></i>' : '';
+        }
+
+        function revealCell(r, c) {
+            const cell = grid[r][c];
+            if (cell.isOpen || cell.isFlagged) return;
+
+            cell.isOpen = true;
+            cell.el.className = 'cell open';
+            revealedCount++;
+
+            if (cell.neighborMines > 0) {
+                cell.el.innerText = cell.neighborMines;
+                cell.el.classList.add(`num-${cell.neighborMines}`);
+            } else {
+                // Flood fill
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        let nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) revealCell(nr, nc);
+                    }
+                }
+            }
+        }
+
+        function showGameOver(isWin) {
+            gameOver = true;
+            clearInterval(timerInterval);
+            
+            const title = document.getElementById('status-title');
+            const desc = document.getElementById('status-desc');
+            const overlay = document.getElementById('overlay');
+
+            if (isWin) {
+                title.innerText = "MISSION CLEAR!";
+                title.style.color = "#00f2ff";
+                desc.innerText = `用时: ${timer}s | 星海深处已肃清`;
+                GameUtils.saveScore('starmine', timer);
+                GameUtils.showToast('挑战成功！', 'success');
+            } else {
+                title.innerText = "MISSION FAILED";
+                title.style.color = "#ff4757";
+                desc.innerText = "触碰到引力波，飞船失控";
+                // Reveal all mines
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        if (grid[r][c].isMine) {
+                            grid[r][c].el.className = 'cell mine';
+                            grid[r][c].el.innerHTML = '<i class="fas fa-bomb"></i>';
+                        }
+                    }
+                }
+            }
+
+            setTimeout(() => { overlay.style.display = 'flex'; }, 500);
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

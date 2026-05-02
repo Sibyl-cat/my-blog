@@ -91,137 +91,190 @@
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            padding: 0.3rem 1rem;
+            background: rgba(251, 114, 153, 0.15);
+            color: var(--primary-pink);
+            border-radius: 40px;
+            font-size: 0.8rem;
             font-weight: 700;
             text-transform: uppercase;
-            background: var(--primary-pink-alpha);
-            color: var(--primary-pink);
-            width: fit-content;
+        }
+
+        .high-score-badge {
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .game-btn {
-            margin-top: auto;
-            padding: 1rem;
+            margin-top: 1rem;
+            padding: 1.2rem;
             background: var(--primary-pink);
             color: white;
             text-align: center;
             text-decoration: none;
-            border-radius: 16px;
-            font-weight: 700;
+            border-radius: 20px;
+            font-weight: 800;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px var(--pink-shadow);
+            box-shadow: 0 10px 20px rgba(251, 114, 153, 0.3);
         }
 
         .game-btn:hover {
             background: var(--primary-pink-hover);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px var(--pink-shadow);
+            box-shadow: 0 15px 30px rgba(251, 114, 153, 0.5);
         }
 
         /* Rank Section Preview */
         .rank-section {
-            background: var(--glass-bg);
+            background: rgba(255, 255, 255, 0.02);
             margin: 0 2rem 5rem;
-            padding: 3rem;
-            border-radius: 40px;
-            border: 1px solid var(--glass-border);
+            padding: 4rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             max-width: 1400px;
             margin-left: auto;
             margin-right: auto;
-        }
-
-        .rank-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+            backdrop-filter: blur(20px);
         }
 
         @media (max-width: 768px) {
-            .arcade-title { font-size: 2.5rem; }
+            .arcade-title { font-size: 2.8rem; }
             .game-grid { grid-template-columns: 1fr; padding: 0 1rem 3rem; }
         }
     </style>
 </head>
 <body>
+    <div class="stars-container" id="stars"></div>
     <blog-navbar-secondary></blog-navbar-secondary>
 
     <div class="arcade-hero">
         <h1 class="arcade-title">织星游艺场</h1>
-        <p style="font-size: 1.2rem; opacity: 0.8;">在这里，每一颗星辰都是你的游乐场</p>
+        <p style="font-size: 1.4rem; opacity: 0.7; font-weight: 400;">探索星系间的趣味挑战，刷新你的最高纪元</p>
     </div>
 
     <main class="blog-container">
         <div class="game-grid">
             <!-- 2048 -->
-            <div class="glass game-card" data-game="star2048">
+            <div class="game-card" data-game="star2048">
                 <div class="game-thumb"><i class="fas fa-th-large"></i></div>
                 <div class="game-info">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="game-tag">Puzzle</span>
-                        <div class="high-score-badge">Best: <span id="score-star2048">0</span></div>
+                        <div class="high-score-badge"><i class="fas fa-trophy"></i> <span id="score-star2048">0</span></div>
                     </div>
-                    <h2 style="font-size: 1.8rem;">星际 2048</h2>
-                    <p>挑战逻辑极限，合成 2048 级超级恒星。支持手势操作。</p>
-                    <a href="star2048.html" class="game-btn">进入游戏</a>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星际 2048</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">挑战逻辑极限，合成 2048 级超级恒星。支持手势操作。</p>
+                    <a href="star2048.html" class="game-btn">进入挑战</a>
+                </div>
+            </div>
+
+            <!-- Minesweeper -->
+            <div class="game-card" data-game="starmine">
+                <div class="game-thumb" style="color: #00f2ff;"><i class="fas fa-bomb"></i></div>
+                <div class="game-info">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 5px;">
+                            <span class="game-tag" style="background: rgba(0, 242, 255, 0.1); color: #00f2ff;">Logic</span>
+                            <span class="game-tag" style="background: #fb7299; color: white;">NEW</span>
+                        </div>
+                        <div class="high-score-badge" style="color: #00f2ff;"><i class="fas fa-clock"></i> <span id="score-starmine">0</span></div>
+                    </div>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星海扫雷</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">星海漫步需谨慎。排查所有引力陷阱，守护星际航线。</p>
+                    <a href="starmine.html" class="game-btn" style="background: #00f2ff; color: #000;">进入挑战</a>
+                </div>
+            </div>
+
+            <!-- Tetris -->
+            <div class="game-card" data-game="startetris">
+                <div class="game-thumb" style="color: #bc13fe;"><i class="fas fa-shapes"></i></div>
+                <div class="game-info">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 5px;">
+                            <span class="game-tag" style="background: rgba(188, 19, 254, 0.1); color: #bc13fe;">Retro</span>
+                            <span class="game-tag" style="background: #fb7299; color: white;">NEW</span>
+                        </div>
+                        <div class="high-score-badge" style="color: #bc13fe;"><i class="fas fa-trophy"></i> <span id="score-startetris">0</span></div>
+                    </div>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星冕俄罗斯</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">消除星冕，闪耀银河。经典的方块消除挑战。</p>
+                    <a href="startetris.html" class="game-btn" style="background: #bc13fe;">进入挑战</a>
+                </div>
+            </div>
+
+            <!-- Flappy Star -->
+            <div class="game-card" data-game="starflappy">
+                <div class="game-thumb" style="color: #ffce00;"><i class="fas fa-star"></i></div>
+                <div class="game-info">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 5px;">
+                            <span class="game-tag" style="background: rgba(255, 206, 0, 0.1); color: #ffce00;">Flying</span>
+                            <span class="game-tag" style="background: #fb7299; color: white;">NEW</span>
+                        </div>
+                        <div class="high-score-badge" style="color: #ffce00;"><i class="fas fa-trophy"></i> <span id="score-starflappy">0</span></div>
+                    </div>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星际飞羽</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">操控新星穿越时空之门。考验你的预判与耐心。</p>
+                    <a href="starflappy.html" class="game-btn" style="background: #ffce00; color: #000;">进入挑战</a>
                 </div>
             </div>
 
             <!-- Snake -->
-            <div class="glass game-card" data-game="neonsnake">
+            <div class="game-card" data-game="neonsnake">
                 <div class="game-thumb" style="color: var(--accent-blue);"><i class="fas fa-worm"></i></div>
                 <div class="game-info">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="game-tag" style="background: rgba(0, 242, 255, 0.1); color: var(--accent-blue);">Arcade</span>
-                        <div class="high-score-badge" style="border-color: var(--accent-blue); color: var(--accent-blue);">Best: <span id="score-neonsnake">0</span></div>
+                        <div class="high-score-badge" style="color: var(--accent-blue);"><i class="fas fa-trophy"></i> <span id="score-neonsnake">0</span></div>
                     </div>
-                    <h2 style="font-size: 1.8rem;">霓虹贪吃蛇</h2>
-                    <p>在霓虹迷宫中穿梭，挑战光速反应。支持手势与按键。</p>
-                    <a href="neonsnake.html" class="game-btn" style="background: var(--accent-blue);">进入游戏</a>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">霓虹贪吃蛇</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">在霓虹迷宫中穿梭，挑战光速反应。支持手势与按键。</p>
+                    <a href="neonsnake.html" class="game-btn" style="background: var(--accent-blue);">进入挑战</a>
                 </div>
             </div>
 
             <!-- Planet Breaker -->
-            <div class="glass game-card" data-game="planetbreaker">
+            <div class="game-card" data-game="planetbreaker">
                 <div class="game-thumb" style="color: #bc13fe;"><i class="fas fa-rocket"></i></div>
                 <div class="game-info">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="game-tag" style="background: rgba(188, 19, 254, 0.1); color: #bc13fe;">Action</span>
-                        <span class="game-tag" style="background: rgba(255, 255, 255, 0.1); color: white;"><i class="fas fa-desktop"></i> PC 推荐</span>
-                        <div class="high-score-badge" style="border-color: #bc13fe; color: #bc13fe;">Best: <span id="score-planetbreaker">0</span></div>
+                        <div class="high-score-badge" style="color: #bc13fe;"><i class="fas fa-trophy"></i> <span id="score-planetbreaker">0</span></div>
                     </div>
-                    <h2 style="font-size: 1.8rem;">行星粉碎者</h2>
-                    <p>击碎守卫星系的防御，穿越星域挑战。支持触控操作。</p>
-                    <a href="planetbreaker.html" class="game-btn" style="background: #bc13fe;">进入游戏</a>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">行星粉碎者</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">击碎守卫星系的防御，穿越星域挑战。PC端体验最佳。</p>
+                    <a href="planetbreaker.html" class="game-btn" style="background: #bc13fe;">进入挑战</a>
                 </div>
             </div>
 
             <!-- Starry Dino -->
-            <div class="glass game-card" data-game="dinorun">
+            <div class="game-card" data-game="dinorun">
                 <div class="game-thumb" style="color: #ff9f43;"><i class="fas fa-dragon"></i></div>
                 <div class="game-info">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="game-tag" style="background: rgba(255, 159, 67, 0.1); color: #ff9f43;">Runner</span>
-                        <div class="high-score-badge" style="border-color: #ff9f43; color: #ff9f43;">Best: <span id="score-dinorun">0</span></div>
+                        <div class="high-score-badge" style="color: #ff9f43;"><i class="fas fa-trophy"></i> <span id="score-dinorun">0</span></div>
                     </div>
-                    <h2 style="font-size: 1.8rem;">织星小恐龙</h2>
-                    <p>在月球表面奔跑，躲避时空裂缝。支持点击与空格。</p>
-                    <a href="dinorun.html" class="game-btn" style="background: #ff9f43;">进入游戏</a>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">织星小恐龙</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">在月球表面奔跑，躲避时空裂缝。支持点击与空格。</p>
+                    <a href="dinorun.html" class="game-btn" style="background: #ff9f43;">进入挑战</a>
                 </div>
             </div>
 
             <!-- Star Defender -->
-            <div class="glass game-card" data-game="starwar">
+            <div class="game-card" data-game="starwar">
                 <div class="game-thumb" style="color: #ff4757;"><i class="fas fa-fighter-jet"></i></div>
                 <div class="game-info">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span class="game-tag" style="background: rgba(255, 71, 87, 0.1); color: #ff4757;">Shooter</span>
-                        <span class="game-tag" style="background: rgba(255, 255, 255, 0.1); color: white;"><i class="fas fa-desktop"></i> PC 推荐</span>
-                        <div class="high-score-badge" style="border-color: #ff4757; color: #ff4757;">Best: <span id="score-starwar">0</span></div>
+                        <div class="high-score-badge" style="color: #ff4757;"><i class="fas fa-trophy"></i> <span id="score-starwar">0</span></div>
                     </div>
-                    <h2 style="font-size: 1.8rem;">星际战机</h2>
-                    <p>保卫你的星球，击退入侵星舰。支持全平台触控。</p>
-                    <a href="starwar.html" class="game-btn" style="background: #ff4757;">进入游戏</a>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星际战机</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">保卫你的星球，击退入侵星舰。PC端体验最佳。</p>
+                    <a href="starwar.html" class="game-btn" style="background: #ff4757;">进入挑战</a>
                 </div>
             </div>
         </div>
@@ -242,14 +295,37 @@
     <script src="game-utils.js"></script>
     <script src="../components.js"></script>
     <script>
+        // Star Generation
+        function createStars() {
+            const container = document.getElementById('stars');
+            const count = 100;
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 3;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.top = Math.random() * 100 + 'vh';
+                star.style.opacity = Math.random();
+                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(star);
+            }
+        }
+        createStars();
+
         function updateHubScores() {
-            const games = ['star2048', 'neonsnake', 'planetbreaker', 'dinorun', 'starwar'];
+            const games = ['star2048', 'neonsnake', 'planetbreaker', 'dinorun', 'starwar', 'starflappy', 'startetris', 'starmine'];
             const names = {
                 'star2048': '星际 2048',
                 'neonsnake': '霓虹贪吃蛇',
                 'planetbreaker': '行星粉碎者',
                 'dinorun': '织星小恐龙',
-                'starwar': '星际战机'
+                'starwar': '星际战机',
+                'starflappy': '星际飞羽',
+                'startetris': '星冕俄罗斯',
+                'starmine': '星海扫雷'
             };
             
             const statsContainer = document.getElementById('stats-summary');

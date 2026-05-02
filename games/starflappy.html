@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>星际飞羽 · 织星游艺场</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-gold: #ffce00;
+            --neon-blue: #00f2ff;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #050510;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            touch-action: none;
+        }
+
+        .game-container {
+            position: relative;
+            width: min(95vw, 400px);
+            aspect-ratio: 2/3;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 40px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050510 100%);
+        }
+
+        .game-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 2rem;
+            visibility: visible;
+        }
+
+        .btn-start {
+            margin-top: 2rem;
+            padding: 1.2rem 3rem;
+            background: linear-gradient(135deg, var(--neon-gold), #f39c12);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(255, 206, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-start:hover { transform: scale(1.05); box-shadow: 0 15px 35px rgba(255, 206, 0, 0.5); }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
+            background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); z-index: 200;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 30px;
+            width: 100%;
+            text-align: center;
+            font-size: 4rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回游艺场</a>
+
+    <div class="game-container" id="game-area">
+        <div class="score-display" id="score-el">0</div>
+        <canvas id="game-canvas"></canvas>
+
+        <div class="game-overlay" id="overlay">
+            <h1 style="color: var(--neon-gold); font-size: 2.5rem; margin: 0; letter-spacing: -1px;">STAR FLAPPY</h1>
+            <p style="color: white; opacity: 0.6; margin-top: 1rem;">点击或按空格，穿越星际之门</p>
+            <button class="btn-start" onclick="game.start()">开始飞行</button>
+        </div>
+    </div>
+
+    <script src="game-utils.js"></script>
+    <script>
+        class StarFlappy {
+            constructor() {
+                this.canvas = document.getElementById('game-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.scoreEl = document.getElementById('score-el');
+                this.overlay = document.getElementById('overlay');
+                
+                this.resize();
+                
+                this.bird = {
+                    x: this.canvas.width * 0.25,
+                    y: this.canvas.height / 2,
+                    velocity: 0,
+                    gravity: 0.4,
+                    jump: -7,
+                    radius: 12
+                };
+                
+                this.pipes = [];
+                this.pipeWidth = 60;
+                this.pipeGap = 160;
+                this.pipeSpeed = 3;
+                
+                this.score = 0;
+                this.active = false;
+                this.lastTime = 0;
+                
+                window.addEventListener('resize', () => this.resize());
+                
+                const handleJump = () => {
+                    if (this.active) {
+                        this.bird.velocity = this.bird.jump;
+                    }
+                };
+                
+                window.addEventListener('keydown', e => { if (e.code === 'Space') handleJump(); });
+                this.canvas.addEventListener('mousedown', handleJump);
+                this.canvas.addEventListener('touchstart', e => { e.preventDefault(); handleJump(); }, { passive: false });
+            }
+
+            resize() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+
+            init() {
+                this.bird.y = this.canvas.height / 2;
+                this.bird.velocity = 0;
+                this.pipes = [];
+                this.score = 0;
+                this.scoreEl.textContent = '0';
+                this.frameCount = 0;
+            }
+
+            start() {
+                this.init();
+                this.active = true;
+                this.overlay.style.display = 'none';
+                this.lastTime = performance.now();
+                requestAnimationFrame(t => this.loop(t));
+            }
+
+            createPipe() {
+                const minHeight = 50;
+                const maxHeight = this.canvas.height - this.pipeGap - minHeight;
+                const h = Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
+                this.pipes.push({
+                    x: this.canvas.width,
+                    h: h,
+                    passed: false
+                });
+            }
+
+            loop(time) {
+                if (!this.active) return;
+                
+                this.update();
+                this.draw();
+                
+                requestAnimationFrame(t => this.loop(t));
+            }
+
+            update() {
+                this.bird.velocity += this.bird.gravity;
+                this.bird.y += this.bird.velocity;
+                
+                // Ground/Ceiling
+                if (this.bird.y + this.bird.radius > this.canvas.height || this.bird.y - this.bird.radius < 0) {
+                    this.gameOver();
+                }
+                
+                if (this.frameCount % 100 === 0) this.createPipe();
+                this.frameCount++;
+                
+                for (let i = this.pipes.length - 1; i >= 0; i--) {
+                    let p = this.pipes[i];
+                    p.x -= this.pipeSpeed;
+                    
+                    // Collision
+                    if (this.bird.x + this.bird.radius > p.x && this.bird.x - this.bird.radius < p.x + this.pipeWidth) {
+                        if (this.bird.y - this.bird.radius < p.h || this.bird.y + this.bird.radius > p.h + this.pipeGap) {
+                            this.gameOver();
+                        }
+                    }
+                    
+                    if (!p.passed && p.x + this.pipeWidth < this.bird.x) {
+                        p.passed = true;
+                        this.score++;
+                        this.scoreEl.textContent = this.score;
+                    }
+                    
+                    if (p.x + this.pipeWidth < 0) this.pipes.splice(i, 1);
+                }
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Pipes
+                this.pipes.forEach(p => {
+                    const grad = this.ctx.createLinearGradient(p.x, 0, p.x + this.pipeWidth, 0);
+                    grad.addColorStop(0, '#2c3e50');
+                    grad.addColorStop(1, '#000');
+                    this.ctx.fillStyle = grad;
+                    this.ctx.strokeStyle = '#00f2ff';
+                    this.ctx.lineWidth = 2;
+                    
+                    // Top pipe
+                    this.ctx.beginPath();
+                    this.ctx.roundRect(p.x, 0, this.pipeWidth, p.h, [0, 0, 10, 10]);
+                    this.ctx.fill();
+                    this.ctx.stroke();
+                    
+                    // Bottom pipe
+                    this.ctx.beginPath();
+                    this.ctx.roundRect(p.x, p.h + this.pipeGap, this.pipeWidth, this.canvas.height - p.h - this.pipeGap, [10, 10, 0, 0]);
+                    this.ctx.fill();
+                    this.ctx.stroke();
+                });
+                
+                // Bird (Star)
+                this.ctx.save();
+                this.ctx.translate(this.bird.x, this.bird.y);
+                this.ctx.rotate(this.bird.velocity * 0.05);
+                
+                this.ctx.shadowBlur = 15;
+                this.ctx.shadowColor = '#ffce00';
+                this.ctx.fillStyle = '#ffce00';
+                
+                // Draw a star shape
+                this.drawStar(0, 0, 5, 12, 6);
+                this.ctx.fill();
+                this.ctx.restore();
+            }
+
+            drawStar(cx, cy, spikes, outerRadius, innerRadius) {
+                let rot = Math.PI / 2 * 3;
+                let x = cx;
+                let y = cy;
+                let step = Math.PI / spikes;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(cx, cy - outerRadius)
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius;
+                    y = cy + Math.sin(rot) * outerRadius;
+                    this.ctx.lineTo(x, y)
+                    rot += step
+
+                    x = cx + Math.cos(rot) * innerRadius;
+                    y = cy + Math.sin(rot) * innerRadius;
+                    this.ctx.lineTo(x, y)
+                    rot += step
+                }
+                this.ctx.lineTo(cx, cy - outerRadius);
+                this.ctx.closePath();
+            }
+
+            gameOver() {
+                this.active = false;
+                const isNewHigh = GameUtils.saveScore('starflappy', this.score);
+                const overlayTitle = this.overlay.querySelector('h1');
+                const overlayDesc = this.overlay.querySelector('p');
+                
+                overlayTitle.textContent = "飞行终止";
+                overlayDesc.innerHTML = `最终积分: ${this.score}<br>${isNewHigh ? '<b style="color: #ffce00;">新星联纪录！</b>' : ''}`;
+                
+                if (isNewHigh) GameUtils.showToast('记录刷新！', 'success');
+                this.overlay.style.display = 'flex';
+            }
+        }
+
+        const game = new StarFlappy();
+        
+        // Polyfill
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (typeof r === 'number') r = [r, r, r, r];
+                if (w < 2 * r[0]) r[0] = w / 2; if (h < 2 * r[0]) r[0] = h / 2;
+                this.moveTo(x + r[0], y); this.arcTo(x + w, y, x + w, y + h, r[1]);
+                this.arcTo(x + w, y + h, x, y + h, r[2]); this.arcTo(x, y + h, x, y, r[3]);
+                this.arcTo(x, y, x + w, y, r[0]); this.closePath(); return this;
+            }
+        }
+    </script>
+</body>
+</html>
