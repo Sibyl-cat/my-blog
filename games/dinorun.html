@@ -135,32 +135,39 @@
 
         let dinoY = 0;
         let isJumping = false;
-        let gravity = 0.9;
         let score = 0;
         let gameActive = false;
         let speed = 6;
+        // 跟踪所有障碍物计时器，方便统一清除
+        let obstacleTimers = [];
+        let spawnTimeout = null;
 
         function jump() {
             if (isJumping || !gameActive) return;
             isJumping = true;
             let upTimerId = setInterval(function () {
-                // Move up
+                dinoY += 5;
+                dino.style.bottom = dinoY + 'px';
                 if (dinoY >= 150) {
                     clearInterval(upTimerId);
-                    // Move down
+                    // 修复：先减再判断，避免落地后 dinoY 残留 -5
                     let downTimerId = setInterval(function () {
-                        if (dinoY <= 0) {
-                            clearInterval(downTimerId);
-                            isJumping = false;
-                            dinoY = 0;
-                        }
                         dinoY -= 5;
+                        if (dinoY <= 0) {
+                            dinoY = 0;
+                            isJumping = false;
+                            clearInterval(downTimerId);
+                        }
                         dino.style.bottom = dinoY + 'px';
                     }, 20);
                 }
-                dinoY += 30;
-                dino.style.bottom = dinoY + 'px';
             }, 20);
+        }
+
+        function clearAllObstacleTimers() {
+            obstacleTimers.forEach(t => clearInterval(t));
+            obstacleTimers = [];
+            if (spawnTimeout) { clearTimeout(spawnTimeout); spawnTimeout = null; }
         }
 
         function createObstacle() {
@@ -169,32 +176,41 @@
             obstacle.classList.add('obstacle');
             obstacle.innerHTML = '<i class="fas fa-meteor"></i>';
             container.appendChild(obstacle);
-            
+
             let obstaclePosition = 800;
             obstacle.style.left = obstaclePosition + 'px';
+            let alive = true; // 防止重复操作同一障碍物
 
-            let timerId = setInterval(function() {
+            let timerId = setInterval(function () {
+                if (!alive) return;
+
+                // 碰撞检测
                 if (obstaclePosition > 50 && obstaclePosition < 94 && dinoY < 40) {
-                    gameOver();
+                    alive = false;
                     clearInterval(timerId);
+                    if (obstacle.parentNode) obstacle.parentNode.removeChild(obstacle);
+                    gameOver();
+                    return;
                 }
 
                 obstaclePosition -= speed;
                 obstacle.style.left = obstaclePosition + 'px';
 
                 if (obstaclePosition < -30) {
+                    alive = false;
                     clearInterval(timerId);
-                    container.removeChild(obstacle);
+                    if (obstacle.parentNode) obstacle.parentNode.removeChild(obstacle);
                     score++;
                     updateScore();
-                    if (score % 5 === 0) speed += 0.5; // Increase difficulty
+                    if (score % 5 === 0) speed += 0.5;
                 }
             }, 20);
 
-            if (gameActive) {
-                let randomTime = Math.random() * 2000 + 700;
-                setTimeout(createObstacle, randomTime / (speed/6));
-            }
+            obstacleTimers.push(timerId);
+
+            // 调度下一个障碍物
+            let randomTime = Math.random() * 2000 + 700;
+            spawnTimeout = setTimeout(createObstacle, randomTime / (speed / 6));
         }
 
         function updateScore() {
@@ -202,24 +218,31 @@
         }
 
         function startGame() {
+            // 先清除所有旧计时器，再清 DOM
+            clearAllObstacleTimers();
+            document.querySelectorAll('.obstacle').forEach(o => o.remove());
             score = 0;
             speed = 6;
+            dinoY = 0;
+            isJumping = false;
+            dino.style.bottom = '0px';
             updateScore();
             gameActive = true;
             overlay.style.display = 'none';
-            // Clear existing obstacles
-            document.querySelectorAll('.obstacle').forEach(o => o.remove());
             createObstacle();
         }
 
         function gameOver() {
+            if (!gameActive) return; // 防止多次触发
             gameActive = false;
+            clearAllObstacleTimers();
+            document.querySelectorAll('.obstacle').forEach(o => o.remove());
             overlay.style.display = 'flex';
-            msg.textContent = "GAME OVER";
+            msg.textContent = 'GAME OVER · 得分 ' + score;
         }
 
         document.addEventListener('keydown', e => {
-            if (e.code === 'Space') jump();
+            if (e.code === 'Space') { e.preventDefault(); jump(); }
         });
         container.addEventListener('click', jump);
     </script>

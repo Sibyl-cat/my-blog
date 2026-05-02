@@ -201,6 +201,7 @@
                         msgTitle.textContent = "OOPS!";
                         msgDesc.textContent = "损失了一次机会，准备重回星场";
                         overlay.style.display = 'flex';
+                        return; // 修复：阻止后续 x+=dx; y+=dy 和 rAF 被调用
                     }
                 }
             }

@@ -105,6 +105,8 @@
         const msgDesc = document.getElementById('msg-desc');
 
         let score = 0, health = 100, gameActive = false;
+        let lastShot = 0; // 修复：用时间戳控制射击，替代不可靠的 Date.now()%200
+        let spawnTimeout = null; // 修复：追踪 spawnEnemy 的 timeout，防止重启时多链叠加
         let player = { x: 250, y: 600, w: 40, h: 40 };
         let bullets = [], enemies = [], stars = [];
 
@@ -116,7 +118,9 @@
         }
 
         function startGame() {
-            score = 0; health = 100;
+            // 清除旧的 spawn 链，防止重启后多条链叠加
+            if (spawnTimeout) { clearTimeout(spawnTimeout); spawnTimeout = null; }
+            score = 0; health = 100; lastShot = 0;
             bullets = []; enemies = [];
             updateUI();
             gameActive = true;
@@ -133,11 +137,11 @@
                 y: -40,
                 w: 40,
                 h: 40,
-                hp: 1 + Math.floor(score/200),
-                speed: 1 + Math.random() * 2 + (score/500)
+                hp: 1 + Math.floor(score / 200),
+                speed: 1 + Math.random() * 2 + (score / 500)
             });
-            let nextSpawn = Math.max(300, 1500 - (score/2));
-            setTimeout(spawnEnemy, nextSpawn);
+            let nextSpawn = Math.max(300, 1500 - (score / 2));
+            spawnTimeout = setTimeout(spawnEnemy, nextSpawn); // 保存 timeout ID
         }
 
         function gameLoop() {
@@ -162,9 +166,11 @@
             ctx.fill();
             ctx.shadowBlur = 0;
 
-            // Auto shoot
-            if (Date.now() % 200 < 30) {
+            // 修复：用时间差控制射击频率，每 200ms 射一发
+            const now = Date.now();
+            if (now - lastShot >= 200) {
                 bullets.push({ x: player.x, y: player.y, r: 4 });
+                lastShot = now;
             }
 
             // Bullets
@@ -231,6 +237,7 @@
 
         function gameOver() {
             gameActive = false;
+            if (spawnTimeout) { clearTimeout(spawnTimeout); spawnTimeout = null; }
             overlay.style.display = 'flex';
             msgTitle.textContent = "GAME OVER";
             msgDesc.textContent = `最终得分: ${score}`;
