@@ -248,7 +248,7 @@ class BlogNavbarSecondary extends HTMLElement {
                     <a href="${prefix}index.html" title="返回首页">
                         <img src="${prefix}images/logo.svg" alt="Logo" />
                     </a>
-                    <span id="sidebarToggle" style="cursor: pointer; padding: 4px;" title="打开侧边栏">织星屿</span>>
+                    <span id="sidebarToggle" style="cursor: pointer; padding: 4px; color: #FB7299; font-weight: bold;" title="打开侧边栏">织星屿</span>
                 </div>
                 <div class="navbar-tools">
                     <user-menu></user-menu>
@@ -961,7 +961,7 @@ class BlogNavbarHome extends HTMLElement {
                         <a href="${prefix}index.html" style="display: flex; align-items: center; text-decoration: none;" title="返回首页">
                             <img src="${prefix}images/logo.svg" alt="Logo" style="width: 36px; height: 36px;" />
                         </a>
-                        <span id="sidebarToggle" onclick="window.openSidebar && window.openSidebar()" style="cursor: pointer; padding: 4px;" title="打开侧边栏">织星</span>
+                        <span id="sidebarToggle" style="cursor: pointer; padding: 4px; color: #FB7299;" title="打开侧边栏">织星屿</span>
                     </div>
                 </div>
                 <div class="navbar-links">
