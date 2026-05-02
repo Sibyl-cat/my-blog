@@ -22,8 +22,8 @@ class BlogSidebar extends HTMLElement {
 
 
     render() {
-        const isGamePage = window.location.pathname.includes('/games/');
-        const prefix = isGamePage ? '../' : './';
+        // 使用绝对路径以确保在任何目录下都能正确加载资源
+        const rootPath = '/'; 
         this.shadowRoot.innerHTML = `
             <style>
                 /* 侧边栏样式（不变，省略...） */
@@ -117,20 +117,20 @@ class BlogSidebar extends HTMLElement {
                 .overlay.active { opacity: 1; visibility: visible; }
                 @media (max-width: 680px) { .sidebar { width: 240px; } }
             </style>
-            <link rel="stylesheet" href="${prefix}assets/fontawesome/css/all.min.css">
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <div class="sidebar" id="sidebar">
                 <div class="sidebar-header">
                     <span class="sidebar-title">导航</span>
                     <button class="close-btn" id="closeSidebar"><i class="fas fa-times"></i></button>
                 </div>
                 <ul class="sidebar-menu">
-                    <li><a href="${prefix}index.html"><i class="fas fa-house"></i> 首页</a></li>
-                    <li><a href="${prefix}authors.html"><i class="fas fa-users"></i> 作者</a></li>
-                    <li><a href="${prefix}register.html"><i class="fas fa-user-plus"></i> 注册</a></li>
-                    <li><a href="${prefix}tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a></li>
-                    <li><a href="${isGamePage ? './index.html' : './games/index.html'}"><i class="fas fa-gamepad"></i> 游艺场</a></li>
-                    <li><a href="${prefix}admin.html"><i class="fa-solid fa-blog"></i> 管理</a></li>
-                    <li><a href="${prefix}about.html"><i class="fas fa-code"></i> 关于</a></li>
+                    <li><a href="/index.html"><i class="fas fa-house"></i> 首页</a></li>
+                    <li><a href="/authors.html"><i class="fas fa-users"></i> 作者</a></li>
+                    <li><a href="/register.html"><i class="fas fa-user-plus"></i> 注册</a></li>
+                    <li><a href="/tags.html"><i class="fas fa-magnifying-glass"></i> 搜索</a></li>
+                    <li><a href="/games/index.html"><i class="fas fa-gamepad"></i> 游艺场</a></li>
+                    <li><a href="/admin.html"><i class="fa-solid fa-blog"></i> 管理</a></li>
+                    <li><a href="/about.html"><i class="fas fa-code"></i> 关于</a></li>
                 </ul>
                 <div class="sidebar-footer">
                     <p>© 2026 织星屿</p>
@@ -182,8 +182,6 @@ class BlogNavbarSecondary extends HTMLElement {
     }
 
     render() {
-        const isGamePage = window.location.pathname.includes('/games/');
-        const prefix = isGamePage ? '../' : './';
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
@@ -242,11 +240,11 @@ class BlogNavbarSecondary extends HTMLElement {
                     }
                 }
             </style>
-            <link rel="stylesheet" href="${prefix}assets/fontawesome/css/all.min.css">
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <nav class="navbar">
                 <div class="logo-container">
-                    <a href="${prefix}index.html" title="返回首页">
-                        <img src="${prefix}images/logo.svg" alt="Logo" />
+                    <a href="/index.html" title="返回首页">
+                        <img src="/images/logo.svg" alt="Logo" />
                     </a>
                     <span id="sidebarToggle" style="cursor: pointer; padding: 4px; color: #FB7299; font-weight: bold;" title="打开侧边栏">织星屿</span>
                 </div>
@@ -293,7 +291,6 @@ class UserMenu extends HTMLElement {
     }
 
     render() {
-        const prefix = window.location.pathname.includes('/games/') ? '../' : './';
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
@@ -448,7 +445,7 @@ class UserMenu extends HTMLElement {
                     }
                 }
             </style>
-            <link rel="stylesheet" href="${prefix}assets/fontawesome/css/all.min.css">
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <div class="user-avatar" id="avatarTrigger">
                 <i class="fas fa-user-circle"></i>
             </div>
@@ -713,7 +710,6 @@ class BlogFooter extends HTMLElement {
     }
 
     render() {
-        const prefix = window.location.pathname.includes('/games/') ? '../' : './';
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
@@ -760,7 +756,7 @@ class BlogFooter extends HTMLElement {
                     }
                 }
             </style>
-            <link rel="stylesheet" href="${prefix}assets/fontawesome/css/all.min.css">
+            <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
             <footer class="footer">
                 <div class="copyright">
                     <i class="fas fa-copyright"></i> 2026 织星屿
