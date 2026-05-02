@@ -19,21 +19,35 @@
         <!-- 全局侧边栏组件 -->
         <blog-sidebar></blog-sidebar>
 
-        <!-- 标签信息卡片 -->
-        <div class="profile-card glass" id="tag-info" style="margin-bottom: 2rem; text-align: center;">
-            <!-- 动态填充标签名 -->
-        </div>
+        <!-- 标签 Hero 头部 -->
+        <header class="tag-hero glass" id="tag-header">
+            <div class="tag-hero-icon">
+                <i class="fas fa-hashtag"></i>
+            </div>
+            <div class="tag-hero-content">
+                <h1 id="tag-title">正在加载...</h1>
+                <div class="tag-meta" id="tag-meta">
+                    <span><i class="fas fa-file-alt"></i> <span id="post-count">0</span> 篇文章</span>
+                    <span><i class="fas fa-tags"></i> 标签主题</span>
+                </div>
+            </div>
+        </header>
 
-        <h2 class="section-title"><i class="fas fa-pen-fancy" style="color:#FB7299; margin-right:12px;"></i>包含此标签的文章
-        </h2>
+        <div class="posts-header">
+            <h2><i class="fas fa-pen-fancy" style="color:#FB7299; margin-right:12px;"></i>相关文章</h2>
+            <a href="tags.html" class="more-link">查看全部标签 <i class="fas fa-arrow-right"></i></a>
+        </div>
 
         <div class="article-grid" id="post-grid">
             <!-- 动态加载 -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary-pink);"></i>
+            </div>
         </div>
 
         <!-- 页脚 -->
         <blog-footer></blog-footer>
-    </div>>
+    </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -42,52 +56,64 @@
             window.location.href = 'tags.html';
         }
 
+        document.title = `#${tagName} · 织星屿`;
+
         async function loadTagPosts() {
             try {
                 const res = await fetch(`/api/posts/tag?name=${encodeURIComponent(tagName)}`);
                 const posts = await res.json();
 
-                // 显示标签信息
-                document.getElementById('tag-info').innerHTML = `
-                <h1 style="color: #FB7299; font-size: 2.5rem;">#${tagName}</h1>
-                <p style="font-size: 1.2rem; color: #444;">共 ${posts.length} 篇文章</p>
-            `;
+                // 更新头部信息
+                document.getElementById('tag-title').textContent = `#${tagName}`;
+                document.getElementById('post-count').textContent = posts.length;
 
                 // 渲染文章卡片
                 const grid = document.getElementById('post-grid');
                 if (posts.length === 0) {
-                    grid.innerHTML = '<p style="text-align: center; color: #666;">暂无文章</p>';
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-muted);">
+                            <i class="fas fa-box-open fa-3x" style="margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p>该标签下暂时没有文章哦~</p>
+                        </div>
+                    `;
                     return;
                 }
 
                 let html = '';
-                posts.forEach(post => {
+                posts.forEach((post, index) => {
                     const date = new Date(post.updated_at);
-                    // 强制显示北京时间 (UTC+8)
                     const formattedDate = date.toLocaleDateString('zh-CN', {
                         timeZone: 'Asia/Shanghai',
                         year: 'numeric',
                         month: '2-digit',
                         day: '2-digit'
                     }).replace(/\//g, '-');
+                    
                     const tags = post.tags ? post.tags.split(',').map(t => `<span class="tag">#${t.trim()}</span>`).join('') : '';
+                    
                     html += `
-                    <article class="article-card glass">
-                        <div class="card-meta">
-                            <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+                    <article class="post-item-card" style="animation-delay: ${index * 0.1}s">
+                        <div class="post-item-meta">
+                            <span><i class="far fa-calendar-alt"></i> ${formattedDate}</span>
+                            <span><i class="far fa-user"></i> ${post.author || '匿名'}</span>
                         </div>
-                        <a href="post.html?slug=${post.slug}" style="text-decoration: none; color: inherit;">
-                            <h3 class="card-title">${post.title}</h3>
-                        </a>
-                        <p class="card-excerpt">${post.excerpt || ''}</p>
-                        <div class="card-tags">${tags}</div>
+                        <h3 class="post-item-title">
+                            <a href="post.html?slug=${post.slug}">${post.title}</a>
+                        </h3>
+                        <p class="post-item-excerpt">${post.excerpt || '暂无内容摘要...'}</p>
+                        <div class="post-item-tags">${tags}</div>
                     </article>
                 `;
                 });
                 grid.innerHTML = html;
             } catch (err) {
                 console.error('加载失败:', err);
-                document.getElementById('post-grid').innerHTML = '<p style="color: red;">加载失败</p>';
+                document.getElementById('post-grid').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #ff4d4f;">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                        <p>内容加载失败，请检查网络连接</p>
+                    </div>
+                `;
             }
         }
 
