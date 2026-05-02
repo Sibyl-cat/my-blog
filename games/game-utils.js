@@ -117,6 +117,55 @@ const GameUtils = {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 500);
         }, 3000);
+    // 移动端支持检测与拦截
+    checkMobileSupport: function(gameName, desktopOnly = false) {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+        
+        if (isMobile && desktopOnly) {
+            this.showMobileBlocker(gameName);
+            return false;
+        }
+        return true;
+    },
+
+    showMobileBlocker: function(gameName) {
+        const blocker = document.createElement('div');
+        blocker.id = 'mobile-blocker';
+        blocker.style.cssText = `
+            position: fixed;
+            inset: 0;
+            background: #050510;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+        `;
+
+        blocker.innerHTML = `
+            <div style="font-size: 5rem; color: #ff4757; margin-bottom: 2rem;">
+                <i class="fas fa-desktop"></i>
+            </div>
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">建议在电脑端游玩</h2>
+            <p style="opacity: 0.7; line-height: 1.6; max-width: 400px; margin-bottom: 2rem;">
+                《${gameName}》包含复杂的精细操作，在小屏触控设备上体验较差。为了保证你的游戏体验，请切换至桌面浏览器开启挑战。
+            </p>
+            <a href="index.html" style="
+                padding: 1rem 2.5rem;
+                background: rgba(255,255,255,0.1);
+                color: white;
+                text-decoration: none;
+                border-radius: 50px;
+                border: 1px solid rgba(255,255,255,0.2);
+                transition: 0.3s;
+            ">返回游艺场</a>
+        `;
+
+        document.body.appendChild(blocker);
     }
 };
 

@@ -121,6 +121,9 @@
     <script>
         class PlanetBreaker {
             constructor() {
+                // 设备检测：拦截不适合移动端的游戏
+                if (!GameUtils.checkMobileSupport('行星粉碎者', true)) return;
+
                 this.canvas = document.getElementById('game-canvas');
                 this.ctx = this.canvas.getContext('2d');
                 this.scoreEl = document.getElementById('score');
