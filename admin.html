@@ -4,442 +4,574 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
-    <title>文章管理 · 织星屿</title>
+    <title>管理后台 · 织星屿</title>
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="./components.js"></script>
     <style>
-        /* ========== 原有样式保持不变 ========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+        :root {
+            --admin-pink: #FB7299;
+            --admin-pink-light: rgba(251, 114, 153, 0.1);
+            --admin-pink-glow: 0 0 15px rgba(251, 114, 153, 0.3);
         }
+
         body {
-            background: var(--body-bg);
+            padding: 0;
+            display: block; /* Override flex from style.css */
             min-height: 100vh;
-            padding: 2rem;
-            color: var(--text-main);
-            transition: all 0.3s ease;
+            background-attachment: fixed;
         }
-        .admin-container {
-            width: 100%;               /* 占满父容器宽度 */
-            max-width: none;           /* 移除最大宽度限制 */
-            margin: 0 auto;            /* 仍可保留居中，但宽度100%时居中无意义，可删除 */
+
+        .admin-layout {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            min-height: calc(100vh - 4rem); /* 视口高度减去 body 的内边距，使容器撑满 */
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            gap: 0;
         }
-        .panel {
+
+        /* 侧边栏 */
+        .admin-sidebar {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border-radius: 32px;
-            padding: 2rem;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 12px 28px var(--card-shadow);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid var(--glass-border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 100;
         }
-        h2 {
-            color: #FB7299;
-            margin-bottom: 1.5rem;
+
+        .admin-logo {
+            font-family: 'Outfit', sans-serif;
             font-size: 1.8rem;
-            border-bottom: 2px solid #FB7299;
-            padding-bottom: 0.5rem;
+            font-weight: 700;
+            color: var(--admin-pink);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 3rem;
+            padding-left: 0.5rem;
         }
-        .post-list {
-            list-style: none;
-            max-height: 600px;
-            overflow-y: auto;
+
+        .admin-nav {
+            flex: 1;
         }
-        .post-item {
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            color: var(--text-main);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+            color: var(--admin-pink);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--admin-pink-light);
+            color: var(--admin-pink);
+            transform: translateX(5px);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        /* 主内容区 */
+        .admin-main {
+            padding: 2rem 3rem;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
-            border-bottom: 1px solid rgba(251, 114, 153, 0.2);
-            cursor: pointer;
-            transition: background 0.2s;
+            margin-bottom: 2.5rem;
         }
-        .post-item:hover {
-            background: rgba(251, 114, 153, 0.1);
-        }
-        .post-item .title {
-            font-weight: 600;
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
             color: var(--text-main);
+            margin-bottom: 0.5rem;
         }
-        .post-actions {
+
+        .header-user {
             display: flex;
-            gap: 0.5rem;
+            align-items: center;
+            gap: 15px;
+            padding: 0.6rem 1.2rem;
+            background: var(--glass-bg);
+            border-radius: 40px;
+            border: 1px solid var(--glass-border);
         }
-        .btn {
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            padding: 1.5rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--admin-pink);
+            box-shadow: var(--admin-pink-glow);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--admin-pink-light);
+            color: var(--admin-pink);
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            padding: 0.5rem 1rem;
-            border: none;
+            font-size: 1.4rem;
+        }
+
+        .stat-info .count {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--admin-pink);
+        }
+
+        .stat-info .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* 内容板块 */
+        .content-section {
+            background: var(--glass-bg);
+            border-radius: 32px;
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            box-shadow: 0 8px 32px var(--card-shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            color: var(--admin-pink);
+            font-weight: 600;
+        }
+
+        /* 列表项 */
+        .post-card {
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(251, 114, 153, 0.3);
-            text-decoration: none;
-            color: #2a2a2a;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
         }
-        .btn:hover {
-            background: #FB7299;
-            color: white;
+
+        .post-card:hover {
+            background: var(--admin-pink-light);
+            border-color: var(--admin-pink-alpha);
+            transform: scale(1.01);
         }
-        .btn-danger {
-            background: rgba(255, 100, 100, 0.2);
-            border-color: #ff4d4f;
-        }
-        .btn-danger:hover {
-            background: #ff4d4f;
-            color: white;
-        }
-        .message {
-            margin-top: 1rem;
-            padding: 0.8rem;
-            border-radius: 12px;
-            display: none;
-        }
-        .message.success {
-            background: rgba(0, 200, 0, 0.2);
-            border: 1px solid #00a800;
-            color: #006400;
-        }
-        .message.error {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff0000;
-            color: #a80000;
-        }
-        .admin-container {
-            min-height: 100vh;
-        }
-        .left-panel {
+
+        .post-info {
             display: flex;
             flex-direction: column;
-            height: 100%;
+            gap: 4px;
         }
-        .left-panel .post-list {
-            flex: 1;
-            overflow-y: auto;
-        }
-        .logout-container {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(251,114,153,0.3);
-        }
-        .welcome-message {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            background: rgba(251,114,153,0.15);
-            border-radius: 24px;
-            font-size: 1.3rem;
-            color: #FB7299;
-            border: 1px solid rgba(251,114,153,0.3);
-        }
-        .welcome-message i {
-            margin-right: 0.5rem;
-        }
-        #username {
+
+        .post-title {
+            font-size: 1.1rem;
             font-weight: 600;
-            color: #FB7299;
-        }
-        .btn-user {
-            background: rgba(251,114,153,0.15);
-            border: 1px dashed #FB7299;
-            color: #FB7299;
+            color: var(--text-main);
             text-decoration: none;
         }
-        .btn-user:hover {
-            background: #FB7299;
+
+        .post-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 12px;
+        }
+
+        .status-badge {
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-published { background: #e6f7ed; color: #1f8b4d; }
+        .status-draft { background: #fff1f0; color: #f5222d; }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
             color: white;
-            border-color: #FB7299;
             text-decoration: none;
         }
-        /* 开关样式 */
+
+        .btn-edit { background: var(--admin-pink); }
+        .btn-delete { background: #ff4d4f; }
+        .action-btn:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        /* 新建文章按钮 */
+        .new-post-btn {
+            background: var(--admin-pink);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px var(--pink-shadow);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .new-post-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px var(--pink-shadow);
+            filter: brightness(1.1);
+        }
+
+        /* 模式气泡 */
+        .mode-bubble {
+            position: absolute;
+            bottom: calc(100% + 15px);
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 0.8rem;
+            min-width: 220px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            animation: fadeInScale 0.3s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .mode-option {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            text-align: left;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mode-option:hover {
+            background: var(--admin-pink-light);
+            color: var(--admin-pink);
+        }
+
+        .mode-option .opt-title { font-weight: 600; font-size: 0.95rem; }
+        .mode-option .opt-desc { font-size: 0.75rem; opacity: 0.7; }
+
+        /* 开关样式优化 */
         .switch-container {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            background: rgba(251,114,153,0.1);
-            border-radius: 40px;
-            padding: 0.5rem 1rem;
-            margin-bottom: 1.5rem;
+            gap: 10px;
+            padding: 0.8rem 1.2rem;
+            background: rgba(0,0,0,0.03);
+            border-radius: 15px;
         }
-        .switch-label {
-            color: #FB7299;
-            font-weight: 600;
-        }
+
         .switch {
             position: relative;
             display: inline-block;
-            width: 50px;
-            height: 24px;
-            margin-left: 0.5rem;
+            width: 44px;
+            height: 22px;
         }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ccc;
             transition: .4s;
-            border-radius: 24px;
+            border-radius: 34px;
         }
+
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
             background-color: white;
             transition: .4s;
             border-radius: 50%;
         }
-        input:checked + .slider {
-            background-color: #FB7299;
+
+        input:checked + .slider { background-color: var(--admin-pink); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* 移动端适配 */
+        @media (max-width: 992px) {
+            .admin-layout { grid-template-columns: 1fr; }
+            .admin-sidebar { display: none; } /* 或改为顶部条/抽屉 */
+            .admin-main { padding: 1.5rem 1rem; }
+            
+            .stats-grid { grid-template-columns: 1fr 1fr; }
         }
-        input:checked + .slider:before {
-            transform: translateX(26px);
+
+        @media (max-width: 600px) {
+            .admin-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .header-user { width: 100%; justify-content: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .post-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .post-actions { align-self: flex-end; }
+            .new-post-btn { width: 100%; justify-content: center; }
         }
-        /* 右侧面板占位样式 */
-        .right-panel {
+
+        /* 底部导航 (仅移动端可见) */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            display: none;
+            justify-content: space-around;
+            padding: 0.8rem 0;
+            z-index: 1000;
+        }
+
+        @media (max-width: 992px) {
+            .mobile-nav { display: flex; }
+            body { padding-bottom: 80px; }
+        }
+
+        .mobile-nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-        .right-panel p {
-            font-size: 1.5rem;
-            color: #FB7299;
-            margin-bottom: 1rem;
-        }
-        .right-panel .new-link {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: #FB7299;
-            color: white;
-            border-radius: 40px;
+            gap: 4px;
+            color: var(--text-muted);
             text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        .right-panel .new-link:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 15px rgba(251,114,153,0.3);
+            font-size: 0.75rem;
         }
 
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .admin-container {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            .panel {
-                padding: 1.5rem;
-            }
-            h2 {
-                font-size: 1.5rem;
-            }
-            .post-item {
-                padding: 1rem;
-                font-size: 1rem;
-            }
-            .post-actions .btn {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.9rem;
-            }
-            .logout-container {
-                margin-top: 0.8rem;
-                padding-top: 0.8rem;
-            }
-            #logoutBtnLeft {
-                padding: 0.8rem;
-            }
-        }
-        @media (max-width: 400px) {
-            .post-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            .post-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-        }
-    
-        /* 模式选择气泡 */
-        .mode-bubble {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(251,114,153,0.3);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            padding: 0.5rem;
-            min-width: 160px;
-            z-index: 1000;
-            margin-bottom: 8px;
-        }
-        .mode-bubble .bubble-arrow {
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid rgba(251,114,153,0.3);
-        }
-        .mode-option {
-            display: block;
-            width: 100%;
-            text-align: left;
-            padding: 0.6rem 1rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            color: #2a2a2a;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.2rem;
-            transition: all 0.2s ease;
-        }
-        .mode-option:hover {
-            background: rgba(251,114,153,0.15);
-            transform: translateX(4px);
-            color: #FB7299;
-        }
-        .option-desc {
-            font-size: 0.75rem;
-            color: #888;
-            font-weight: normal;
-        }
-        
+        .mobile-nav-item.active { color: var(--admin-pink); }
+        .mobile-nav-item i { font-size: 1.3rem; }
+
     </style>
 </head>
 <body>
-    <div class="blog-container">
-        <!-- 二级页面组件化导航栏 -->
-        <blog-navbar-secondary></blog-navbar-secondary>
-    
-        <!-- 全局侧边栏组件 -->
-        <blog-sidebar></blog-sidebar>
-        <div class="admin-container">    
-            <!-- 左侧：文章列表 -->
-            <div class="panel left-panel">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <h2 style="margin-bottom: 0;"><i class="fas fa-list"></i> 文章列表</h2>
-                    <a href="/users.html" class="btn btn-user" id="userManagementBtn" style="display: none;">
-                        <i class="fas fa-users"></i> 用户管理
-                    </a>
-                </div>
-    
-                <!-- 作者问候语 -->
-                <div class="welcome-message glass">
-                    <i class="fas fa-user-circle"></i> 你好，<span id="username">加载中...</span>！
-                </div>
-    
-                <!-- 修复模式开关容器（初始隐藏） -->
-                <div id="maintenance-switch-container" class="switch-container" style="display: none;">
-                    <span class="switch-label"><i class="fas fa-tools"></i> 修复模式</span>
+    <div class="admin-layout">
+        <!-- 侧边栏 (桌面端) -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <i class="fas fa-rocket"></i> 织星管理
+            </div>
+            <nav class="admin-nav">
+                <a href="#" class="nav-item active"><i class="fas fa-file-alt"></i> 内容管理</a>
+                <a href="/users.html" class="nav-item" id="sidebarUserMgmt" style="display: none;"><i class="fas fa-users"></i> 用户管理</a>
+                <a href="index.html" class="nav-item"><i class="fas fa-home"></i> 访问首页</a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div id="maintenance-switch-container" class="switch-container" style="display: none; margin-bottom: 1.5rem;">
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.9rem; font-weight: 600; color: var(--admin-pink);">修复模式</div>
+                        <div id="maintenance-status" style="font-size: 0.7rem; color: var(--text-muted);">已关闭</div>
+                    </div>
                     <label class="switch">
                         <input type="checkbox" id="maintenanceToggle">
-                        <span class="slider round"></span>
+                        <span class="slider"></span>
                     </label>
-                    <span id="maintenance-status" style="color:#666; font-size:0.9rem;"></span>
                 </div>
-    
-                <div class="post-list">
-                    <h3 style="color:#FB7299; margin-bottom:0.5rem;">已发表</h3>
-                    <div id="published-posts" style="margin-bottom:1.5rem;"></div>
-                    <h3 style="color:#FB7299; margin-bottom:0.5rem;">草稿箱</h3>
-                    <div id="draft-posts"></div>
-                </div>
-    
-                <div class="logout-container">
-                    <button id="logoutBtnLeft" class="btn" style="width: 100%; background: rgba(255,255,255,0.3); border: 1px solid #FB7299;">
-                        <i class="fas fa-sign-out-alt"></i> 注销
-                    </button>
-                </div>
+                <button id="logoutBtnLeft" class="nav-item" style="width: 100%; border: none; background: transparent; cursor: pointer;">
+                    <i class="fas fa-sign-out-alt"></i> 注销登录
+                </button>
             </div>
-    
-            <!-- 右侧：占位面板（提示新建文章） -->
-            <div class="panel right-panel">
-                <p><i class="fas fa-pencil-alt" style="color:#FB7299;"></i> 点一点，让文字发光</p>
-                <p><i class="fas fa-star" style="color:#FB7299;"></i> 或者</p>
-                <div style="position: relative;">
-                    <a href="#" id="newPostLink" class="new-link"><i class="fas fa-plus"></i> 种下一颗新种子</a>
-                    <div id="modeBubble" class="mode-bubble" style="display: none;">
-                        <div class="bubble-arrow"></div>
-                        <button class="mode-option" data-mode="rich">
-                            🌸 随便写写（富文本）
-                            <span class="option-desc">像写日记一样简单</span>
-                        </button>
-                        <button class="mode-option" data-mode="markdown">
-                            ⌨️ 硬核码字（Markdown）
-                            <span class="option-desc">懂代码的玩法</span>
-                        </button>
+        </aside>
+
+        <!-- 主内容 -->
+        <main class="admin-main">
+            <!-- 头部 -->
+            <header class="admin-header">
+                <div class="header-title">
+                    <h1>内容管理</h1>
+                    <p style="color: var(--text-muted);">欢迎回来，<span id="username" style="color: var(--admin-pink); font-weight: 600;">...</span></p>
+                </div>
+                <div class="header-user">
+                    <i class="fas fa-user-circle" style="color: var(--admin-pink); font-size: 1.5rem;"></i>
+                    <span id="header-username">管理员</span>
+                </div>
+            </header>
+
+            <!-- 统计 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
+                    <div class="stat-info">
+                        <span class="count" id="stat-published">0</span>
+                        <span class="label">已发布文章</span>
                     </div>
                 </div>
-                <p><i class="fas fa-home" style="color:#FB7299;"></i> 或者</p>
-                <a href="index.html" class="btn" style="background: transparent; border: 1px solid #FB7299;">
-                    <i class="fas fa-arrow-left"></i> 回首页看看
-                </a>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-edit"></i></div>
+                    <div class="stat-info">
+                        <span class="count" id="stat-drafts">0</span>
+                        <span class="label">草稿箱内容</span>
+                    </div>
+                </div>
             </div>
-        </div>
+
+            <!-- 文章列表板块 -->
+            <section class="content-section">
+                <div class="section-header">
+                    <div class="section-title"><i class="fas fa-list-ul"></i> 文章列表</div>
+                    <div style="position: relative;">
+                        <button id="newPostLink" class="new-post-btn">
+                            <i class="fas fa-plus"></i> 新建文章
+                        </button>
+                        <div id="modeBubble" class="mode-bubble">
+                            <button class="mode-option" data-mode="rich">
+                                <span class="opt-title">🌸 富文本编辑器</span>
+                                <span class="opt-desc">所见即所得，适合日常写作</span>
+                            </button>
+                            <button class="mode-option" data-mode="markdown">
+                                <span class="opt-title">⌨️ Markdown 编辑器</span>
+                                <span class="opt-desc">沉浸式排版，适合技术分享</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="posts-container">
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check-circle" style="color: #52c41a;"></i> 已发布
+                        </h3>
+                        <div id="published-posts">
+                            <!-- 动态加载 -->
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-clock" style="color: #faad14;"></i> 草稿箱
+                        </h3>
+                        <div id="draft-posts">
+                            <!-- 动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
+
+    <!-- 移动端导航 -->
+    <nav class="mobile-nav">
+        <a href="#" class="mobile-nav-item active"><i class="fas fa-file-alt"></i><span>内容</span></a>
+        <a href="/users.html" class="mobile-nav-item" id="mobileUserMgmt" style="display: none;"><i class="fas fa-users"></i><span>用户</span></a>
+        <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>首页</span></a>
+        <a href="#" id="mobileLogout" class="mobile-nav-item"><i class="fas fa-sign-out-alt"></i><span>注销</span></a>
+    </nav>
 
     <script>
         // ==================== 全局变量 ====================
         const publishedContainer = document.getElementById('published-posts');
         const draftContainer = document.getElementById('draft-posts');
-        const messageDiv = document.getElementById('message'); // 可能没有，但保留
         const usernameSpan = document.getElementById('username');
+        const headerUsername = document.getElementById('header-username');
         const logoutBtn = document.getElementById('logoutBtnLeft');
-        const userManagementBtn = document.getElementById('userManagementBtn');
+        const mobileLogout = document.getElementById('mobileLogout');
+        
+        const sidebarUserMgmt = document.getElementById('sidebarUserMgmt');
+        const mobileUserMgmt = document.getElementById('mobileUserMgmt');
 
-        // 修复模式开关相关
+        const statPublished = document.getElementById('stat-published');
+        const statDrafts = document.getElementById('stat-drafts');
+
+        // 修复模式相关
         const maintenanceContainer = document.getElementById('maintenance-switch-container');
         const maintenanceToggle = document.getElementById('maintenanceToggle');
         const maintenanceStatus = document.getElementById('maintenance-status');
 
         let currentUserRole = null;
 
-        // ==================== 工具函数：显示消息（可选，用于删除等操作）====================
-        function showMessage(text, type) {
-            if (!messageDiv) return;
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
+        // ==================== 统一消息提醒 ====================
+        function showNotification(text, type = 'success') {
+            // 这里可以集成更高级的 Toast，目前先用简单 alert 或控制台
+            console.log(`[${type}] ${text}`);
+            // alert(text); 
         }
 
         // ==================== 加载当前用户信息 ====================
@@ -450,22 +582,18 @@
                 const user = await res.json();
                 if (user.username) {
                     usernameSpan.textContent = user.username;
+                    headerUsername.textContent = user.username;
                     currentUserRole = user.role;
 
-                    // 控制用户管理按钮（仅admin可见）
-                    if (userManagementBtn) {
-                        userManagementBtn.style.display = user.role === 'admin' ? 'inline-block' : 'none';
-                    }
+                    // 控制管理功能
+                    const isAdmin = user.role === 'admin' || user.role === 'superadmin';
+                    if (sidebarUserMgmt) sidebarUserMgmt.style.display = isAdmin ? 'flex' : 'none';
+                    if (mobileUserMgmt) mobileUserMgmt.style.display = isAdmin ? 'flex' : 'none';
 
-                    // 处理修复模式开关（仅 admin/superadmin 可见）
-                    if (user.role === 'admin' || user.role === 'superadmin') {
+                    if (isAdmin) {
                         maintenanceContainer.style.display = 'flex';
                         await loadMaintenanceStatus();
-                    } else {
-                        maintenanceContainer.style.display = 'none';
                     }
-                } else {
-                    usernameSpan.textContent = '访客';
                 }
             } catch (err) {
                 console.error('获取用户信息失败:', err);
@@ -473,44 +601,39 @@
             }
         }
 
-        // ==================== 加载修复模式状态 ====================
+        // ==================== 加载维护模式状态 ====================
         async function loadMaintenanceStatus() {
             try {
                 const res = await fetch('/api/admin/maintenance/status');
-                if (!res.ok) throw new Error('获取状态失败');
                 const data = await res.json();
                 maintenanceToggle.checked = data.enabled;
                 maintenanceStatus.textContent = data.enabled ? '已开启' : '已关闭';
+                maintenanceStatus.style.color = data.enabled ? 'var(--admin-pink)' : 'var(--text-muted)';
             } catch (err) {
-                console.error('获取修复模式状态失败', err);
-                maintenanceStatus.textContent = '状态未知';
+                console.error('加载维护状态失败');
             }
         }
 
-        // ==================== 切换修复模式 ====================
-        if (maintenanceToggle) {
-            maintenanceToggle.addEventListener('change', async (e) => {
-                const enable = e.target.checked;
-                try {
-                    const res = await fetch('/api/admin/maintenance/toggle', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ enable })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        showMessage(enable ? '修复模式已开启' : '修复模式已关闭', 'success');
-                        maintenanceStatus.textContent = enable ? '已开启' : '已关闭';
-                    } else {
-                        showMessage('操作失败：' + (data.error || '未知错误'), 'error');
-                        maintenanceToggle.checked = !enable;
-                    }
-                } catch (err) {
-                    showMessage('网络错误，请重试', 'error');
+        // ==================== 切换维护模式 ====================
+        maintenanceToggle.addEventListener('change', async (e) => {
+            const enable = e.target.checked;
+            try {
+                const res = await fetch('/api/admin/maintenance/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enable })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    maintenanceStatus.textContent = enable ? '已开启' : '已关闭';
+                    maintenanceStatus.style.color = enable ? 'var(--admin-pink)' : 'var(--text-muted)';
+                } else {
                     maintenanceToggle.checked = !enable;
                 }
-            });
-        }
+            } catch (err) {
+                maintenanceToggle.checked = !enable;
+            }
+        });
 
         // ==================== 加载文章列表 ====================
         async function loadPosts() {
@@ -522,42 +645,58 @@
                 publishedContainer.innerHTML = '';
                 draftContainer.innerHTML = '';
 
+                let pubCount = 0;
+                let draftCount = 0;
+
                 if (posts.length === 0) {
-                    publishedContainer.innerHTML = '<p style="text-align:center;">暂无文章</p>';
-                    return;
+                    publishedContainer.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-muted);">空空如也，快去创作吧~</p>';
                 }
 
                 posts.forEach(post => {
-                    // 只显示标题，不显示作者或slug
-                    const html = `
-                        <div class="post-item" data-slug="${post.slug}" data-published="${post.is_published}">
-                            <div style="flex: 1;">
-                                <a href="editor.html?slug=${post.slug}" style="text-decoration: none; color: inherit;">
-                                    <span class="title">${post.title}</span>
-                                </a>
+                    const isPublished = post.is_published == 1;
+                    if (isPublished) pubCount++; else draftCount++;
+
+                    const card = `
+                        <div class="post-card">
+                            <div class="post-info">
+                                <a href="editor.html?slug=${post.slug}" class="post-title">${post.title}</a>
+                                <div class="post-meta">
+                                    <span><i class="far fa-calendar-alt"></i> ${post.slug}</span>
+                                    <span class="status-badge ${isPublished ? 'status-published' : 'status-draft'}">
+                                        ${isPublished ? '已发布' : '草稿'}
+                                    </span>
+                                </div>
                             </div>
                             <div class="post-actions">
-                                <a href="editor.html?slug=${post.slug}" class="btn">编辑</a>
-                                <button class="btn btn-danger" onclick="deletePost('${post.slug}')">删除</button>
+                                <a href="editor.html?slug=${post.slug}" class="action-btn btn-edit" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="action-btn btn-delete" onclick="deletePost('${post.slug}')" title="删除">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
                             </div>
                         </div>
                     `;
 
-                    if (post.is_published == 1) {
-                        publishedContainer.innerHTML += html;
+                    if (isPublished) {
+                        publishedContainer.innerHTML += card;
                     } else {
-                        draftContainer.innerHTML += html;
+                        draftContainer.innerHTML += card;
                     }
                 });
+
+                statPublished.textContent = pubCount;
+                statDrafts.textContent = draftCount;
+
             } catch (error) {
                 console.error(error);
-                publishedContainer.innerHTML = '<p style="color: red;">加载失败</p>';
+                publishedContainer.innerHTML = '<p style="color: red;">文章列表加载失败</p>';
             }
         }
 
         // ==================== 删除文章 ====================
         window.deletePost = async function(slug) {
-            if (!confirm(`确定要删除文章 "${slug}" 吗？`)) return;
+            if (!confirm(`确定要删除文章 "${slug}" 吗？此操作不可逆。`)) return;
 
             const formData = new FormData();
             formData.append('slug', slug);
@@ -568,70 +707,56 @@
                     body: formData
                 });
                 const result = await response.json();
-
                 if (result.success) {
-                    showMessage('删除成功', 'success');
                     loadPosts();
                 } else {
-                    showMessage(result.error || '删除失败', 'error');
+                    alert('删除失败: ' + (result.error || '未知错误'));
                 }
             } catch (error) {
-                showMessage('删除失败', 'error');
+                alert('网络错误，请稍后重试');
             }
         };
 
-        // ==================== 注销按钮 ====================
-        logoutBtn.addEventListener('click', async () => {
-            if (confirm('确定要注销吗？')) {
-                try {
-                    const response = await fetch('/api/logout', {
-                        method: 'POST',
-                        credentials: 'same-origin'
-                    });
-                    if (response.ok) {
-                        window.location.replace('/admin/login.html');
-                    } else {
-                        alert('注销失败');
-                    }
-                } catch (error) {
-                    alert('注销出错');
-                }
+        // ==================== 注销逻辑 ====================
+        async function handleLogout() {
+            if (!confirm('确定要退出登录吗？')) return;
+            try {
+                const res = await fetch('/api/logout', { method: 'POST' });
+                if (res.ok) window.location.replace('/admin/login.html');
+            } catch (err) {
+                alert('注销失败');
             }
-        });
+        }
 
-        // ==================== 初始加载 ====================
-        loadCurrentUser();
-        loadPosts();
-     // ==================== 新建文章模式选择 ====================
+        logoutBtn.addEventListener('click', handleLogout);
+        mobileLogout.addEventListener('click', (e) => { e.preventDefault(); handleLogout(); });
+
+        // ==================== 新建文章气泡交互 ====================
         const newPostLink = document.getElementById('newPostLink');
         const modeBubble = document.getElementById('modeBubble');
-        
-        // 显示/隐藏气泡
+
         newPostLink.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            // 切换显示
-            if (modeBubble.style.display === 'none') {
-                modeBubble.style.display = 'block';
-            } else {
-                modeBubble.style.display = 'none';
-            }
+            modeBubble.style.display = modeBubble.style.display === 'block' ? 'none' : 'block';
         });
-        
-        // 点击选项
+
         document.querySelectorAll('.mode-option').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', () => {
                 const mode = btn.dataset.mode;
                 window.location.href = `editor.html?mode=${mode}`;
             });
         });
-        
-        // 点击页面其他地方关闭气泡
+
         document.addEventListener('click', (e) => {
             if (!newPostLink.contains(e.target) && !modeBubble.contains(e.target)) {
                 modeBubble.style.display = 'none';
             }
         });
+
+        // ==================== 初始执行 ====================
+        loadCurrentUser();
+        loadPosts();
     </script>
 </body>
 </html>
