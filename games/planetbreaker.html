@@ -2,11 +2,16 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Planet Breaker · 织星游艺场</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <style>
+        :root {
+            --neon-purple: #bc13fe;
+            --neon-cyan: #00f2ff;
+        }
+
         body {
             height: 100vh;
             display: flex;
@@ -17,43 +22,46 @@
             margin: 0;
             overflow: hidden;
             font-family: 'Outfit', sans-serif;
+            touch-action: none;
         }
 
         .game-wrapper {
             position: relative;
+            width: 95%;
+            max-width: 600px;
             background: rgba(255, 255, 255, 0.03);
-            padding: 20px;
             border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
             backdrop-filter: blur(20px);
-        }
-
-        #game-canvas {
-            background: radial-gradient(circle at center, #1a1a2e 0%, #050510 100%);
-            border-radius: 24px;
-            border: 1px solid rgba(188, 19, 254, 0.3);
-            cursor: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
         }
 
         .game-header {
-            position: absolute;
-            top: -70px;
-            left: 0;
-            width: 100%;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
+            margin-bottom: 15px;
             padding: 0 10px;
         }
 
-        .stat-group { display: flex; gap: 20px; }
+        .stat-group { display: flex; gap: 15px; }
         .stat-item { text-align: center; }
-        .stat-label { font-size: 10px; color: #bc13fe; text-transform: uppercase; }
-        .stat-value { font-size: 24px; font-weight: 800; color: white; }
+        .stat-label { font-size: 10px; color: var(--neon-purple); text-transform: uppercase; font-weight: 700; }
+        .stat-value { font-size: 20px; font-weight: 800; color: white; }
+
+        #game-canvas {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050510 100%);
+            border-radius: 25px;
+            display: block;
+            width: 100%;
+            height: auto;
+            border: 1px solid rgba(188, 19, 254, 0.2);
+        }
 
         .overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            inset: 0;
             background: rgba(0, 0, 0, 0.9);
             border-radius: 40px;
             display: flex;
@@ -62,13 +70,13 @@
             justify-content: center;
             z-index: 100;
             text-align: center;
-            transition: all 0.4s;
+            padding: 20px;
         }
 
         .btn-play {
             margin-top: 2rem;
             padding: 1.2rem 3.5rem;
-            background: linear-gradient(135deg, #bc13fe, #7a2ff7);
+            background: linear-gradient(135deg, var(--neon-purple), #7a2ff7);
             color: white;
             border: none;
             border-radius: 50px;
@@ -79,12 +87,10 @@
             transition: all 0.3s;
         }
 
-        .btn-play:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 15px 35px rgba(188, 19, 254, 0.6); }
-
         .back-btn {
             position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
-            background: rgba(255,255,255,0.05); padding: 12px 24px; border-radius: 30px;
-            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); z-index: 200;
         }
     </style>
 </head>
@@ -93,219 +99,234 @@
 
     <div class="game-wrapper">
         <div class="game-header">
-            <h1 style="color: #bc13fe; font-size: 2rem; margin: 0;">Planet Breaker</h1>
+            <h1 style="color: var(--neon-purple); font-size: 1.8rem; margin: 0; letter-spacing: -1px;">PLANET BREAKER</h1>
             <div class="stat-group">
-                <div class="stat-item"><div class="stat-label">Level</div><div id="level" class="stat-value">1</div></div>
-                <div class="stat-item"><div class="stat-label">Score</div><div id="score" class="stat-value">0</div></div>
-                <div class="stat-item"><div class="stat-label">Lives</div><div id="lives" class="stat-value">3</div></div>
+                <div class="stat-item"><div class="stat-label">HI-SCORE</div><div id="high-score" class="stat-value">0</div></div>
+                <div class="stat-item"><div class="stat-label">SCORE</div><div id="score" class="stat-value">0</div></div>
+                <div class="stat-item"><div class="stat-label">LIVES</div><div id="lives" class="stat-value">3</div></div>
             </div>
         </div>
 
         <canvas id="game-canvas" width="600" height="500"></canvas>
 
         <div class="overlay" id="overlay">
-            <h2 id="msg-title" style="font-size: 3.5rem; background: linear-gradient(to right, #bc13fe, #00f2ff); -webkit-background-clip: text; color: transparent; margin: 0;">LEVEL 1</h2>
-            <p id="msg-desc" style="color: white; opacity: 0.6; font-size: 1.2rem; margin-top: 1rem;">击碎障碍，进入下一星域</p>
-            <button class="btn-play" onclick="startLevel()">开始挑战</button>
+            <h2 id="msg-title" style="font-size: 3rem; background: linear-gradient(to right, var(--neon-purple), var(--neon-cyan)); -webkit-background-clip: text; color: transparent; margin: 0;">星际挑战</h2>
+            <p id="msg-desc" style="color: white; opacity: 0.6; margin-top: 1rem;">击碎星体，穿越无尽星域</p>
+            <button class="btn-play" onclick="game.start()">启动引擎</button>
         </div>
     </div>
 
+    <script src="game-utils.js"></script>
     <script>
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
-        const levelEl = document.getElementById('level');
-        const scoreEl = document.getElementById('score');
-        const livesEl = document.getElementById('lives');
-        const overlay = document.getElementById('overlay');
-        const msgTitle = document.getElementById('msg-title');
-        const msgDesc = document.getElementById('msg-desc');
+        class PlanetBreaker {
+            constructor() {
+                this.canvas = document.getElementById('game-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.scoreEl = document.getElementById('score');
+                this.highScoreEl = document.getElementById('high-score');
+                this.livesEl = document.getElementById('lives');
+                this.overlay = document.getElementById('overlay');
+                this.msgTitle = document.getElementById('msg-title');
+                this.msgDesc = document.getElementById('msg-desc');
 
-        let score = 0, lives = 3, level = 1;
-        let gameRunning = false;
+                this.paddleWidth = 100;
+                this.paddleHeight = 12;
+                this.ballRadius = 7;
+                
+                this.highScore = GameUtils.getHighScore('planetbreaker');
+                this.highScoreEl.textContent = this.highScore;
+                
+                this.active = false;
+                this.init();
+            }
 
-        const paddleWidth = 120, paddleHeight = 15;
-        let paddleX = (canvas.width - paddleWidth) / 2;
+            init() {
+                this.score = 0;
+                this.lives = 3;
+                this.level = 1;
+                this.resetBall();
+                this.initBricks();
+                this.updateUI();
+            }
 
-        let x, y, dx, dy;
-        const ballRadius = 8;
+            resetBall() {
+                this.x = this.canvas.width / 2;
+                this.y = this.canvas.height - 35;
+                this.dx = 4 * (Math.random() > 0.5 ? 1 : -1);
+                this.dy = -4;
+                this.paddleX = (this.canvas.width - this.paddleWidth) / 2;
+            }
 
-        let bricks = [];
-        const brickPadding = 10;
-        const brickOffsetTop = 40;
-        const brickOffsetLeft = 35;
-
-        const levels = [
-            { rows: 3, cols: 6, speed: 4 },
-            { rows: 4, cols: 7, speed: 5 },
-            { rows: 5, cols: 8, speed: 6 },
-            { rows: 6, cols: 9, speed: 7 }
-        ];
-
-        function initLevel() {
-            const config = levels[Math.min(level - 1, levels.length - 1)];
-            const brickWidth = (canvas.width - 2 * brickOffsetLeft - (config.cols - 1) * brickPadding) / config.cols;
-            
-            bricks = [];
-            for (let c = 0; c < config.cols; c++) {
-                bricks[c] = [];
-                for (let r = 0; r < config.rows; r++) {
-                    bricks[c][r] = { x: 0, y: 0, status: 1, w: brickWidth };
+            initBricks() {
+                const rows = 3 + Math.min(this.level, 3);
+                const cols = 8;
+                const brickPadding = 10;
+                const offsetTop = 40;
+                const offsetLeft = 30;
+                const brickWidth = (this.canvas.width - (offsetLeft * 2) - (cols - 1) * brickPadding) / cols;
+                
+                this.bricks = [];
+                for (let c = 0; c < cols; c++) {
+                    this.bricks[c] = [];
+                    for (let r = 0; r < rows; r++) {
+                        this.bricks[c][r] = { x: 0, y: 0, status: 1, w: brickWidth };
+                    }
                 }
             }
-            
-            x = canvas.width / 2;
-            y = canvas.height - 40;
-            dx = config.speed * (Math.random() > 0.5 ? 1 : -1);
-            dy = -config.speed;
-            paddleX = (canvas.width - paddleWidth) / 2;
-        }
 
-        function startLevel() {
-            initLevel();
-            gameRunning = true;
-            overlay.style.display = 'none';
-            updateUI();
-            draw();
-        }
+            start() {
+                this.active = true;
+                this.overlay.style.display = 'none';
+                this.loop();
+            }
 
-        function updateUI() {
-            levelEl.textContent = level;
-            scoreEl.textContent = score;
-            livesEl.textContent = lives;
-        }
+            updateUI() {
+                this.scoreEl.textContent = this.score;
+                this.livesEl.textContent = this.lives;
+                this.highScoreEl.textContent = this.highScore;
+            }
 
-        function draw() {
-            if (!gameRunning) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            drawBricks();
-            drawBall();
-            drawPaddle();
-            collisionDetection();
+            loop() {
+                if (!this.active) return;
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
 
-            if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
-            if (y + dy < ballRadius) dy = -dy;
-            else if (y + dy > canvas.height - ballRadius - 10) {
-                if (x > paddleX && x < paddleX + paddleWidth) {
-                    dy = -dy;
-                    let delta = x - (paddleX + paddleWidth / 2);
-                    dx = delta * 0.15;
-                } else {
-                    lives--;
-                    updateUI();
-                    if (lives <= 0) {
-                        gameOver();
-                        return;
+            update() {
+                // Ball movement
+                this.x += this.dx;
+                this.y += this.dy;
+
+                // Wall collisions
+                if (this.x + this.dx > this.canvas.width - this.ballRadius || this.x + this.dx < this.ballRadius) this.dx = -this.dx;
+                if (this.y + this.dy < this.ballRadius) this.dy = -this.dy;
+                else if (this.y + this.dy > this.canvas.height - this.ballRadius - 15) {
+                    if (this.x > this.paddleX && this.x < this.paddleX + this.paddleWidth) {
+                        this.dy = -this.dy;
+                        // Angle change based on hit location
+                        let delta = this.x - (this.paddleX + this.paddleWidth / 2);
+                        this.dx = delta * 0.15;
                     } else {
-                        gameRunning = false;
-                        msgTitle.textContent = "OOPS!";
-                        msgDesc.textContent = "损失了一次机会，准备重回星场";
-                        overlay.style.display = 'flex';
-                        return; // 修复：阻止后续 x+=dx; y+=dy 和 rAF 被调用
-                    }
-                }
-            }
-
-            if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 8;
-            else if (leftPressed && paddleX > 0) paddleX -= 8;
-
-            x += dx; y += dy;
-            requestAnimationFrame(draw);
-        }
-
-        function drawBricks() {
-            bricks.forEach((col, c) => {
-                col.forEach((b, r) => {
-                    if (b.status === 1) {
-                        const bx = (c * (b.w + brickPadding)) + brickOffsetLeft;
-                        const by = (r * (30 + brickPadding)) + brickOffsetTop;
-                        b.x = bx; b.y = by;
-                        
-                        const gradient = ctx.createLinearGradient(bx, by, bx, by + 30);
-                        gradient.addColorStop(0, `hsla(${280 + r * 15}, 80%, 60%, 1)`);
-                        gradient.addColorStop(1, `hsla(${280 + r * 15}, 80%, 40%, 1)`);
-                        
-                        ctx.beginPath();
-                        ctx.roundRect(bx, by, b.w, 30, 8);
-                        ctx.fillStyle = gradient;
-                        ctx.fill();
-                        ctx.strokeStyle = "rgba(255,255,255,0.2)";
-                        ctx.stroke();
-                        ctx.closePath();
-                    }
-                });
-            });
-        }
-
-        function drawBall() {
-            ctx.beginPath();
-            ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-            ctx.fillStyle = "white";
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = "#bc13fe";
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.closePath();
-        }
-
-        function drawPaddle() {
-            const grad = ctx.createLinearGradient(paddleX, 0, paddleX + paddleWidth, 0);
-            grad.addColorStop(0, "#bc13fe"); grad.addColorStop(1, "#00f2ff");
-            ctx.beginPath();
-            ctx.roundRect(paddleX, canvas.height - 20, paddleWidth, paddleHeight, 10);
-            ctx.fillStyle = grad;
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function collisionDetection() {
-            let activeBricks = 0;
-            bricks.forEach(col => {
-                col.forEach(b => {
-                    if (b.status === 1) {
-                        activeBricks++;
-                        if (x > b.x && x < b.x + b.w && y > b.y && y < b.y + 30) {
-                            dy = -dy;
-                            b.status = 0;
-                            score += 10;
-                            updateUI();
+                        this.lives--;
+                        this.updateUI();
+                        if (this.lives <= 0) {
+                            this.gameOver();
+                        } else {
+                            this.active = false;
+                            this.msgTitle.textContent = "星际受损";
+                            this.msgDesc.textContent = "剩余护盾: " + this.lives;
+                            this.overlay.style.display = 'flex';
+                            this.resetBall();
                         }
                     }
+                }
+
+                // Brick collisions
+                let bricksLeft = 0;
+                for (let c = 0; c < this.bricks.length; c++) {
+                    for (let r = 0; r < this.bricks[c].length; r++) {
+                        let b = this.bricks[c][r];
+                        if (b.status === 1) {
+                            bricksLeft++;
+                            let bx = c * (b.w + 10) + 30;
+                            let by = r * (25 + 10) + 40;
+                            if (this.x > bx && this.x < bx + b.w && this.y > by && this.y < by + 25) {
+                                this.dy = -this.dy;
+                                b.status = 0;
+                                this.score += 10;
+                                this.updateUI();
+                            }
+                        }
+                    }
+                }
+
+                if (bricksLeft === 0) {
+                    this.level++;
+                    this.active = false;
+                    this.msgTitle.textContent = "星域清理完毕";
+                    this.msgDesc.textContent = "准备跃迁至第 " + (this.level) + " 星域";
+                    this.overlay.style.display = 'flex';
+                    this.initBricks();
+                    this.resetBall();
+                }
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Bricks
+                this.bricks.forEach((col, c) => {
+                    col.forEach((b, r) => {
+                        if (b.status === 1) {
+                            let bx = c * (b.w + 10) + 30;
+                            let by = r * (25 + 10) + 40;
+                            const grad = this.ctx.createLinearGradient(bx, by, bx, by + 25);
+                            grad.addColorStop(0, `hsla(${280 + r * 15}, 80%, 60%, 1)`);
+                            grad.addColorStop(1, `hsla(${280 + r * 15}, 80%, 40%, 1)`);
+                            this.ctx.fillStyle = grad;
+                            this.ctx.beginPath();
+                            this.ctx.roundRect(bx, by, b.w, 25, 5);
+                            this.ctx.fill();
+                        }
+                    });
                 });
-            });
-            if (activeBricks === 0) levelWin();
+
+                // Ball
+                this.ctx.beginPath();
+                this.ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2);
+                this.ctx.fillStyle = "white";
+                this.ctx.shadowBlur = 10;
+                this.ctx.shadowColor = var(--neon-cyan);
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0;
+
+                // Paddle
+                const pGrad = this.ctx.createLinearGradient(this.paddleX, 0, this.paddleX + this.paddleWidth, 0);
+                pGrad.addColorStop(0, var(--neon-purple)); pGrad.addColorStop(1, var(--neon-cyan));
+                this.ctx.fillStyle = pGrad;
+                this.ctx.beginPath();
+                this.ctx.roundRect(this.paddleX, this.canvas.height - 20, this.paddleWidth, this.paddleHeight, 6);
+                this.ctx.fill();
+            }
+
+            gameOver() {
+                this.active = false;
+                const isNewHigh = GameUtils.saveScore('planetbreaker', this.score);
+                this.msgTitle.textContent = "星际迷航";
+                this.msgDesc.innerHTML = `最终积分: ${this.score}<br>${isNewHigh ? '<b>新星域纪录！</b>' : ''}`;
+                if (isNewHigh) {
+                    this.highScore = this.score;
+                    this.updateUI();
+                    GameUtils.showToast('记录刷新！', 'success');
+                }
+                this.overlay.style.display = 'flex';
+                this.init();
+            }
         }
 
-        function levelWin() {
-            gameRunning = false;
-            level++;
-            msgTitle.textContent = "星际跃迁!";
-            msgDesc.textContent = `准备进入第 ${level} 星域`;
-            overlay.style.display = 'flex';
-        }
+        // CSS Var fallback for JS
+        const var_neon_purple = '#bc13fe';
+        const var_neon_cyan = '#00f2ff';
 
-        function gameOver() {
-            gameRunning = false;
-            msgTitle.textContent = "GAME OVER";
-            msgDesc.textContent = `最终得分: ${score}`;
-            level = 1; score = 0; lives = 3;
-            overlay.style.display = 'flex';
-        }
+        const game = new PlanetBreaker();
 
-        let rightPressed = false, leftPressed = false;
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = true;
-            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = true;
+        this.canvas.addEventListener('mousemove', e => {
+            const rect = game.canvas.getBoundingClientRect();
+            const rx = (e.clientX - rect.left) * (game.canvas.width / rect.width);
+            game.paddleX = rx - game.paddleWidth / 2;
+            if (game.paddleX < 0) game.paddleX = 0;
+            if (game.paddleX > game.canvas.width - game.paddleWidth) game.paddleX = game.canvas.width - game.paddleWidth;
         });
-        document.addEventListener("keyup", (e) => {
-            if (e.key === "Right" || e.key === "ArrowRight") rightPressed = false;
-            else if (e.key === "Left" || e.key === "ArrowLeft") leftPressed = false;
-        });
-        canvas.addEventListener("mousemove", (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const rx = e.clientX - rect.left;
-            if (rx > 0 && rx < canvas.width) paddleX = rx - paddleWidth / 2;
-        });
+
+        this.canvas.addEventListener('touchmove', e => {
+            e.preventDefault();
+            const rect = game.canvas.getBoundingClientRect();
+            const rx = (e.touches[0].clientX - rect.left) * (game.canvas.width / rect.width);
+            game.paddleX = rx - game.paddleWidth / 2;
+            if (game.paddleX < 0) game.paddleX = 0;
+            if (game.paddleX > game.canvas.width - game.paddleWidth) game.paddleX = game.canvas.width - game.paddleWidth;
+        }, { passive: false });
 
         if (!CanvasRenderingContext2D.prototype.roundRect) {
             CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {

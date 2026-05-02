@@ -154,56 +154,71 @@
     <main class="blog-container">
         <div class="game-grid">
             <!-- 2048 -->
-            <div class="glass game-card">
+            <div class="glass game-card" data-game="star2048">
                 <div class="game-thumb"><i class="fas fa-th-large"></i></div>
                 <div class="game-info">
-                    <span class="game-tag">Puzzle</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="game-tag">Puzzle</span>
+                        <div class="high-score-badge">Best: <span id="score-star2048">0</span></div>
+                    </div>
                     <h2 style="font-size: 1.8rem;">星际 2048</h2>
-                    <p>挑战逻辑极限，合成 2048 级超级恒星。</p>
+                    <p>挑战逻辑极限，合成 2048 级超级恒星。支持手势操作。</p>
                     <a href="star2048.html" class="game-btn">进入游戏</a>
                 </div>
             </div>
 
             <!-- Snake -->
-            <div class="glass game-card">
+            <div class="glass game-card" data-game="neonsnake">
                 <div class="game-thumb" style="color: var(--accent-blue);"><i class="fas fa-worm"></i></div>
                 <div class="game-info">
-                    <span class="game-tag" style="background: rgba(0, 242, 255, 0.1); color: var(--accent-blue);">Arcade</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="game-tag" style="background: rgba(0, 242, 255, 0.1); color: var(--accent-blue);">Arcade</span>
+                        <div class="high-score-badge" style="border-color: var(--accent-blue); color: var(--accent-blue);">Best: <span id="score-neonsnake">0</span></div>
+                    </div>
                     <h2 style="font-size: 1.8rem;">霓虹贪吃蛇</h2>
-                    <p>速度随竞技感飙升，在霓虹迷宫中穿梭。</p>
+                    <p>在霓虹迷宫中穿梭，挑战光速反应。支持手势与按键。</p>
                     <a href="neonsnake.html" class="game-btn" style="background: var(--accent-blue);">进入游戏</a>
                 </div>
             </div>
 
             <!-- Planet Breaker -->
-            <div class="glass game-card">
+            <div class="glass game-card" data-game="planetbreaker">
                 <div class="game-thumb" style="color: #bc13fe;"><i class="fas fa-rocket"></i></div>
                 <div class="game-info">
-                    <span class="game-tag" style="background: rgba(188, 19, 254, 0.1); color: #bc13fe;">Action</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="game-tag" style="background: rgba(188, 19, 254, 0.1); color: #bc13fe;">Action</span>
+                        <div class="high-score-badge" style="border-color: #bc13fe; color: #bc13fe;">Best: <span id="score-planetbreaker">0</span></div>
+                    </div>
                     <h2 style="font-size: 1.8rem;">行星粉碎者</h2>
-                    <p>多级关卡挑战，击碎守卫星系的层层防御。</p>
+                    <p>击碎守卫星系的防御，穿越星域挑战。支持触控操作。</p>
                     <a href="planetbreaker.html" class="game-btn" style="background: #bc13fe;">进入游戏</a>
                 </div>
             </div>
 
-            <!-- Starry Dino (NEW) -->
-            <div class="glass game-card">
+            <!-- Starry Dino -->
+            <div class="glass game-card" data-game="dinorun">
                 <div class="game-thumb" style="color: #ff9f43;"><i class="fas fa-dragon"></i></div>
                 <div class="game-info">
-                    <span class="game-tag" style="background: rgba(255, 159, 67, 0.1); color: #ff9f43;">Runner</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="game-tag" style="background: rgba(255, 159, 67, 0.1); color: #ff9f43;">Runner</span>
+                        <div class="high-score-badge" style="border-color: #ff9f43; color: #ff9f43;">Best: <span id="score-dinorun">0</span></div>
+                    </div>
                     <h2 style="font-size: 1.8rem;">织星小恐龙</h2>
-                    <p>在月球表面奔跑，躲避坠落的彗星与仙人掌。</p>
+                    <p>在月球表面奔跑，躲避时空裂缝。支持点击与空格。</p>
                     <a href="dinorun.html" class="game-btn" style="background: #ff9f43;">进入游戏</a>
                 </div>
             </div>
 
-            <!-- Star Defender (NEW) -->
-            <div class="glass game-card">
+            <!-- Star Defender -->
+            <div class="glass game-card" data-game="starwar">
                 <div class="game-thumb" style="color: #ff4757;"><i class="fas fa-fighter-jet"></i></div>
                 <div class="game-info">
-                    <span class="game-tag" style="background: rgba(255, 71, 87, 0.1); color: #ff4757;">Shooter</span>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span class="game-tag" style="background: rgba(255, 71, 87, 0.1); color: #ff4757;">Shooter</span>
+                        <div class="high-score-badge" style="border-color: #ff4757; color: #ff4757;">Best: <span id="score-starwar">0</span></div>
+                    </div>
                     <h2 style="font-size: 1.8rem;">星际战机</h2>
-                    <p>经典的弹幕射击，保卫你的星球不受入侵。</p>
+                    <p>保卫你的星球，击退入侵星舰。支持全平台触控。</p>
                     <a href="starwar.html" class="game-btn" style="background: #ff4757;">进入游戏</a>
                 </div>
             </div>
@@ -212,16 +227,70 @@
         <!-- Rank Preview Section -->
         <div class="rank-section">
             <div class="rank-header">
-                <h2 style="font-size: 2.2rem;"><i class="fas fa-trophy" style="color: #FFD700;"></i> 星际排行榜</h2>
-                <span style="color: var(--text-muted);">即将上线...</span>
+                <h2 style="font-size: 2.2rem;"><i class="fas fa-trophy" style="color: #FFD700;"></i> 我的星际成就</h2>
+                <button class="game-btn" onclick="clearScores()" style="padding: 0.5rem 1rem; font-size: 0.8rem; background: rgba(255,255,255,0.1); box-shadow: none;">重置记录</button>
             </div>
-            <div style="text-align: center; padding: 2rem; border: 2px dashed var(--glass-border); border-radius: 20px; color: var(--text-muted);">
-                <p>竞技系统正在建设中，届时你可以与全服旅人一较高下！</p>
+            <div id="stats-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <!-- Will be populated by JS -->
             </div>
         </div>
     </main>
 
     <blog-footer></blog-footer>
+    <script src="game-utils.js"></script>
     <script src="../components.js"></script>
+    <script>
+        function updateHubScores() {
+            const games = ['star2048', 'neonsnake', 'planetbreaker', 'dinorun', 'starwar'];
+            const names = {
+                'star2048': '星际 2048',
+                'neonsnake': '霓虹贪吃蛇',
+                'planetbreaker': '行星粉碎者',
+                'dinorun': '织星小恐龙',
+                'starwar': '星际战机'
+            };
+            
+            const statsContainer = document.getElementById('stats-summary');
+            statsContainer.innerHTML = '';
+
+            games.forEach(id => {
+                const score = GameUtils.getHighScore(id);
+                const el = document.getElementById(`score-${id}`);
+                if (el) el.textContent = score;
+
+                // Add to summary
+                const card = document.createElement('div');
+                card.className = 'glass';
+                card.style.padding = '1.5rem';
+                card.style.borderRadius = '20px';
+                card.style.textAlign = 'center';
+                card.innerHTML = `
+                    <div style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.5rem;">${names[id]}</div>
+                    <div style="font-size: 1.5rem; font-weight: 800; color: var(--primary-pink);">${score}</div>
+                `;
+                statsContainer.appendChild(card);
+            });
+        }
+
+        function clearScores() {
+            if (confirm('确定要清除所有游戏记录吗？')) {
+                localStorage.removeItem('starry_arcade_scores');
+                updateHubScores();
+                GameUtils.showToast('记录已重置');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateHubScores);
+    </script>
+    <style>
+        .high-score-badge {
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-pink);
+            color: var(--primary-pink);
+        }
+    </style>
 </body>
 </html>

@@ -2,83 +2,73 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>织星小恐龙 · 织星游艺场</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     <style>
+        :root {
+            --dino-orange: #ff9f43;
+            --sky-blue: #00f2ff;
+        }
+
         body {
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #0a0a1a;
+            background: #050510;
             margin: 0;
             overflow: hidden;
             font-family: 'Outfit', sans-serif;
+            touch-action: none;
         }
 
-        #game-container {
+        .game-wrapper {
             position: relative;
-            width: 800px;
-            height: 250px;
+            width: 95%;
+            max-width: 800px;
             background: rgba(255, 255, 255, 0.02);
-            border-bottom: 2px solid rgba(255, 159, 67, 0.5);
+            border-radius: 30px;
             overflow: hidden;
-            border-radius: 20px 20px 0 0;
+            border-bottom: 3px solid var(--dino-orange);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        #dino {
-            position: absolute;
-            bottom: 0;
-            left: 50px;
-            width: 44px;
-            height: 48px;
-            background: #ff9f43;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #000;
-            z-index: 10;
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: auto;
         }
 
-        .obstacle {
-            position: absolute;
-            bottom: 0;
-            width: 30px;
-            height: 40px;
-            background: #ff4757;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-        }
-
-        .cloud {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            height: 20px;
-            border-radius: 10px;
-        }
-
-        .game-info {
+        .hud {
             position: absolute;
             top: 20px;
-            right: 30px;
+            right: 20px;
+            text-align: right;
+            pointer-events: none;
+        }
+
+        .score-row {
+            color: var(--dino-orange);
             font-size: 24px;
             font-weight: 800;
-            color: #ff9f43;
+            letter-spacing: 2px;
+        }
+
+        .best-row {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
         }
 
         .overlay {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            inset: 0;
             background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -89,162 +79,260 @@
 
         .btn-start {
             margin-top: 20px;
-            padding: 12px 35px;
-            background: #ff9f43;
+            padding: 12px 40px;
+            background: var(--dino-orange);
             color: #000;
             border: none;
             border-radius: 50px;
             font-weight: 800;
             cursor: pointer;
             transition: 0.3s;
+            box-shadow: 0 0 20px rgba(255, 159, 67, 0.4);
         }
 
-        .btn-start:hover { transform: scale(1.1); }
+        .btn-start:hover { transform: scale(1.05); }
 
         .back-btn {
             position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
-            background: rgba(255,255,255,0.05); padding: 12px 24px; border-radius: 30px;
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); z-index: 200;
+        }
+
+        .controls-hint {
+            margin-top: 20px;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回游艺场</a>
 
-    <div style="text-align: center; margin-bottom: 50px;">
-        <h1 style="color: #ff9f43; font-size: 2.5rem; margin: 0;">Starry Dino</h1>
-        <p style="color: white; opacity: 0.5;">[空格] 或 [点击] 向上跳跃</p>
-    </div>
-
-    <div id="game-container">
-        <div id="dino"><i class="fas fa-dragon"></i></div>
-        <div id="score" class="game-info">00000</div>
+    <div class="game-wrapper" id="game-container">
+        <canvas id="game-canvas" width="800" height="250"></canvas>
         
-        <div id="overlay" class="overlay">
-            <h2 id="msg" style="color: #ff9f43; font-size: 3rem;">Ready?</h2>
-            <button class="btn-start" onclick="startGame()">开始奔跑</button>
+        <div class="hud">
+            <div class="best-row">HI <span id="high-score">00000</span></div>
+            <div class="score-row" id="current-score">00000</div>
+        </div>
+
+        <div class="overlay" id="overlay">
+            <h1 style="color: var(--dino-orange); font-size: 3rem; margin: 0;">STARRY DINO</h1>
+            <p id="overlay-msg" style="color: white; opacity: 0.6; margin-top: 10px;">在星海边缘奔跑，躲避时空裂缝</p>
+            <button class="btn-start" onclick="game.start()">开始奔跑</button>
         </div>
     </div>
 
+    <div class="controls-hint">点击屏幕或按空格键跳跃</div>
+
+    <script src="game-utils.js"></script>
     <script>
-        const dino = document.getElementById('dino');
-        const container = document.getElementById('game-container');
-        const scoreEl = document.getElementById('score');
-        const overlay = document.getElementById('overlay');
-        const msg = document.getElementById('msg');
+        class StarryDino {
+            constructor() {
+                this.canvas = document.getElementById('game-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.scoreEl = document.getElementById('current-score');
+                this.highScoreEl = document.getElementById('high-score');
+                this.overlay = document.getElementById('overlay');
+                this.overlayMsg = document.getElementById('overlay-msg');
+                
+                this.gravity = 0.6;
+                this.jumpForce = -12;
+                this.groundY = 220;
+                
+                this.highScore = GameUtils.getHighScore('dinorun');
+                this.updateUI();
+                
+                this.active = false;
+                this.lastTime = 0;
+                this.init();
+            }
 
-        let dinoY = 0;
-        let isJumping = false;
-        let score = 0;
-        let gameActive = false;
-        let speed = 6;
-        // 跟踪所有障碍物计时器，方便统一清除
-        let obstacleTimers = [];
-        let spawnTimeout = null;
-
-        function jump() {
-            if (isJumping || !gameActive) return;
-            isJumping = true;
-            let upTimerId = setInterval(function () {
-                dinoY += 5;
-                dino.style.bottom = dinoY + 'px';
-                if (dinoY >= 150) {
-                    clearInterval(upTimerId);
-                    // 修复：先减再判断，避免落地后 dinoY 残留 -5
-                    let downTimerId = setInterval(function () {
-                        dinoY -= 5;
-                        if (dinoY <= 0) {
-                            dinoY = 0;
-                            isJumping = false;
-                            clearInterval(downTimerId);
-                        }
-                        dino.style.bottom = dinoY + 'px';
-                    }, 20);
+            init() {
+                this.dino = {
+                    x: 50,
+                    y: this.groundY - 40,
+                    w: 40,
+                    h: 40,
+                    dy: 0,
+                    isGrounded: true
+                };
+                this.obstacles = [];
+                this.stars = [];
+                for(let i=0; i<50; i++) {
+                    this.stars.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * (this.canvas.height - 50),
+                        s: Math.random() * 2
+                    });
                 }
-            }, 20);
-        }
+                this.score = 0;
+                this.gameSpeed = 6;
+                this.spawnTimer = 0;
+            }
 
-        function clearAllObstacleTimers() {
-            obstacleTimers.forEach(t => clearInterval(t));
-            obstacleTimers = [];
-            if (spawnTimeout) { clearTimeout(spawnTimeout); spawnTimeout = null; }
-        }
+            start() {
+                this.init();
+                this.active = true;
+                this.overlay.style.display = 'none';
+                requestAnimationFrame(t => this.loop(t));
+            }
 
-        function createObstacle() {
-            if (!gameActive) return;
-            const obstacle = document.createElement('div');
-            obstacle.classList.add('obstacle');
-            obstacle.innerHTML = '<i class="fas fa-meteor"></i>';
-            container.appendChild(obstacle);
+            updateUI() {
+                this.scoreEl.textContent = Math.floor(this.score).toString().padStart(5, '0');
+                this.highScoreEl.textContent = this.highScore.toString().padStart(5, '0');
+            }
 
-            let obstaclePosition = 800;
-            obstacle.style.left = obstaclePosition + 'px';
-            let alive = true; // 防止重复操作同一障碍物
+            jump() {
+                if (this.dino.isGrounded && this.active) {
+                    this.dino.dy = this.jumpForce;
+                    this.dino.isGrounded = false;
+                }
+            }
 
-            let timerId = setInterval(function () {
-                if (!alive) return;
+            loop(timestamp) {
+                if (!this.active) return;
+                const dt = (timestamp - this.lastTime) / 16.67; // Normalize to 60fps
+                this.lastTime = timestamp;
 
-                // 碰撞检测
-                if (obstaclePosition > 50 && obstaclePosition < 94 && dinoY < 40) {
-                    alive = false;
-                    clearInterval(timerId);
-                    if (obstacle.parentNode) obstacle.parentNode.removeChild(obstacle);
-                    gameOver();
-                    return;
+                this.update(dt || 1);
+                this.draw();
+                requestAnimationFrame(t => this.loop(t));
+            }
+
+            update(dt) {
+                // Dino Physics
+                this.dino.dy += this.gravity * dt;
+                this.dino.y += this.dino.dy * dt;
+
+                if (this.dino.y + this.dino.h >= this.groundY) {
+                    this.dino.y = this.groundY - this.dino.h;
+                    this.dino.dy = 0;
+                    this.dino.isGrounded = true;
                 }
 
-                obstaclePosition -= speed;
-                obstacle.style.left = obstaclePosition + 'px';
-
-                if (obstaclePosition < -30) {
-                    alive = false;
-                    clearInterval(timerId);
-                    if (obstacle.parentNode) obstacle.parentNode.removeChild(obstacle);
-                    score++;
-                    updateScore();
-                    if (score % 5 === 0) speed += 0.5;
+                // Obstacles
+                this.spawnTimer += dt;
+                if (this.spawnTimer > 100 / (this.gameSpeed/6)) {
+                    if (Math.random() < 0.05) {
+                        this.obstacles.push({
+                            x: this.canvas.width,
+                            y: this.groundY - 30,
+                            w: 20 + Math.random() * 20,
+                            h: 30 + Math.random() * 20
+                        });
+                        this.spawnTimer = 0;
+                    }
                 }
-            }, 20);
 
-            obstacleTimers.push(timerId);
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    const obs = this.obstacles[i];
+                    obs.x -= this.gameSpeed * dt;
 
-            // 调度下一个障碍物
-            let randomTime = Math.random() * 2000 + 700;
-            spawnTimeout = setTimeout(createObstacle, randomTime / (speed / 6));
+                    // Collision
+                    if (this.dino.x < obs.x + obs.w &&
+                        this.dino.x + this.dino.w > obs.x &&
+                        this.dino.y < obs.y + obs.h &&
+                        this.dino.y + this.dino.h > obs.y) {
+                        this.gameOver();
+                    }
+
+                    if (obs.x + obs.w < 0) this.obstacles.splice(i, 1);
+                }
+
+                // Score and Speed
+                this.score += 0.1 * dt;
+                this.gameSpeed += 0.001 * dt;
+                this.updateUI();
+
+                // Stars Parallax
+                this.stars.forEach(s => {
+                    s.x -= (this.gameSpeed * 0.2) * dt;
+                    if (s.x < 0) s.x = this.canvas.width;
+                });
+            }
+
+            draw() {
+                this.ctx.fillStyle = '#050510';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Stars
+                this.ctx.fillStyle = 'white';
+                this.stars.forEach(s => {
+                    this.ctx.fillRect(s.x, s.y, s.s, s.s);
+                });
+
+                // Ground line
+                this.ctx.strokeStyle = 'rgba(255, 159, 67, 0.3)';
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, this.groundY);
+                this.ctx.lineTo(this.canvas.width, this.groundY);
+                this.ctx.stroke();
+
+                // Obstacles
+                this.ctx.fillStyle = '#ff4757';
+                this.ctx.shadowBlur = 10;
+                this.ctx.shadowColor = '#ff4757';
+                this.obstacles.forEach(obs => {
+                    this.ctx.beginPath();
+                    this.ctx.roundRect(obs.x, obs.y, obs.w, obs.h, 5);
+                    this.ctx.fill();
+                });
+
+                // Dino
+                this.ctx.fillStyle = '#ff9f43';
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = '#ff9f43';
+                this.ctx.beginPath();
+                this.ctx.roundRect(this.dino.x, this.dino.y, this.dino.w, this.dino.h, 8);
+                this.ctx.fill();
+                
+                // Dino Eye
+                this.ctx.fillStyle = '#000';
+                this.ctx.shadowBlur = 0;
+                this.ctx.fillRect(this.dino.x + 25, this.dino.y + 10, 5, 5);
+                
+                this.ctx.shadowBlur = 0;
+            }
+
+            gameOver() {
+                this.active = false;
+                const roundedScore = Math.floor(this.score);
+                const isNewHigh = GameUtils.saveScore('dinorun', roundedScore);
+                this.overlayMsg.innerHTML = `本次航程: ${roundedScore}<br>${isNewHigh ? '<b>发现新星系！(新纪录)</b>' : ''}`;
+                if (isNewHigh) {
+                    this.highScore = roundedScore;
+                    this.updateUI();
+                    GameUtils.showToast('记录刷新！', 'success');
+                }
+                this.overlay.style.display = 'flex';
+            }
         }
 
-        function updateScore() {
-            scoreEl.textContent = score.toString().padStart(5, '0');
-        }
+        const game = new StarryDino();
 
-        function startGame() {
-            // 先清除所有旧计时器，再清 DOM
-            clearAllObstacleTimers();
-            document.querySelectorAll('.obstacle').forEach(o => o.remove());
-            score = 0;
-            speed = 6;
-            dinoY = 0;
-            isJumping = false;
-            dino.style.bottom = '0px';
-            updateScore();
-            gameActive = true;
-            overlay.style.display = 'none';
-            createObstacle();
-        }
-
-        function gameOver() {
-            if (!gameActive) return; // 防止多次触发
-            gameActive = false;
-            clearAllObstacleTimers();
-            document.querySelectorAll('.obstacle').forEach(o => o.remove());
-            overlay.style.display = 'flex';
-            msg.textContent = 'GAME OVER · 得分 ' + score;
-        }
-
-        document.addEventListener('keydown', e => {
-            if (e.code === 'Space') { e.preventDefault(); jump(); }
+        window.addEventListener('keydown', e => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') {
+                e.preventDefault();
+                game.jump();
+            }
         });
-        container.addEventListener('click', jump);
+
+        document.getElementById('game-container').addEventListener('touchstart', e => {
+            e.preventDefault();
+            game.jump();
+        }, { passive: false });
+        
+        document.getElementById('game-container').addEventListener('mousedown', () => game.jump());
+
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2; if (h < 2 * r) r = h / 2;
+                this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r); this.closePath(); return this;
+            }
+        }
     </script>
 </body>
 </html>
