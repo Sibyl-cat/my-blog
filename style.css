@@ -636,6 +636,7 @@ body::before {
   gap: 3rem;
   align-items: flex-start;
   margin-top: 2rem;
+  justify-content: center;
 }
 .home-sidebar {
   flex: 0 0 280px;
@@ -696,7 +697,7 @@ body::before {
 }
 .author-links a:hover { background: var(--primary-pink); color: white; }
 
-.home-main { flex: 1; min-width: 0; }
+.home-main { flex: 1; min-width: 0; max-width: 760px; }
 .posts-header {
   display: flex;
   justify-content: space-between;
@@ -928,6 +929,199 @@ body::before {
   .author-profile-stats { font-size: 1rem; }
   .author-info-details { min-width: 0; }
   .author-info-container { gap: 1rem; }
+}
+
+/* ========== 欢迎弹窗 Toast ========== */
+.welcome-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 320px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 20px var(--pink-shadow);
+  z-index: 8888;
+  overflow: hidden;
+  transform: translateY(120%) scale(0.9);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+  pointer-events: none;
+}
+.welcome-toast.show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.welcome-toast.hide {
+  transform: translateY(120%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 顶部渐变条 */
+.welcome-toast-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #FB7299, #ffb3c8, #FB7299);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.welcome-toast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.2rem 0.5rem;
+}
+.welcome-toast-greeting {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-pink);
+  font-family: 'Outfit', sans-serif;
+}
+.welcome-toast-greeting .greeting-emoji {
+  font-size: 1.4rem;
+  animation: waveHand 1.2s ease-in-out 0.5s 2;
+  display: inline-block;
+  transform-origin: 70% 90%;
+}
+@keyframes waveHand {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-10deg); }
+}
+.welcome-toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.welcome-toast-close:hover {
+  background: var(--primary-pink-alpha);
+  color: var(--primary-pink);
+  transform: rotate(90deg);
+}
+
+.welcome-toast-user {
+  padding: 0 1.2rem 0.8rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.welcome-toast-user strong {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.welcome-toast-divider {
+  height: 1px;
+  background: var(--glass-border);
+  margin: 0 1.2rem;
+}
+
+/* 数据统计行 */
+.welcome-toast-stats {
+  display: flex;
+  gap: 0;
+  padding: 0.8rem 0;
+}
+.welcome-toast-stat {
+  flex: 1;
+  text-align: center;
+  padding: 0.3rem 0.5rem;
+  position: relative;
+}
+.welcome-toast-stat:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: var(--glass-border);
+}
+.welcome-toast-stat-num {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary-pink);
+  font-family: 'Outfit', sans-serif;
+}
+.welcome-toast-stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* 天气/时间条 */
+.welcome-toast-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  gap: 0.5rem;
+}
+.welcome-toast-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.welcome-toast-meta-item i {
+  color: var(--primary-pink);
+  font-size: 0.75rem;
+}
+
+/* 进度条（自动关闭倒计时） */
+.welcome-toast-progress {
+  height: 3px;
+  background: var(--glass-border);
+  margin: 0 1.2rem 1rem;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.welcome-toast-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #FB7299, #ffb3c8);
+  border-radius: 4px;
+  width: 100%;
+  transition: width linear;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .welcome-toast {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 24px 24px 0 0;
+    transform: translateY(110%);
+  }
+  .welcome-toast.show {
+    transform: translateY(0);
+  }
+  .welcome-toast.hide {
+    transform: translateY(110%);
+  }
 }
 
 /* ========== 小电视动画 ========== */

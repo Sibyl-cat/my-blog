@@ -78,6 +78,62 @@
             </main>
         </div>
     
+        <!-- 欢迎弹窗 -->
+        <div class="welcome-toast" id="welcomeToast">
+            <!-- 顶部彩虹条 -->
+            <div class="welcome-toast-bar"></div>
+            <!-- 标题行 -->
+            <div class="welcome-toast-header">
+                <div class="welcome-toast-greeting">
+                    <span class="greeting-emoji" id="greetEmoji">👋</span>
+                    <span id="greetTitle">您好！</span>
+                </div>
+                <button class="welcome-toast-close" id="toastCloseBtn" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <!-- 用户欢迎语 -->
+            <div class="welcome-toast-user" id="toastUserMsg">
+                <i class="fas fa-spinner fa-spin" style="color: var(--primary-pink);"></i> 加载中...
+            </div>
+            <div class="welcome-toast-divider"></div>
+            <!-- 站点统计 -->
+            <div class="welcome-toast-stats">
+                <div class="welcome-toast-stat">
+                    <span class="welcome-toast-stat-num" id="toastPosts">-</span>
+                    <span class="welcome-toast-stat-label">篇宝藏</span>
+                </div>
+                <div class="welcome-toast-stat">
+                    <span class="welcome-toast-stat-num" id="toastUsers">-</span>
+                    <span class="welcome-toast-stat-label">位小伙伴</span>
+                </div>
+                <div class="welcome-toast-stat">
+                    <span class="welcome-toast-stat-num" id="toastTime">-</span>
+                    <span class="welcome-toast-stat-label">天精彩运行</span>
+                </div>
+            </div>
+            <div class="welcome-toast-divider"></div>
+            <!-- 时间与地区信息 -->
+            <div class="welcome-toast-meta">
+                <div class="welcome-toast-meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="toastClock">--:--</span>
+                </div>
+                <div class="welcome-toast-meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="toastLocation">定位中...</span>
+                </div>
+                <div class="welcome-toast-meta-item">
+                    <i class="fas fa-calendar-day"></i>
+                    <span id="toastDate">--</span>
+                </div>
+            </div>
+            <!-- 倒计时进度条 -->
+            <div class="welcome-toast-progress">
+                <div class="welcome-toast-progress-bar" id="toastProgressBar"></div>
+            </div>
+        </div>
+
         <!-- 宽屏页脚 -->
         <blog-footer></blog-footer>
     </div>
@@ -195,7 +251,10 @@
             if (loadMoreBtn) loadMoreBtn.addEventListener('click', loadMore);
         }
 
-        document.addEventListener('DOMContentLoaded', initHome);
+        document.addEventListener('DOMContentLoaded', () => {
+            initHome();
+            initWelcomeToast();
+        });
     </script>
     <style>
         @keyframes cardFadeIn {
@@ -203,5 +262,122 @@
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
+
+    <script>
+        // ========== 欢迎弹窗逻辑 ==========
+        function initWelcomeToast() {
+            const toast = document.getElementById('welcomeToast');
+            const closeBtn = document.getElementById('toastCloseBtn');
+            const progressBar = document.getElementById('toastProgressBar');
+            const AUTO_CLOSE_MS = 7000; // 7秒自动关闭
+
+            // 时间问候语
+            function getGreeting() {
+                const h = new Date().getHours();
+                if (h >= 5 && h < 9)  return { emoji: '🌅', text: '早安！', sub: '新的一天，加油！' };
+                if (h >= 9 && h < 12) return { emoji: '☀️', text: '上午好！', sub: '编程快乐，愛生活！' };
+                if (h >= 12 && h < 14) return { emoji: '🌞', text: '中午好！', sub: '平安顺遂～' };
+                if (h >= 14 && h < 18) return { emoji: '🍵', text: '下午好！', sub: '喝杯茶，慢慢看呀' };
+                if (h >= 18 && h < 22) return { emoji: '🌙', text: '晚上好！', sub: '晋江山就，离此不远～' };
+                return { emoji: '✨', text: '夜深了！', sub: '注意休息哦~' };
+            }
+
+            // 更新时钟和日期
+            function updateClock() {
+                const now = new Date();
+                const hh = String(now.getHours()).padStart(2, '0');
+                const mm = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('toastClock').textContent = `${hh}:${mm}`;
+                const dateEl = document.getElementById('toastDate');
+                if (dateEl) {
+                    const m = now.getMonth() + 1;
+                    const d = now.getDate();
+                    dateEl.textContent = `${m}月${d}日`;
+                }
+            }
+
+            // 设置问候标题
+            const greet = getGreeting();
+            document.getElementById('greetEmoji').textContent = greet.emoji;
+            document.getElementById('greetTitle').textContent = greet.text;
+            updateClock();
+            setInterval(updateClock, 30000);
+
+            // 运行天数
+            const startTime = new Date(2026, 1, 25, 9, 7, 0);
+            const runDays = Math.floor((Date.now() - startTime) / 86400000);
+            const toastTimeEl = document.getElementById('toastTime');
+            if (toastTimeEl) toastTimeEl.textContent = runDays > 0 ? runDays : 1;
+
+            // 弹出弹窗
+            function showToast() {
+                setTimeout(() => toast.classList.add('show'), 600);
+
+                // 倒计时进度条
+                setTimeout(() => {
+                    if (progressBar) {
+                        progressBar.style.transition = `width ${AUTO_CLOSE_MS}ms linear`;
+                        progressBar.style.width = '0%';
+                    }
+                }, 800);
+
+                // 自动关闭
+                setTimeout(() => hideToast(), AUTO_CLOSE_MS + 800);
+            }
+
+            function hideToast() {
+                toast.classList.remove('show');
+                toast.classList.add('hide');
+            }
+
+            closeBtn.addEventListener('click', hideToast);
+
+            // 并行请求：登录状态 + 站点统计
+            Promise.all([
+                fetch('/api/user/me').then(r => r.ok ? r.json() : null).catch(() => null),
+                fetch('/api/stats').then(r => r.ok ? r.json() : null).catch(() => null)
+            ]).then(async ([user, stats]) => {
+                // 填入统计
+                if (stats) {
+                    const pEl = document.getElementById('toastPosts');
+                    const uEl = document.getElementById('toastUsers');
+                    if (pEl) pEl.textContent = stats.postsCount || 0;
+                    if (uEl) uEl.textContent = stats.usersCount || 0;
+                }
+
+                const msgEl = document.getElementById('toastUserMsg');
+                if (user && user.username) {
+                    // 已登录 — 隐藏地区项（无需显示 IP）
+                    const locItem = document.getElementById('toastLocation');
+                    if (locItem) locItem.closest('.welcome-toast-meta-item').style.display = 'none';
+                    msgEl.innerHTML = `欢迎回来，<strong>${escapeHtmlInline(user.username)}</strong> ！<br><span style="font-size:0.85rem;">${greet.sub}</span>`;
+                } else {
+                    // 未登录 — 获取 IP 地理
+                    try {
+                        const ipRes = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
+                        const ipData = await ipRes.json();
+                        const city = ipData.city || ipData.region || ipData.country_name || null;
+                        if (city) {
+                            msgEl.innerHTML = `欢迎来自 <strong>${escapeHtmlInline(city)}</strong> 的小伙伴！<br><span style="font-size:0.85rem;">在织星屿，慢慢逗留吧～</span>`;
+                            const locEl = document.getElementById('toastLocation');
+                            if (locEl) locEl.textContent = city;
+                        } else {
+                            throw new Error('no city');
+                        }
+                    } catch {
+                        msgEl.innerHTML = `欢迎来自远方的小伙伴！<br><span style="font-size:0.85rem;">在织星屿，慢慢逗留吧～</span>`;
+                        const locEl = document.getElementById('toastLocation');
+                        if (locEl) locEl.textContent = '远方';
+                    }
+                }
+                showToast();
+            });
+        }
+
+        // 简化转义（内联用，避免依赖 components.js 的 escapeHtml）
+        function escapeHtmlInline(s) {
+            return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        }
+    </script>
 </body>
 </html>
