@@ -117,6 +117,8 @@ const GameUtils = {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 500);
         }, 3000);
+    },
+
     // 移动端支持检测与拦截
     checkMobileSupport: function(gameName, desktopOnly = false) {
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;

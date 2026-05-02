@@ -315,22 +315,24 @@
 
         const game = new PlanetBreaker();
 
-        game.canvas.addEventListener('mousemove', e => {
-            const rect = game.canvas.getBoundingClientRect();
-            const rx = (e.clientX - rect.left) * (game.canvas.width / rect.width);
-            game.paddleX = rx - game.paddleWidth / 2;
-            if (game.paddleX < 0) game.paddleX = 0;
-            if (game.paddleX > game.canvas.width - game.paddleWidth) game.paddleX = game.canvas.width - game.paddleWidth;
-        });
+        if (game.canvas) {
+            game.canvas.addEventListener('mousemove', e => {
+                const rect = game.canvas.getBoundingClientRect();
+                const rx = (e.clientX - rect.left) * (game.canvas.width / rect.width);
+                game.paddleX = rx - game.paddleWidth / 2;
+                if (game.paddleX < 0) game.paddleX = 0;
+                if (game.paddleX > game.canvas.width - game.paddleWidth) game.paddleX = game.canvas.width - game.paddleWidth;
+            });
 
-        game.canvas.addEventListener('touchmove', e => {
-            e.preventDefault();
-            const rect = game.canvas.getBoundingClientRect();
-            const rx = (e.touches[0].clientX - rect.left) * (game.canvas.width / rect.width);
-            game.paddleX = rx - game.paddleWidth / 2;
-            if (game.paddleX < 0) game.paddleX = 0;
-            if (game.paddleX > game.canvas.width - game.paddleWidth) game.paddleX = game.canvas.width - game.paddleWidth;
-        }, { passive: false });
+            game.canvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+                const rect = game.canvas.getBoundingClientRect();
+                const rx = (e.touches[0].clientX - rect.left) * (game.canvas.width / rect.width);
+                game.paddleX = rx - game.paddleWidth / 2;
+                if (game.paddleX < 0) game.paddleX = 0;
+                if (game.paddleX > game.canvas.width - game.paddleWidth) game.paddleX = game.canvas.width - game.paddleWidth;
+            }, { passive: false });
+        }
 
         if (!CanvasRenderingContext2D.prototype.roundRect) {
             CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
