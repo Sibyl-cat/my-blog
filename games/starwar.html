@@ -171,6 +171,7 @@
                 this.health = 100;
                 this.player = { x: this.canvas.width / 2, y: this.canvas.height - 100, w: 40, h: 40 };
                 this.bullets = [];
+                this.enemyBullets = [];
                 this.enemies = [];
                 this.particles = [];
                 this.stars = [];
@@ -180,6 +181,21 @@
                 this.lastShot = 0;
                 this.enemyTimer = 0;
                 this.updateUI();
+                
+                // Add click/tap to fire
+                this.canvas.onmousedown = () => this.fire();
+                window.onkeydown = (e) => { if(e.code === 'Space') this.fire(); };
+            }
+
+            fire() {
+                if (!this.active) return;
+                const now = Date.now();
+                if (now - this.lastShot > 150) {
+                    this.bullets.push({ x: this.player.x, y: this.player.y - 20, r: 4 });
+                    this.lastShot = now;
+                    // Flash effect
+                    this.createExplosion(this.player.x, this.player.y - 20, '#00f2ff', 2, 2);
+                }
             }
 
             start() {
@@ -210,27 +226,39 @@
                 });
 
                 // Bullets
-                const now = Date.now();
-                if (now - this.lastShot > 150) {
-                    this.bullets.push({ x: this.player.x, y: this.player.y, r: 4 });
-                    this.lastShot = now;
+                for (let i = this.bullets.length - 1; i >= 0; i--) {
+                    this.bullets[i].y -= 15;
+                    if (this.bullets[i].y < 0) this.bullets.splice(i, 1);
                 }
 
-                for (let i = this.bullets.length - 1; i >= 0; i--) {
-                    this.bullets[i].y -= 12;
-                    if (this.bullets[i].y < 0) this.bullets.splice(i, 1);
+                // Enemy Bullets
+                for (let i = this.enemyBullets.length - 1; i >= 0; i--) {
+                    const eb = this.enemyBullets[i];
+                    eb.y += 7;
+                    // Collision with Player
+                    const dist = Math.hypot(eb.x - this.player.x, eb.y - this.player.y);
+                    if (dist < 20) {
+                        this.health -= 10;
+                        this.enemyBullets.splice(i, 1);
+                        this.createExplosion(this.player.x, this.player.y, '#ff4757', 15);
+                        this.updateUI();
+                        if (this.health <= 0) this.gameOver();
+                        continue;
+                    }
+                    if (eb.y > this.canvas.height) this.enemyBullets.splice(i, 1);
                 }
 
                 // Enemies
                 this.enemyTimer++;
-                if (this.enemyTimer > Math.max(10, 60 - this.score / 100)) {
+                if (this.enemyTimer > Math.max(15, 60 - this.score / 200)) {
                     this.enemies.push({
-                        x: Math.random() * (this.canvas.width - 40),
+                        x: Math.random() * (this.canvas.width - 40) + 20,
                         y: -50,
                         w: 40,
                         h: 40,
-                        hp: 1 + Math.floor(this.score / 500),
-                        speed: 2 + Math.random() * 2 + (this.score / 1000)
+                        hp: 1 + Math.floor(this.score / 1000),
+                        speed: 1.5 + Math.random() * 2 + (this.score / 2000),
+                        lastShot: 0
                     });
                     this.enemyTimer = 0;
                 }
@@ -239,16 +267,24 @@
                     const e = this.enemies[i];
                     e.y += e.speed;
 
+                    // Enemy firing logic
+                    if (Date.now() - e.lastShot > 2000 && Math.random() < 0.01) {
+                        this.enemyBullets.push({ x: e.x, y: e.y + 20 });
+                        e.lastShot = Date.now();
+                    }
+
                     // Bullet Collision
                     for (let j = this.bullets.length - 1; j >= 0; j--) {
                         const b = this.bullets[j];
-                        if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+                        const dist = Math.hypot(b.x - e.x, b.y - e.y);
+                        if (dist < 25) {
                             e.hp--;
                             this.bullets.splice(j, 1);
-                            this.createExplosion(e.x + e.w/2, e.y + e.h/2, '#bc13fe');
+                            this.createExplosion(e.x, e.y, '#bc13fe', 5);
                             if (e.hp <= 0) {
                                 this.enemies.splice(i, 1);
-                                this.score += 10;
+                                this.score += 20;
+                                this.createExplosion(e.x, e.y, '#bc13fe', 25);
                                 this.updateUI();
                                 break;
                             }
@@ -256,10 +292,10 @@
                     }
 
                     // Player Collision
-                    if (this.active && e && e.x < this.player.x + 20 && e.x + e.w > this.player.x - 20 && e.y < this.player.y + 20 && e.y + e.h > this.player.y - 20) {
-                        this.health -= 20;
+                    if (this.active && e && Math.hypot(e.x - this.player.x, e.y - this.player.y) < 35) {
+                        this.health -= 30;
                         this.enemies.splice(i, 1);
-                        this.createExplosion(this.player.x, this.player.y, '#ff4757');
+                        this.createExplosion(this.player.x, this.player.y, '#ff4757', 30);
                         this.updateUI();
                         if (this.health <= 0) this.gameOver();
                     } else if (e && e.y > this.canvas.height) {
@@ -275,70 +311,131 @@
                     const p = this.particles[i];
                     p.x += p.vx;
                     p.y += p.vy;
-                    p.life -= 0.05;
+                    p.life -= p.decay;
                     if (p.life <= 0) this.particles.splice(i, 1);
                 }
             }
 
-            createExplosion(x, y, color) {
-                for(let i=0; i<10; i++) {
+            createExplosion(x, y, color, count = 10, speed = 6) {
+                for(let i=0; i<count; i++) {
                     this.particles.push({
                         x, y,
-                        vx: (Math.random() - 0.5) * 6,
-                        vy: (Math.random() - 0.5) * 6,
+                        vx: (Math.random() - 0.5) * speed,
+                        vy: (Math.random() - 0.5) * speed,
                         life: 1,
+                        decay: 0.02 + Math.random() * 0.03,
+                        size: 2 + Math.random() * 4,
                         color
                     });
                 }
             }
 
             draw() {
-                this.ctx.fillStyle = '#000';
+                this.ctx.fillStyle = '#050510';
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
                 // Stars
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.stars.forEach(s => this.ctx.fillRect(s.x, s.y, s.s, s.s));
-
-                // Player
-                this.ctx.fillStyle = '#ff4757';
-                this.ctx.shadowBlur = 15;
-                this.ctx.shadowColor = '#ff4757';
-                this.ctx.beginPath();
-                this.ctx.moveTo(this.player.x, this.player.y - 20);
-                this.ctx.lineTo(this.player.x - 20, this.player.y + 20);
-                this.ctx.lineTo(this.player.x + 20, this.player.y + 20);
-                this.ctx.fill();
+                this.stars.forEach(s => {
+                    this.ctx.fillStyle = `rgba(255,255,255,${0.2 + s.s/2})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(s.x, s.y, s.s, 0, Math.PI*2);
+                    this.ctx.fill();
+                });
 
                 // Bullets
-                this.ctx.fillStyle = '#00f2ff';
-                this.ctx.shadowBlur = 10;
-                this.ctx.shadowColor = '#00f2ff';
                 this.bullets.forEach(b => {
+                    this.ctx.shadowBlur = 10;
+                    this.ctx.shadowColor = '#00f2ff';
+                    this.ctx.fillStyle = '#00f2ff';
                     this.ctx.beginPath();
-                    this.ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    this.ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
                     this.ctx.fill();
+                    this.ctx.shadowBlur = 0;
+                });
+
+                // Enemy Bullets
+                this.enemyBullets.forEach(eb => {
+                    this.ctx.fillStyle = '#ff4757';
+                    this.ctx.beginPath();
+                    this.ctx.arc(eb.x, eb.y, 5, 0, Math.PI*2);
+                    this.ctx.fill();
+                    // Glow
+                    this.ctx.strokeStyle = 'white';
+                    this.ctx.lineWidth = 1;
+                    this.ctx.stroke();
                 });
 
                 // Enemies
-                this.ctx.fillStyle = '#bc13fe';
-                this.ctx.shadowBlur = 15;
-                this.ctx.shadowColor = '#bc13fe';
                 this.enemies.forEach(e => {
+                    this.ctx.save();
+                    this.ctx.translate(e.x, e.y);
+                    
+                    // Body
+                    this.ctx.fillStyle = '#bc13fe';
                     this.ctx.beginPath();
-                    this.ctx.roundRect(e.x, e.y, e.w, e.h, 8);
+                    this.ctx.moveTo(0, 20);
+                    this.ctx.lineTo(-20, -10);
+                    this.ctx.lineTo(20, -10);
+                    this.ctx.closePath();
                     this.ctx.fill();
+                    
+                    // Cockpit
+                    this.ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(0, 0, 8, 0, Math.PI*2);
+                    this.ctx.fill();
+                    
+                    // Wings/Detail
+                    this.ctx.strokeStyle = '#ff4757';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                    this.ctx.restore();
                 });
 
+                // Player
+                this.ctx.save();
+                this.ctx.translate(this.player.x, this.player.y);
+                
+                // Engine Flame
+                if (this.active) {
+                    const flameH = 15 + Math.random() * 10;
+                    const grad = this.ctx.createLinearGradient(0, 20, 0, 20 + flameH);
+                    grad.addColorStop(0, '#00f2ff');
+                    grad.addColorStop(1, 'transparent');
+                    this.ctx.fillStyle = grad;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(-10, 20);
+                    this.ctx.lineTo(0, 20 + flameH);
+                    this.ctx.lineTo(10, 20);
+                    this.ctx.fill();
+                }
+
+                // Ship Body
+                this.ctx.fillStyle = '#00f2ff';
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, -25);
+                this.ctx.lineTo(-20, 15);
+                this.ctx.lineTo(20, 15);
+                this.ctx.closePath();
+                this.ctx.fill();
+                
+                // Accents
+                this.ctx.strokeStyle = 'white';
+                this.ctx.lineWidth = 1;
+                this.ctx.stroke();
+                
+                this.ctx.restore();
+
                 // Particles
-                this.ctx.shadowBlur = 0;
                 this.particles.forEach(p => {
                     this.ctx.globalAlpha = p.life;
                     this.ctx.fillStyle = p.color;
-                    this.ctx.fillRect(p.x, p.y, 3, 3);
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                    this.ctx.fill();
                 });
                 this.ctx.globalAlpha = 1;
-                this.ctx.shadowBlur = 0;
+            }
             }
 
             gameOver() {

@@ -194,7 +194,7 @@
 
             loop(timestamp) {
                 if (!this.active) return;
-                const dt = (timestamp - this.lastTime) / 16.67; // Normalize to 60fps
+                const dt = (timestamp - this.lastTime) / 16.67;
                 this.lastTime = timestamp;
 
                 this.update(dt || 1);
@@ -211,6 +211,7 @@
                     this.dino.y = this.groundY - this.dino.h;
                     this.dino.dy = 0;
                     this.dino.isGrounded = true;
+                    this.dino.frame = (this.dino.frame || 0) + 0.2 * dt;
                 }
 
                 // Obstacles
@@ -219,9 +220,9 @@
                     if (Math.random() < 0.05) {
                         this.obstacles.push({
                             x: this.canvas.width,
-                            y: this.groundY - 30,
-                            w: 20 + Math.random() * 20,
-                            h: 30 + Math.random() * 20
+                            y: this.groundY - 40,
+                            w: 25,
+                            h: 40,
                         });
                         this.spawnTimer = 0;
                     }
@@ -231,23 +232,22 @@
                     const obs = this.obstacles[i];
                     obs.x -= this.gameSpeed * dt;
 
-                    // Collision
-                    if (this.dino.x < obs.x + obs.w &&
-                        this.dino.x + this.dino.w > obs.x &&
-                        this.dino.y < obs.y + obs.h &&
-                        this.dino.y + this.dino.h > obs.y) {
+                    // Collision (refined hitbox)
+                    const padding = 10;
+                    if (this.dino.x + padding < obs.x + obs.w - padding &&
+                        this.dino.x + this.dino.w - padding > obs.x + padding &&
+                        this.dino.y + padding < obs.y + obs.h &&
+                        this.dino.y + this.dino.h > obs.y + padding) {
                         this.gameOver();
                     }
 
                     if (obs.x + obs.w < 0) this.obstacles.splice(i, 1);
                 }
 
-                // Score and Speed
-                this.score += 0.1 * dt;
+                this.score += 0.15 * dt;
                 this.gameSpeed += 0.001 * dt;
                 this.updateUI();
 
-                // Stars Parallax
                 this.stars.forEach(s => {
                     s.x -= (this.gameSpeed * 0.2) * dt;
                     if (s.x < 0) s.x = this.canvas.width;
@@ -259,41 +259,76 @@
                 this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
                 // Stars
-                this.ctx.fillStyle = 'white';
-                this.stars.forEach(s => {
-                    this.ctx.fillRect(s.x, s.y, s.s, s.s);
-                });
+                this.ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                this.stars.forEach(s => this.ctx.fillRect(s.x, s.y, s.s, s.s));
 
-                // Ground line
-                this.ctx.strokeStyle = 'rgba(255, 159, 67, 0.3)';
+                // Moon
+                this.ctx.fillStyle = 'rgba(255,255,255,0.03)';
+                this.ctx.beginPath();
+                this.ctx.arc(600, 60, 40, 0, Math.PI*2);
+                this.ctx.fill();
+
+                // Ground
+                this.ctx.strokeStyle = 'rgba(255, 159, 67, 0.2)';
+                this.ctx.lineWidth = 2;
                 this.ctx.beginPath();
                 this.ctx.moveTo(0, this.groundY);
                 this.ctx.lineTo(this.canvas.width, this.groundY);
                 this.ctx.stroke();
 
-                // Obstacles
-                this.ctx.fillStyle = '#ff4757';
-                this.ctx.shadowBlur = 10;
-                this.ctx.shadowColor = '#ff4757';
+                // Ground detail
+                for(let i=0; i<this.canvas.width; i+=50) {
+                    const x = (i - (this.score * 10) % 50);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, this.groundY + 10);
+                    this.ctx.lineTo(x + 15, this.groundY + 10);
+                    this.ctx.stroke();
+                }
+
+                // Obstacles (Cactus)
+                this.ctx.fillStyle = '#2ecc71';
                 this.obstacles.forEach(obs => {
                     this.ctx.beginPath();
-                    this.ctx.roundRect(obs.x, obs.y, obs.w, obs.h, 5);
+                    // Main body
+                    this.ctx.roundRect(obs.x + obs.w/4, obs.y, obs.w/2, obs.h, 5);
+                    // Left arm
+                    this.ctx.roundRect(obs.x, obs.y + 15, obs.w/4, 15, 3);
+                    // Right arm
+                    this.ctx.roundRect(obs.x + obs.w*0.75, obs.y + 10, obs.w/4, 15, 3);
                     this.ctx.fill();
                 });
 
                 // Dino
-                this.ctx.fillStyle = '#ff9f43';
-                this.ctx.shadowBlur = 20;
-                this.ctx.shadowColor = '#ff9f43';
-                this.ctx.beginPath();
-                this.ctx.roundRect(this.dino.x, this.dino.y, this.dino.w, this.dino.h, 8);
-                this.ctx.fill();
+                this.ctx.save();
+                this.ctx.translate(this.dino.x, this.dino.y);
                 
-                // Dino Eye
+                this.ctx.fillStyle = '#ff9f43';
+                this.ctx.shadowBlur = 15;
+                this.ctx.shadowColor = '#ff9f43';
+
+                // Body & Tail
+                this.ctx.beginPath();
+                this.ctx.roundRect(0, 10, 30, 20, 5);
+                this.ctx.fill();
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, 15); this.ctx.lineTo(-10, 25); this.ctx.lineTo(0, 25); this.ctx.fill();
+
+                // Head & Neck
+                this.ctx.fillRect(20, 0, 20, 15);
+                this.ctx.fillRect(20, 10, 10, 10);
+
+                // Eye
                 this.ctx.fillStyle = '#000';
                 this.ctx.shadowBlur = 0;
-                this.ctx.fillRect(this.dino.x + 25, this.dino.y + 10, 5, 5);
-                
+                this.ctx.fillRect(32, 4, 4, 4);
+
+                // Legs
+                this.ctx.fillStyle = '#ff9f43';
+                const legMove = this.dino.isGrounded ? Math.sin(this.dino.frame) * 5 : 0;
+                this.ctx.fillRect(5, 30, 8, 10 + legMove);
+                this.ctx.fillRect(17, 30, 8, 10 - legMove);
+
+                this.ctx.restore();
                 this.ctx.shadowBlur = 0;
             }
 
