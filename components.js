@@ -248,7 +248,7 @@ class BlogNavbarSecondary extends HTMLElement {
                     <a href="${prefix}index.html" title="返回首页">
                         <img src="${prefix}images/logo.svg" alt="Logo" />
                     </a>
-                    <span id="sidebarToggle" title="打开侧边栏">织星屿</span>
+                    <span id="sidebarToggle" style="cursor: pointer; padding: 4px;" title="打开侧边栏">织星屿</span>>
                 </div>
                 <div class="navbar-tools">
                     <user-menu></user-menu>
