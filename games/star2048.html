@@ -156,7 +156,7 @@
         .tile-1024 { background: linear-gradient(135deg, #1dd1a1, #10ac84); color: #000; font-size: 20px; }
         .tile-2048 { background: linear-gradient(135deg, #FFD700, #ff9f43); color: #000; box-shadow: 0 0 40px rgba(255, 215, 0, 0.6); font-size: 20px; }
 
-        .overlay {
+        .game-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.85);
@@ -169,6 +169,7 @@
             border-radius: 40px;
             text-align: center;
             padding: 20px;
+            visibility: visible;
         }
 
         .btn-restart {
@@ -237,7 +238,7 @@
             <div class="tile-container" id="tile-container"></div>
         </div>
 
-        <div class="overlay" id="game-over">
+        <div class="game-overlay" id="game-over">
             <h2 style="font-size: 3rem; color: var(--primary-pink); margin: 0;">跃迁中止</h2>
             <p style="color: white; opacity: 0.7; margin-top: 10px;">本次星际里程: <span id="final-score">0</span></p>
             <button class="btn-restart" onclick="game.restart()">再启航</button>

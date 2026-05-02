@@ -6,6 +6,7 @@
     <title>Neon Snake · 织星游艺场</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --neon-blue: #00f2ff;
@@ -95,7 +96,7 @@
 
         .ctrl-btn:active { background: rgba(0, 242, 255, 0.2); transform: scale(0.95); }
 
-        .overlay {
+        .game-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.9);
@@ -108,6 +109,7 @@
             border-radius: 30px;
             text-align: center;
             padding: 20px;
+            visibility: visible;
         }
 
         .btn-start {
@@ -153,7 +155,7 @@
         <div id="canvas-container">
             <canvas id="game-canvas" width="400" height="400"></canvas>
             
-            <div class="overlay" id="overlay">
+            <div class="game-overlay" id="overlay">
                 <h1 style="font-size: 3rem; color: var(--neon-blue); text-shadow: 0 0 20px rgba(0,242,255,0.5); margin: 0;">NEON SNAKE</h1>
                 <p id="overlay-msg" style="color: white; opacity: 0.6; margin-top: 10px;">光速竞技，挑战霓虹极限</p>
                 <button class="btn-start" onclick="game.start()">启动引擎</button>

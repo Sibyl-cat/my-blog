@@ -59,7 +59,7 @@
             border: 1px solid rgba(188, 19, 254, 0.2);
         }
 
-        .overlay {
+        .game-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.9);
@@ -71,6 +71,7 @@
             z-index: 100;
             text-align: center;
             padding: 20px;
+            visibility: visible;
         }
 
         .btn-play {
@@ -109,7 +110,7 @@
 
         <canvas id="game-canvas" width="600" height="500"></canvas>
 
-        <div class="overlay" id="overlay">
+        <div class="game-overlay" id="overlay">
             <h2 id="msg-title" style="font-size: 3rem; background: linear-gradient(to right, var(--neon-purple), var(--neon-cyan)); -webkit-background-clip: text; color: transparent; margin: 0;">星际挑战</h2>
             <p id="msg-desc" style="color: white; opacity: 0.6; margin-top: 1rem;">击碎星体，穿越无尽星域</p>
             <button class="btn-play" onclick="game.start()">启动引擎</button>
@@ -277,13 +278,13 @@
                 this.ctx.arc(this.x, this.y, this.ballRadius, 0, Math.PI * 2);
                 this.ctx.fillStyle = "white";
                 this.ctx.shadowBlur = 10;
-                this.ctx.shadowColor = var(--neon-cyan);
+                this.ctx.shadowColor = var_neon_cyan;
                 this.ctx.fill();
                 this.ctx.shadowBlur = 0;
 
                 // Paddle
                 const pGrad = this.ctx.createLinearGradient(this.paddleX, 0, this.paddleX + this.paddleWidth, 0);
-                pGrad.addColorStop(0, var(--neon-purple)); pGrad.addColorStop(1, var(--neon-cyan));
+                pGrad.addColorStop(0, var_neon_purple); pGrad.addColorStop(1, var_neon_cyan);
                 this.ctx.fillStyle = pGrad;
                 this.ctx.beginPath();
                 this.ctx.roundRect(this.paddleX, this.canvas.height - 20, this.paddleWidth, this.paddleHeight, 6);
@@ -311,7 +312,7 @@
 
         const game = new PlanetBreaker();
 
-        this.canvas.addEventListener('mousemove', e => {
+        game.canvas.addEventListener('mousemove', e => {
             const rect = game.canvas.getBoundingClientRect();
             const rx = (e.clientX - rect.left) * (game.canvas.width / rect.width);
             game.paddleX = rx - game.paddleWidth / 2;
@@ -319,7 +320,7 @@
             if (game.paddleX > game.canvas.width - game.paddleWidth) game.paddleX = game.canvas.width - game.paddleWidth;
         });
 
-        this.canvas.addEventListener('touchmove', e => {
+        game.canvas.addEventListener('touchmove', e => {
             e.preventDefault();
             const rect = game.canvas.getBoundingClientRect();
             const rx = (e.touches[0].clientX - rect.left) * (game.canvas.width / rect.width);

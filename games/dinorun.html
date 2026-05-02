@@ -6,6 +6,7 @@
     <title>织星小恐龙 · 织星游艺场</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --dino-orange: #ff9f43;
@@ -64,7 +65,7 @@
             font-weight: 600;
         }
 
-        .overlay {
+        .game-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.85);
@@ -75,6 +76,7 @@
             justify-content: center;
             z-index: 100;
             text-align: center;
+            visibility: visible;
         }
 
         .btn-start {
@@ -116,7 +118,7 @@
             <div class="score-row" id="current-score">00000</div>
         </div>
 
-        <div class="overlay" id="overlay">
+        <div class="game-overlay" id="overlay">
             <h1 style="color: var(--dino-orange); font-size: 3rem; margin: 0;">STARRY DINO</h1>
             <p id="overlay-msg" style="color: white; opacity: 0.6; margin-top: 10px;">在星海边缘奔跑，躲避时空裂缝</p>
             <button class="btn-start" onclick="game.start()">开始奔跑</button>
@@ -141,11 +143,10 @@
                 this.groundY = 220;
                 
                 this.highScore = GameUtils.getHighScore('dinorun');
-                this.updateUI();
-                
                 this.active = false;
                 this.lastTime = 0;
                 this.init();
+                this.updateUI();
             }
 
             init() {
@@ -175,6 +176,7 @@
                 this.init();
                 this.active = true;
                 this.overlay.style.display = 'none';
+                this.lastTime = performance.now();
                 requestAnimationFrame(t => this.loop(t));
             }
 
