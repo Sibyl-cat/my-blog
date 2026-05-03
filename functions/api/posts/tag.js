@@ -8,7 +8,7 @@ export async function onRequest(context) {
     }
 
     const { results } = await env.DB.prepare(
-        "SELECT slug, title, excerpt, tags, strftime('%Y-%m-%dT%H:%M:%SZ', updated_at) as updated_at FROM posts WHERE tags LIKE ? ORDER BY updated_at DESC"
+        "SELECT slug, title, excerpt, tags, strftime('%Y-%m-%dT%H:%M:%SZ', created_at) as created_at, strftime('%Y-%m-%dT%H:%M:%SZ', updated_at) as updated_at FROM posts WHERE tags LIKE ? ORDER BY created_at DESC"
     ).bind(`%${tagName}%`).all();
 
     // 精确匹配（因为LIKE可能包含部分匹配，需要过滤）

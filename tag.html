@@ -81,7 +81,7 @@
 
                 let html = '';
                 posts.forEach((post, index) => {
-                    const date = new Date(post.updated_at);
+                    const date = new Date(post.created_at);
                     const formattedDate = date.toLocaleDateString('zh-CN', {
                         timeZone: 'Asia/Shanghai',
                         year: 'numeric',

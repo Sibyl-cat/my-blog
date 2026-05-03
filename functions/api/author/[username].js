@@ -17,11 +17,13 @@ export async function onRequest(context) {
 
     // 2. 获取作者已发布的文章
     const { results: postResults } = await env.DB.prepare(
-        `SELECT p.slug, p.title, p.excerpt, p.tags, strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at
+        `SELECT p.slug, p.title, p.excerpt, p.tags, 
+                strftime('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at,
+                strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at
          FROM posts p
          JOIN users u ON p.author_id = u.id
          WHERE u.username = ? AND p.is_published = 1
-         ORDER BY p.updated_at DESC`
+         ORDER BY p.created_at DESC`
     ).bind(username).all();
 
     return new Response(JSON.stringify({

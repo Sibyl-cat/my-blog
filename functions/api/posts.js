@@ -9,12 +9,13 @@ export async function onRequest(context) {
     // 获取文章列表
     const { results: posts } = await env.DB.prepare(`
         SELECT p.slug, p.title, p.excerpt, p.tags, 
+               strftime('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at, 
                strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at, 
                u.username as author
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         WHERE p.is_published = 1
-        ORDER BY p.updated_at DESC
+        ORDER BY p.created_at DESC
         LIMIT ? OFFSET ?
     `).bind(limit, offset).all();
 

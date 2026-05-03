@@ -13,11 +13,11 @@ export async function onRequest(context) {
 
     // 1. 搜索文章 (标题或摘要)
     const { results: posts } = await env.DB.prepare(`
-        SELECT p.slug, p.title, p.excerpt, p.tags, u.username as author
+        SELECT p.slug, p.title, p.excerpt, p.tags, p.created_at, u.username as author
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         WHERE p.is_published = 1 AND (p.title LIKE ? OR p.excerpt LIKE ?)
-        ORDER BY p.updated_at DESC
+        ORDER BY p.created_at DESC
         LIMIT 10
     `).bind(keyword, keyword).all();
 

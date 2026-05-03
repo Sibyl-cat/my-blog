@@ -186,7 +186,7 @@
                 // 按年份和月份分组
                 const grouped = {};
                 posts.forEach(post => {
-                    const date = new Date(post.updated_at);
+                    const date = new Date(post.created_at);
                     // 强制使用北京时间进行分组
                     const year = parseInt(date.toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', year: 'numeric' }));
                     const month = parseInt(date.toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', month: 'numeric' }));
@@ -211,10 +211,10 @@
                         html += `<ul class="article-list">`;
                         
                         // 排序当前月份的文章
-                        const postsInMonth = grouped[year][monthStr].sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at));
+                        const postsInMonth = grouped[year][monthStr].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
                         
                         postsInMonth.forEach(post => {
-                            const date = new Date(post.updated_at);
+                            const date = new Date(post.created_at);
                             const day = parseInt(date.toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai', day: 'numeric' }));
                             html += `
                                 <li class="article-item">

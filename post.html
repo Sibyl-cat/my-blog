@@ -288,6 +288,15 @@
                 height: 40px;
             }
         }
+
+        /* 最后更新时间样式 */
+        .post-updated-at {
+            text-align: right;
+            margin-top: 2rem;
+            color: var(--text-muted, #888);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
     </style>
 </head>
 
@@ -391,13 +400,21 @@
                 const post = await response.json();
 
                 // 格式化日期
-                const formattedDate = window.formatDateToBeijing(post.updated_at, {
+                const formattedDate = window.formatDateToBeijing(post.created_at, {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
                     hour: undefined,
                     minute: undefined,
                     second: undefined
+                });
+
+                const formattedUpdateDate = window.formatDateToBeijing(post.updated_at, {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
 
                 // 处理标签
@@ -426,6 +443,9 @@
                     </header>
                     <div class="post-content">
                         ${renderedContent}
+                        <div class="post-updated-at">
+                            <i class="fas fa-edit"></i> 最后更新于: ${formattedUpdateDate}
+                        </div>
                     </div>
                 `;
 

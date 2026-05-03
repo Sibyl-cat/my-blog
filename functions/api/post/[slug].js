@@ -11,6 +11,7 @@ export async function onRequest(context) {
                 p.content, 
                 p.excerpt, 
                 p.tags, 
+                strftime('%Y-%m-%dT%H:%M:%SZ', p.created_at) as created_at, 
                 strftime('%Y-%m-%dT%H:%M:%SZ', p.updated_at) as updated_at, 
                 u.username as author,
                 p.is_published
