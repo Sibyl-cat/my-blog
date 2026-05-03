@@ -10,19 +10,17 @@
 
     // 2. 自动化壁纸轮播逻辑
     window.updateWallpaper = function() {
-        // 只有当 body 存在时才进行操作，或者直接在 docElement 上操作
-        if (!document.body) {
-            // 如果 body 还没准备好，等一下再试
-            window.addEventListener('DOMContentLoaded', window.updateWallpaper, { once: true });
-            return;
-        }
-
         const now = new Date();
         const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         const day = dayNames[now.getDay()];
         
+        // 自动计算前缀，确保子目录也能找到图片
+        const isSubDir = window.location.pathname.includes('/games/') || window.location.pathname.split('/').length > 2;
+        // 更加健壮的前缀判断：如果不在根目录且不是以 /index.html 结尾（针对本地或子目录部署）
+        const prefix = (window.location.pathname.includes('/games/')) ? '../' : './';
+        
         // 优先查看是否开启了 dark-mode (检查 html 或 body)
-        const isDarkModeManual = document.documentElement.classList.contains('dark-mode') || document.body.classList.contains('dark-mode');
+        const isDarkModeManual = document.documentElement.classList.contains('dark-mode') || (document.body && document.body.classList.contains('dark-mode'));
         const hour = now.getHours();
         const isDayTime = hour >= 6 && hour < 18;
         
@@ -30,23 +28,26 @@
         const isMobile = window.innerWidth <= 768;
         const deviceType = isMobile ? 'mobile' : 'desktop';
         
-        const wallpaperPath = `/images/wallpapers/${day}-${timeOfDay}-${deviceType}.jpg`;
-        const fallbackPath = `/images/wallpapers/monday-${timeOfDay}-${deviceType}.jpg`;
+        const wallpaperPath = `${prefix}images/wallpapers/${day}-${timeOfDay}-${deviceType}.jpg`;
+        const fallbackPath = `${prefix}images/wallpapers/monday-${timeOfDay}-${deviceType}.jpg`;
 
         const img = new Image();
         img.onload = () => {
             document.documentElement.style.setProperty('--wallpaper-url', `url('${wallpaperPath}')`);
         };
         img.onerror = () => {
+            // 如果当天壁纸不存在，回退到周一的对应时段壁纸
             document.documentElement.style.setProperty('--wallpaper-url', `url('${fallbackPath}')`);
         };
         img.src = wallpaperPath;
 
         // 同步 body 的 class 以保证全局 CSS 正常工作
-        if (isDarkModeManual) {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
+        if (document.body) {
+            if (isDarkModeManual) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
         }
     };
 
@@ -56,6 +57,9 @@
     } else {
         window.updateWallpaper();
     }
+
+    // 每分钟检查一次时间，以实现无刷新的白天/黑夜切换
+    setInterval(window.updateWallpaper, 60000);
 
     window.addEventListener('resize', () => {
         if (typeof window.updateWallpaper === 'function') {
