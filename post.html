@@ -391,11 +391,13 @@
                 const post = await response.json();
 
                 // 格式化日期
-                const date = new Date(post.updated_at);
-                const formattedDate = date.toLocaleDateString('zh-CN', {
+                const formattedDate = window.formatDateToBeijing(post.updated_at, {
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric'
+                    day: 'numeric',
+                    hour: undefined,
+                    minute: undefined,
+                    second: undefined
                 });
 
                 // 处理标签

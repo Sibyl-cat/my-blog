@@ -1086,3 +1086,31 @@ class BlogNavbarHome extends HTMLElement {
 }
 customElements.define('blog-navbar-home', BlogNavbarHome);
 
+// ========== 全局工具函数 ==========
+window.parseUTCDate = function(dateStr) {
+    if (!dateStr) return null;
+    if (dateStr instanceof Date) return dateStr;
+    let normalized = dateStr;
+    // 如果是 SQLite 的 CURRENT_TIMESTAMP 格式 (YYYY-MM-DD HH:MM:SS)，则手动转换为 ISO 并添加 Z
+    if (typeof dateStr === 'string' && !dateStr.includes('Z') && !dateStr.includes('+')) {
+        normalized = dateStr.replace(' ', 'T') + 'Z';
+    }
+    const d = new Date(normalized);
+    return isNaN(d.getTime()) ? null : d;
+};
+
+window.formatDateToBeijing = function(dateStr, options = {}) {
+    const date = window.parseUTCDate(dateStr);
+    if (!date) return '未知时间';
+    const defaultOptions = {
+        timeZone: 'Asia/Shanghai',
+        hour12: false,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+    return date.toLocaleString('zh-CN', { ...defaultOptions, ...options });
+};

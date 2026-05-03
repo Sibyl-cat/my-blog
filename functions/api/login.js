@@ -44,7 +44,7 @@ export async function onRequest(context) {
 
          // ========== 新增：更新最后登录时间 ==========
         await env.DB.prepare(
-            'UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?'
+            "UPDATE users SET last_login_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') WHERE id = ?"
         ).bind(user.id).run();
 
         // 创建会话

@@ -60,7 +60,7 @@ export async function onRequest(context) {
             }
 
             // 构建动态更新语句
-            let sql = 'UPDATE posts SET title = ?, content = ?, excerpt = ?, tags = ?, updated_at = CURRENT_TIMESTAMP';
+            let sql = "UPDATE posts SET title = ?, content = ?, excerpt = ?, tags = ?, updated_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now')";
             const params = [title, content, excerpt, tags];
             if (is_published !== null) {
                 // 同样转换 is_published

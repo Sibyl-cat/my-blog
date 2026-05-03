@@ -167,13 +167,13 @@
             }
             
             const html = posts.map(post => {
-                const date = new Date(post.updated_at);
-                // 强制显示北京时间 (UTC+8)
-                const formattedDate = date.toLocaleDateString('zh-CN', {
-                    timeZone: 'Asia/Shanghai',
+                const formattedDate = window.formatDateToBeijing(post.updated_at, {
                     year: 'numeric',
                     month: '2-digit',
-                    day: '2-digit'
+                    day: '2-digit',
+                    hour: undefined,
+                    minute: undefined,
+                    second: undefined
                 }).replace(/\//g, '-');
 
                 return `

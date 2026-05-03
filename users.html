@@ -638,8 +638,8 @@
 
             detailUsername.textContent = selectedUser.username;
             detailRoleBadge.textContent = selectedUser.role === 'admin' ? '管理员' : '普通用户';
-            detailRegDate.textContent = new Date(selectedUser.created_at).toLocaleString('zh-CN', { hour12: false });
-            detailLastLogin.textContent = selectedUser.last_login_at ? new Date(selectedUser.last_login_at).toLocaleString('zh-CN', { hour12: false }) : '从未登录';
+            detailRegDate.textContent = window.formatDateToBeijing(selectedUser.created_at);
+            detailLastLogin.textContent = selectedUser.last_login_at ? window.formatDateToBeijing(selectedUser.last_login_at) : '从未登录';
             
             detailRoleSelect.value = selectedUser.role;
             detailActiveToggle.checked = selectedUser.is_active;
