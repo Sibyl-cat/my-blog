@@ -298,6 +298,40 @@
                 </div>
             </div>
 
+            <!-- Core Defender -->
+            <div class="game-card" data-game="coredefender">
+                <div class="game-thumb" style="color: #00f2ff;"><i class="fas fa-shield-alt"></i></div>
+                <div class="game-info">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 5px;">
+                            <span class="game-tag" style="background: rgba(0, 242, 255, 0.1); color: #00f2ff;">Defense</span>
+                            <span class="game-tag" style="background: #fb7299; color: white;">NEW</span>
+                        </div>
+                        <div class="high-score-badge" style="color: #00f2ff;"><i class="fas fa-trophy"></i> <span id="score-coredefender">0</span></div>
+                    </div>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星核保卫战</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">旋转护盾，保卫星核。阻挡来自虚空的陨石冲击。</p>
+                    <a href="coredefender.html" class="game-btn" style="background: #00f2ff; color: #000;">进入挑战</a>
+                </div>
+            </div>
+
+            <!-- Starry Sudoku -->
+            <div class="game-card" data-game="starsudoku">
+                <div class="game-thumb" style="color: #ffce00;"><i class="fas fa-table"></i></div>
+                <div class="game-info">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 5px;">
+                            <span class="game-tag" style="background: rgba(255, 206, 0, 0.1); color: #ffce00;">Logic</span>
+                            <span class="game-tag" style="background: #fb7299; color: white;">NEW</span>
+                        </div>
+                        <div class="high-score-badge" style="color: #ffce00;"><i class="fas fa-trophy"></i> <span id="score-starsudoku">0</span></div>
+                    </div>
+                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星海数独</h2>
+                    <p style="opacity: 0.6; min-height: 3em;">在星阵中填入逻辑。经典的数独挑战，训练星际智力。</p>
+                    <a href="starry-sudoku.html" class="game-btn" style="background: #ffce00; color: #000;">进入挑战</a>
+                </div>
+            </div>
+
             <!-- Star Defender -->
             <div class="game-card" data-game="starwar">
                 <div class="game-thumb" style="color: #ff4757;"><i class="fas fa-fighter-jet"></i></div>
@@ -350,16 +384,24 @@
         createStars();
 
         function updateHubScores() {
-            const games = ['star2048', 'neonsnake', 'planetbreaker', 'dinorun', 'starwar', 'starflappy', 'startetris', 'starmine'];
+            const games = [
+                'star2048', 'starmine', 'startetris', 'starflappy', 
+                'neonsnake', 'planetbreaker', 'dinorun', 'meteorsurvivor',
+                'starmemory', 'coredefender', 'starsudoku', 'starwar'
+            ];
             const names = {
                 'star2048': '星际 2048',
+                'starmine': '星海扫雷',
+                'startetris': '星冕俄罗斯',
+                'starflappy': '星际飞羽',
                 'neonsnake': '霓虹贪吃蛇',
                 'planetbreaker': '行星粉碎者',
                 'dinorun': '织星小恐龙',
-                'starwar': '星际战机',
-                'starflappy': '星际飞羽',
-                'startetris': '星冕俄罗斯',
-                'starmine': '星海扫雷'
+                'meteorsurvivor': '陨石生存战',
+                'starmemory': '星际记忆',
+                'coredefender': '星核保卫战',
+                'starsudoku': '星海数独',
+                'starwar': '星际战机'
             };
             
             const statsContainer = document.getElementById('stats-summary');
