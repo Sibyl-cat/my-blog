@@ -165,7 +165,7 @@ body::before {
   animation: slideDown 0.7s ease-out;
   position: sticky;
   top: 1rem;
-  z-index: 100;
+  z-index: 1000;
   width: auto;
   max-width: 90%;
 }
@@ -483,7 +483,7 @@ body::before {
   backdrop-filter: blur(16px) saturate(180%);
   border-right: 1px solid var(--glass-border);
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
-  z-index: 1000;
+  z-index: 2100;
   transform: translateX(-100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
@@ -553,7 +553,7 @@ body::before {
   height: 100%;
   background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(2px);
-  z-index: 999;
+  z-index: 2000;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
@@ -962,7 +962,7 @@ body::before {
   border: 1px solid var(--glass-border);
   border-radius: 28px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 20px var(--pink-shadow);
-  z-index: 8888;
+  z-index: 3000;
   overflow: hidden;
   transform: translateY(120%) scale(0.9);
   opacity: 0;

@@ -108,7 +108,7 @@ class BlogSidebar extends HTMLElement {
                     -webkit-backdrop-filter: blur(24px) saturate(180%);
                     border-right: 1px solid var(--local-sidebar-border);
                     box-shadow: 4px 0 30px rgba(0, 0, 0, 0.1);
-                    z-index: 1000;
+                    z-index: 2100;
                     transform: translateX(-100%);
                     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     display: flex;
@@ -179,7 +179,7 @@ class BlogSidebar extends HTMLElement {
                     height: 100%;
                     background: rgba(0, 0, 0, 0.2);
                     backdrop-filter: blur(2px);
-                    z-index: 999;
+                    z-index: 2000;
                     opacity: 0;
                     visibility: hidden;
                     transition: opacity 0.3s, visibility 0.3s;
@@ -257,7 +257,7 @@ class BlogNavbarSecondary extends HTMLElement {
                 :host {
                     display: block;
                     width: 100%;
-                    z-index: 100;
+                    z-index: 1000;
                 }
                 .navbar {
                     display: flex;
@@ -489,22 +489,25 @@ class UserMenu extends HTMLElement {
                         font-size: 1.2rem;
                     }
                     .user-bubble {
-                        width: 240px;
-                        right: -5px;
+                        width: 220px;
+                        right: 0;
                         top: 48px;
+                        padding: 1rem;
+                        border-radius: 20px;
                     }
                     .user-bubble-header {
-                        gap: 0.5rem;
+                        gap: 0.8rem;
+                        padding-bottom: 0.6rem;
                     }
                     .user-bubble-avatar {
-                        width: 48px;
-                        height: 48px;
+                        width: 44px;
+                        height: 44px;
                     }
                     .user-bubble-avatar i {
-                        font-size: 2rem;
+                        font-size: 1.8rem;
                     }
                     .user-bubble-name {
-                        font-size: 1rem;
+                        font-size: 0.95rem;
                     }
                     .user-bubble-role {
                         font-size: 0.7rem;
@@ -950,7 +953,7 @@ class BlogNavbarHome extends HTMLElement {
                 :host {
                     display: block;
                     width: 100%;
-                    z-index: 100;
+                    z-index: 1000;
                 }
                 /* 导航栏样式 */
                 .navbar {
