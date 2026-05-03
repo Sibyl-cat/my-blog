@@ -1,11 +1,53 @@
 // components.js - 独立的 Web Components 模块
 
-// ========== 全局主题初始化 (防止页面闪烁) ==========
+// ========== 全局主题与壁纸初始化 (防止页面闪烁) ==========
 (function() {
+    // 1. 初始化夜间模式
     const isDark = localStorage.getItem('darkMode') === 'true';
     if (isDark) {
         document.body.classList.add('dark-mode');
     }
+
+    // 2. 自动化壁纸轮播逻辑 (28张图轮播)
+    function updateAutoWallpaper() {
+        const now = new Date();
+        const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+        const day = dayNames[now.getDay()];
+        
+        // 白天/黑夜判断 (6:00 - 18:00 为白天)
+        const hour = now.getHours();
+        const isDayTime = hour >= 6 && hour < 18;
+        const timeOfDay = isDayTime ? 'day' : 'night';
+        
+        // 桌面/移动端判断
+        const isMobile = window.innerWidth <= 768;
+        const deviceType = isMobile ? 'mobile' : 'desktop';
+        
+        // 构造路径: /images/wallpapers/monday-day-desktop.jpg
+        const wallpaperPath = `/images/wallpapers/${day}-${timeOfDay}-${deviceType}.jpg`;
+        const fallbackPath = `/images/wallpapers/monday-${timeOfDay}-${deviceType}.jpg`;
+
+        // 预加载检查逻辑
+        const img = new Image();
+        img.onload = () => {
+            document.documentElement.style.setProperty('--wallpaper-url', `url('${wallpaperPath}')`);
+        };
+        img.onerror = () => {
+            // 如果加载失败（路径错误或不存在），则显示周一的图
+            document.documentElement.style.setProperty('--wallpaper-url', `url('${fallbackPath}')`);
+            console.warn(`[AutoWallpaper] 无法加载 ${wallpaperPath}，已回退至 ${fallbackPath}`);
+        };
+        img.src = wallpaperPath;
+    }
+
+    // 立即执行一次并监听窗口大小变化
+    updateAutoWallpaper();
+    window.addEventListener('resize', () => {
+        // 使用防抖或简单判断以避免频繁触发
+        const wasMobile = document.documentElement.style.getPropertyValue('--wallpaper-url').includes('mobile');
+        const isMobile = window.innerWidth <= 768;
+        if (wasMobile !== isMobile) updateAutoWallpaper();
+    });
 })();
 
 // ========== 侧边栏组件 ==========
@@ -999,3 +1041,4 @@ class BlogNavbarHome extends HTMLElement {
     }
 }
 customElements.define('blog-navbar-home', BlogNavbarHome);
+
