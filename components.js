@@ -2,8 +2,17 @@
 
 // ========== 全局主题与壁纸初始化 (防止页面闪烁) ==========
 (function() {
-    // 1. 初始化夜间模式 (使用 documentElement 防止 document.body 为空时的崩溃)
-    const isDark = localStorage.getItem('darkMode') === 'true';
+    // 1. 初始化夜间模式
+    // 如果本地没有存储偏好，则根据时间自动决定初始主题
+    let isDark = localStorage.getItem('darkMode');
+    if (isDark === null) {
+        const hour = new Date().getHours();
+        isDark = (hour >= 18 || hour < 6);
+        localStorage.setItem('darkMode', isDark);
+    } else {
+        isDark = (isDark === 'true');
+    }
+
     if (isDark) {
         document.documentElement.classList.add('dark-mode');
     }
@@ -14,17 +23,13 @@
         const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         const day = dayNames[now.getDay()];
         
-        // 自动计算前缀，确保子目录也能找到图片
-        const isSubDir = window.location.pathname.includes('/games/') || window.location.pathname.split('/').length > 2;
-        // 更加健壮的前缀判断：如果不在根目录且不是以 /index.html 结尾（针对本地或子目录部署）
+        // 自动计算前缀
         const prefix = (window.location.pathname.includes('/games/')) ? '../' : './';
         
-        // 优先查看是否开启了 dark-mode (检查 html 或 body)
-        const isDarkModeManual = document.documentElement.classList.contains('dark-mode') || (document.body && document.body.classList.contains('dark-mode'));
-        const hour = now.getHours();
-        const isDayTime = hour >= 6 && hour < 18;
+        // 壁纸直接跟随当前主题状态：暗色模式用 night，亮色模式用 day
+        const isDarkMode = document.documentElement.classList.contains('dark-mode') || (document.body && document.body.classList.contains('dark-mode'));
+        const timeOfDay = isDarkMode ? 'night' : 'day';
         
-        const timeOfDay = isDarkModeManual ? 'night' : (isDayTime ? 'day' : 'night');
         const isMobile = window.innerWidth <= 768;
         const deviceType = isMobile ? 'mobile' : 'desktop';
         
@@ -36,14 +41,13 @@
             document.documentElement.style.setProperty('--wallpaper-url', `url('${wallpaperPath}')`);
         };
         img.onerror = () => {
-            // 如果当天壁纸不存在，回退到周一的对应时段壁纸
             document.documentElement.style.setProperty('--wallpaper-url', `url('${fallbackPath}')`);
         };
         img.src = wallpaperPath;
 
-        // 同步 body 的 class 以保证全局 CSS 正常工作
+        // 同步 body 的 class
         if (document.body) {
-            if (isDarkModeManual) {
+            if (isDarkMode) {
                 document.body.classList.add('dark-mode');
             } else {
                 document.body.classList.remove('dark-mode');
