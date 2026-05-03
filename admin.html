@@ -117,10 +117,17 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 0.6rem 1.2rem;
+            padding: 0.5rem 1.2rem;
             background: var(--glass-bg);
             border-radius: 40px;
             border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 15px var(--pink-shadow);
+        }
+
+        .admin-header-tools {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         /* 统计卡片 */
@@ -469,9 +476,12 @@
                     <h1>内容管理</h1>
                     <p style="color: var(--text-muted);">欢迎回来，<span id="username" style="color: var(--admin-pink); font-weight: 600;">...</span></p>
                 </div>
-                <div class="header-user">
-                    <i class="fas fa-user-circle" style="color: var(--admin-pink); font-size: 1.5rem;"></i>
-                    <span id="header-username">管理员</span>
+                <div class="admin-header-tools">
+                    <night-mode-toggle></night-mode-toggle>
+                    <div class="header-user">
+                        <i class="fas fa-user-circle" style="color: var(--admin-pink); font-size: 1.5rem;"></i>
+                        <span id="header-username">管理员</span>
+                    </div>
                 </div>
             </header>
 

@@ -8,45 +8,42 @@
         document.body.classList.add('dark-mode');
     }
 
-    // 2. 自动化壁纸轮播逻辑 (28张图轮播)
-    function updateAutoWallpaper() {
+    // 2. 自动化壁纸轮播逻辑 (全局暴露以便手动切换时调用)
+    window.updateWallpaper = function() {
         const now = new Date();
         const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
         const day = dayNames[now.getDay()];
         
-        // 白天/黑夜判断 (6:00 - 18:00 为白天)
+        // 白天/黑夜判断 
+        // 优先查看是否手动开启了 dark-mode
+        const isDarkModeManual = document.body.classList.contains('dark-mode');
         const hour = now.getHours();
         const isDayTime = hour >= 6 && hour < 18;
-        const timeOfDay = isDayTime ? 'day' : 'night';
+        
+        // 如果手动开启了夜间模式，强制使用 night 壁纸
+        const timeOfDay = isDarkModeManual ? 'night' : (isDayTime ? 'day' : 'night');
         
         // 桌面/移动端判断
         const isMobile = window.innerWidth <= 768;
         const deviceType = isMobile ? 'mobile' : 'desktop';
         
-        // 构造路径: /images/wallpapers/monday-day-desktop.jpg
         const wallpaperPath = `/images/wallpapers/${day}-${timeOfDay}-${deviceType}.jpg`;
         const fallbackPath = `/images/wallpapers/monday-${timeOfDay}-${deviceType}.jpg`;
 
-        // 预加载检查逻辑
         const img = new Image();
         img.onload = () => {
             document.documentElement.style.setProperty('--wallpaper-url', `url('${wallpaperPath}')`);
         };
         img.onerror = () => {
-            // 如果加载失败（路径错误或不存在），则显示周一的图
             document.documentElement.style.setProperty('--wallpaper-url', `url('${fallbackPath}')`);
-            console.warn(`[AutoWallpaper] 无法加载 ${wallpaperPath}，已回退至 ${fallbackPath}`);
         };
         img.src = wallpaperPath;
-    }
+    };
 
     // 立即执行一次并监听窗口大小变化
-    updateAutoWallpaper();
+    window.updateWallpaper();
     window.addEventListener('resize', () => {
-        // 使用防抖或简单判断以避免频繁触发
-        const wasMobile = document.documentElement.style.getPropertyValue('--wallpaper-url').includes('mobile');
-        const isMobile = window.innerWidth <= 768;
-        if (wasMobile !== isMobile) updateAutoWallpaper();
+        window.updateWallpaper();
     });
 })();
 
@@ -68,17 +65,29 @@ class BlogSidebar extends HTMLElement {
         const rootPath = '/'; 
         this.shadowRoot.innerHTML = `
             <style>
-                /* 侧边栏样式（不变，省略...） */
+                :host {
+                    --sidebar-bg: var(--glass-bg, rgba(255, 255, 255, 0.6));
+                    --sidebar-text: var(--text-main, #2a2a2a);
+                    --sidebar-border: var(--glass-border, rgba(251, 114, 153, 0.3));
+                }
+                
+                /* 如果变量丢失，通过宿主环境补救 */
+                :host-context(body.dark-mode) {
+                    --sidebar-bg: var(--glass-bg, rgba(30, 30, 45, 0.85));
+                    --sidebar-text: var(--text-main, #f8fafc);
+                    --sidebar-border: var(--glass-border, rgba(255, 255, 255, 0.12));
+                }
+
                 .sidebar {
                     position: fixed;
                     top: 0;
                     left: 0;
                     width: 280px;
                     height: 100vh;
-                    background: var(--glass-bg, rgba(255, 255, 255, 0.6));
+                    background: var(--sidebar-bg);
                     backdrop-filter: blur(24px) saturate(180%);
                     -webkit-backdrop-filter: blur(24px) saturate(180%);
-                    border-right: 1px solid var(--glass-border, rgba(251, 114, 153, 0.3));
+                    border-right: 1px solid var(--sidebar-border);
                     box-shadow: 4px 0 30px rgba(0, 0, 0, 0.1);
                     z-index: 1000;
                     transform: translateX(-100%);
@@ -86,7 +95,7 @@ class BlogSidebar extends HTMLElement {
                     display: flex;
                     flex-direction: column;
                     padding: 2rem 1.5rem;
-                    color: var(--text-main, #2a2a2a);
+                    color: var(--sidebar-text);
                     font-family: 'Inter', sans-serif;
                 }
                 .sidebar.open { transform: translateX(0); }
@@ -122,11 +131,11 @@ class BlogSidebar extends HTMLElement {
                     gap: 12px;
                     padding: 0.8rem 1rem;
                     border-radius: 30px;
-                    color: #2a2a2a;
+                    color: var(--sidebar-text);
                     text-decoration: none;
                     font-size: 1.1rem;
                     transition: all 0.25s;
-                    background: rgba(255, 255, 255, 0.1);
+                    background: rgba(255, 255, 255, 0.05);
                     border: 1px solid transparent;
                 }
                 .sidebar-menu a:hover {
@@ -141,7 +150,7 @@ class BlogSidebar extends HTMLElement {
                     border-top: 1px solid rgba(251, 114, 153, 0.3);
                     font-size: 0.9rem;
                     text-align: center;
-                    color: #5a5a5a;
+                    color: var(--text-muted, #5a5a5a);
                 }
                 .overlay {
                     position: fixed;
@@ -230,6 +239,14 @@ class BlogNavbarSecondary extends HTMLElement {
                     display: block;
                     width: 100%;
                     z-index: 100;
+                    --nav-bg-local: var(--nav-bg, rgba(255, 255, 255, 0.2));
+                    --nav-text-local: var(--text-main, #1f1f1f);
+                    --nav-border-local: var(--glass-border, rgba(255, 255, 255, 0.4));
+                }
+                :host-context(body.dark-mode) {
+                    --nav-bg-local: var(--nav-bg, rgba(30, 30, 45, 0.8));
+                    --nav-text-local: var(--text-main, #f8fafc);
+                    --nav-border-local: var(--glass-border, rgba(255, 255, 255, 0.12));
                 }
                 .navbar {
                     display: flex;
@@ -237,18 +254,18 @@ class BlogNavbarSecondary extends HTMLElement {
                     justify-content: space-between;
                     padding: 0.8rem 2rem;
                     margin: 0 auto 2rem auto;
-                    background: var(--nav-bg, rgba(255, 255, 255, 0.2));
+                    background: var(--nav-bg-local);
                     backdrop-filter: blur(20px) saturate(180%);
                     -webkit-backdrop-filter: blur(20px) saturate(180%);
                     border-radius: 60px;
-                    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
+                    border: 1px solid var(--nav-border-local);
                     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     position: sticky;
                     top: 1rem;
                     width: auto;
                     max-width: 95%;
                     font-family: 'Inter', sans-serif;
-                    color: var(--text-main, #1f1f1f);
+                    color: var(--nav-text-local);
                 }
                 .logo-container {
                     display: flex;
@@ -757,6 +774,14 @@ class BlogFooter extends HTMLElement {
                 :host {
                     display: block;
                     width: 100%;
+                    --footer-bg: var(--glass-bg, rgba(255, 255, 255, 0.18));
+                    --footer-text: var(--text-main, #3d3d3d);
+                    --footer-border: var(--glass-border, rgba(255,255,255,0.4));
+                }
+                :host-context(body.dark-mode) {
+                    --footer-bg: var(--glass-bg, rgba(30, 30, 45, 0.8));
+                    --footer-text: var(--text-main, #f8fafc);
+                    --footer-border: var(--glass-border, rgba(255, 255, 255, 0.12));
                 }
                 .footer {
                     display: flex;
@@ -764,13 +789,13 @@ class BlogFooter extends HTMLElement {
                     align-items: center;
                     padding: 1.6rem 2.5rem;
                     border-radius: 60px;
-                    background: var(--glass-bg, rgba(255, 255, 255, 0.18));
+                    background: var(--footer-bg);
                     backdrop-filter: blur(12px);
                     -webkit-backdrop-filter: blur(12px);
                     margin-top: 1rem;
-                    border: 1px solid var(--glass-border, rgba(255,255,255,0.4));
+                    border: 1px solid var(--footer-border);
                     animation: fadeUp 0.8s 0.3s both;
-                    color: var(--text-main, #3d3d3d);
+                    color: var(--footer-text);
                 }
                 @keyframes fadeUp {
                     0% { opacity: 0; transform: translateY(20px); }
@@ -879,13 +904,20 @@ class NightModeToggle extends HTMLElement {
             const isDark = document.body.classList.contains('dark-mode');
             localStorage.setItem('darkMode', isDark);
             this.setIcon(isDark ? 'moon' : 'sun');
+            
+            // 同步更新壁纸
+            if (typeof window.updateWallpaper === 'function') {
+                window.updateWallpaper();
+            }
         });
     }
 
     setIcon(icon) {
         const btn = this.shadowRoot.getElementById('nightModeBtn');
         if (!btn) return;
-        btn.innerHTML = `<i class="fas fa-${icon === 'moon' ? 'moon' : 'sun'}"></i>`;
+        // 注意：这里的逻辑是，如果是暗色模式，显示太阳图标表示切换回亮色
+        const iconClass = icon === 'moon' ? 'fa-sun' : 'fa-moon';
+        btn.innerHTML = `<i class="fas ${iconClass}"></i>`;
     }
 }
 customElements.define('night-mode-toggle', NightModeToggle);
@@ -908,6 +940,16 @@ class BlogNavbarHome extends HTMLElement {
         const prefix = isGamePage ? '../' : './';
         this.shadowRoot.innerHTML = `
             <style>
+                :host {
+                    --nav-bg-local: var(--nav-bg, rgba(255, 255, 255, 0.2));
+                    --nav-text-local: var(--text-main, #1f1f1f);
+                    --nav-border-local: var(--glass-border, rgba(255, 255, 255, 0.4));
+                }
+                :host-context(body.dark-mode) {
+                    --nav-bg-local: var(--nav-bg, rgba(30, 30, 45, 0.8));
+                    --nav-text-local: var(--text-main, #f8fafc);
+                    --nav-border-local: var(--glass-border, rgba(255, 255, 255, 0.12));
+                }
                 /* 导航栏样式 */
                 .navbar {
                     display: flex;
@@ -915,11 +957,11 @@ class BlogNavbarHome extends HTMLElement {
                     justify-content: space-between;
                     padding: 0.8rem 2.5rem;
                     margin: 0 auto 2rem auto;
-                    background: var(--nav-bg, rgba(255, 255, 255, 0.2));
+                    background: var(--nav-bg-local);
                     backdrop-filter: blur(20px) saturate(180%);
                     -webkit-backdrop-filter: blur(20px) saturate(180%);
                     border-radius: 60px;
-                    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
+                    border: 1px solid var(--nav-border-local);
                     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                     position: sticky;
                     top: 1rem;
@@ -957,7 +999,7 @@ class BlogNavbarHome extends HTMLElement {
                 }
                 .navbar-links a {
                     text-decoration: none;
-                    color: var(--text-main, #1f1f1f);
+                    color: var(--nav-text-local);
                     font-weight: 500;
                     font-size: 1.1rem;
                     padding: 0.5rem 1.2rem;
