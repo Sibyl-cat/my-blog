@@ -144,6 +144,26 @@
             .arcade-title { font-size: 2.8rem; }
             .game-grid { grid-template-columns: 1fr; padding: 0 1rem 3rem; }
         }
+
+        /* Missing Background Styles */
+        .stars-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: twinkle var(--duration) infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
     </style>
 </head>
 <body>
@@ -395,6 +415,7 @@
                 star.style.opacity = Math.random();
                 star.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 star.style.animationDelay = Math.random() * 5 + 's';
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
                 container.appendChild(star);
             }
         }

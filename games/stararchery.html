@@ -70,7 +70,7 @@
         <div id="overlay" class="overlay">
             <h1 style="color: #00f2ff; font-size: 3rem;">STAR ARCHERY</h1>
             <p id="msg" style="color: white; opacity: 0.6;">拉动弓箭，命中移动的星标。考虑重力影响。</p>
-            <button class="btn" onclick="game.start()">开始射击</button>
+            <button class="btn" onclick="window.game.start()">开始射击</button>
         </div>
     </div>
 
@@ -96,9 +96,11 @@
                     const rect = this.canvas.getBoundingClientRect();
                     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    const rw = rect.width || 800;
+                    const rh = rect.height || 450;
                     return {
-                        x: (clientX - rect.left) * (this.canvas.width / rect.width),
-                        y: (clientY - rect.top) * (this.canvas.height / rect.height)
+                        x: (clientX - rect.left) * (this.canvas.width / rw),
+                        y: (clientY - rect.top) * (this.canvas.height / rh)
                     };
                 };
 

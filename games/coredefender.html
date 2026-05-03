@@ -82,9 +82,9 @@
         </div>
 
         <div id="overlay" class="overlay">
-            <h1 style="color: #00f2ff; margin: 0;">CORE DEFENDER</h1>
-            <p id="msg" style="color: white; opacity: 0.6; margin: 10px 0;">旋转护盾，保卫星核。移动鼠标或触摸控制。</p>
-            <button class="btn" onclick="game.start()">同步神经连接</button>
+            <h1 style="color: #00f2ff; font-size: 3rem;">CORE DEFENDER</h1>
+            <p id="msg" style="color: white; opacity: 0.6;">旋转护盾，阻挡从 360 度袭向核心的陨石。</p>
+            <button class="btn" onclick="window.game.start()">激活星核</button>
         </div>
     </div>
 
@@ -106,8 +106,10 @@
                 
                 const handleMove = (clientX, clientY) => {
                     const rect = this.canvas.getBoundingClientRect();
-                    const x = clientX - (rect.left + rect.width / 2);
-                    const y = clientY - (rect.top + rect.height / 2);
+                    const rw = rect.width || 600;
+                    const rh = rect.height || 600;
+                    const x = clientX - (rect.left + rw / 2);
+                    const y = clientY - (rect.top + rh / 2);
                     this.angle = Math.atan2(y, x);
                 };
 
