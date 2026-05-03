@@ -28,36 +28,36 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --body-bg: radial-gradient(rgba(251, 114, 153, 0.05) 1px, transparent 1px),
-               linear-gradient(145deg, #23232e 0%, #1a1a24 100%);
-    --wallpaper-overlay: rgba(0, 0, 0, 0.55);
-    --glass-bg: rgba(45, 45, 65, 0.7);
-    --glass-bg-hover: rgba(55, 55, 80, 0.8);
-    --glass-border: rgba(255, 255, 255, 0.12);
+               linear-gradient(145deg, #121212 0%, #0a0a0a 100%);
+    --wallpaper-overlay: rgba(0, 0, 0, 0.6);
+    --glass-bg: rgba(18, 18, 18, 0.75);
+    --glass-bg-hover: rgba(25, 25, 25, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
     --text-main: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-muted: #94a3b8;
-    --card-shadow: rgba(0, 0, 0, 0.4);
-    --pink-shadow: rgba(251, 114, 153, 0.1);
-    --nav-bg: rgba(30, 30, 45, 0.8);
-    --glow-pink: 0 0 10px rgba(251, 114, 153, 0.3);
+    --card-shadow: rgba(0, 0, 0, 0.5);
+    --pink-shadow: rgba(251, 114, 153, 0.05);
+    --nav-bg: rgba(15, 15, 15, 0.8);
+    --glow-pink: 0 0 10px rgba(251, 114, 153, 0.2);
   }
 }
 
 /* 兼容手动切换逻辑 */
 body.dark-mode {
   --body-bg: radial-gradient(rgba(251, 114, 153, 0.05) 1px, transparent 1px),
-             linear-gradient(145deg, #23232e 0%, #1a1a24 100%);
-  --wallpaper-overlay: rgba(0, 0, 0, 0.55);
-  --glass-bg: rgba(45, 45, 65, 0.7);
-  --glass-bg-hover: rgba(55, 55, 80, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.12);
+             linear-gradient(145deg, #121212 0%, #0a0a0a 100%);
+  --wallpaper-overlay: rgba(0, 0, 0, 0.6);
+  --glass-bg: rgba(18, 18, 18, 0.75);
+  --glass-bg-hover: rgba(25, 25, 25, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --text-main: #f8fafc;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  --card-shadow: rgba(0, 0, 0, 0.4);
-  --pink-shadow: rgba(251, 114, 153, 0.1);
-  --nav-bg: rgba(30, 30, 45, 0.8);
-  --glow-pink: 0 0 10px rgba(251, 114, 153, 0.3);
+  --card-shadow: rgba(0, 0, 0, 0.5);
+  --pink-shadow: rgba(251, 114, 153, 0.05);
+  --nav-bg: rgba(15, 15, 15, 0.8);
+  --glow-pink: 0 0 10px rgba(251, 114, 153, 0.2);
 }
 
 /* ========== 全局重置与主色调 ========== */
@@ -137,8 +137,8 @@ body::before {
 /* ========== 通用玻璃样式优化 (使用变量) ========== */
 .glass, .navbar, .profile-card, .sidebar-author-card, .post-item-card, .modal-card, .author-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(10px) saturate(150%);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
   border: 1px solid var(--glass-border);
   box-shadow: 0 12px 40px var(--card-shadow), 0 4px 15px var(--pink-shadow);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
