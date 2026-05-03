@@ -216,8 +216,11 @@
 
                 // Obstacles
                 this.spawnTimer += dt;
-                if (this.spawnTimer > 100 / (this.gameSpeed/6)) {
-                    if (Math.random() < 0.05) {
+                // Randomized threshold for non-equidistant spawning
+                if (!this.nextSpawnThreshold) this.nextSpawnThreshold = 60 + Math.random() * 60;
+                
+                if (this.spawnTimer > this.nextSpawnThreshold / (this.gameSpeed / 6)) {
+                    if (Math.random() < 0.3) { // Increased spawn probability check
                         this.obstacles.push({
                             x: this.canvas.width,
                             y: this.groundY - 40,
@@ -225,6 +228,7 @@
                             h: 40,
                         });
                         this.spawnTimer = 0;
+                        this.nextSpawnThreshold = 60 + Math.random() * 100; // Randomize next gap
                     }
                 }
 

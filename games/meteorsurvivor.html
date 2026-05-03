@@ -153,21 +153,21 @@
             }
 
             resize() {
-                const rect = this.canvas.getBoundingClientRect();
                 this.canvas.width = 600;
                 this.canvas.height = 600;
             }
 
             init() {
-                this.player = { x: 300, y: 300, r: 15, speed: 0.1 };
+                this.player = { x: 300, y: 300, r: 18, angle: 0 };
                 this.enemies = [];
                 this.bullets = [];
                 this.particles = [];
+                this.trails = [];
                 this.score = 0;
                 this.startTime = Date.now();
                 this.lastSpawn = 0;
                 this.lastShot = 0;
-                this.enemySpeed = 1;
+                this.updateUI();
             }
 
             start() {
@@ -175,6 +175,10 @@
                 this.active = true;
                 this.overlay.style.display = 'none';
                 this.loop();
+            }
+
+            updateUI() {
+                this.scoreEl.textContent = this.score;
             }
 
             loop() {
@@ -186,95 +190,106 @@
 
             update() {
                 const now = Date.now();
-                const survivalTime = Math.floor((now - this.startTime) / 1000);
-                this.timeEl.textContent = survivalTime + 's';
+                const survivalTime = (now - this.startTime) / 1000;
+                this.timeEl.textContent = Math.floor(survivalTime) + 's';
                 
-                // Player movement (lag follow)
-                this.player.x += (this.mouse.x - this.player.x) * 0.15;
-                this.player.y += (this.mouse.y - this.player.y) * 0.15;
+                // Player movement & rotation
+                const dx = this.mouse.x - this.player.x;
+                const dy = this.mouse.y - this.player.y;
+                if (Math.hypot(dx, dy) > 5) {
+                    this.player.x += dx * 0.1;
+                    this.player.y += dy * 0.1;
+                    this.player.angle = Math.atan2(dy, dx);
+                }
 
-                // Spawn enemies
-                if (now - this.lastSpawn > Math.max(200, 1000 - survivalTime * 10)) {
-                    const side = Math.floor(Math.random() * 4);
-                    let x, y;
-                    if (side === 0) { x = Math.random() * 600; y = -50; }
-                    else if (side === 1) { x = Math.random() * 600; y = 650; }
-                    else if (side === 2) { x = -50; y = Math.random() * 600; }
-                    else { x = 650; y = Math.random() * 600; }
-                    
-                    this.enemies.push({ x, y, r: 15 + Math.random() * 15, hp: 1 + Math.floor(survivalTime/30) });
+                // Trails
+                if (now % 2 === 0) {
+                    this.trails.push({ x: this.player.x, y: this.player.y, life: 1 });
+                }
+                this.trails.forEach((t, i) => {
+                    t.life -= 0.05;
+                    if (t.life <= 0) this.trails.splice(i, 1);
+                });
+
+                // Spawn enemies (Smarter Curve)
+                const spawnRate = Math.max(150, 1200 - survivalTime * 15);
+                if (now - this.lastSpawn > spawnRate) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = 500;
+                    this.enemies.push({
+                        x: 300 + Math.cos(angle) * dist,
+                        y: 300 + Math.sin(angle) * dist,
+                        r: 15 + Math.random() * 20,
+                        hp: 1 + Math.floor(survivalTime / 40),
+                        speed: 1.2 + Math.random() * 0.8 + (survivalTime / 100)
+                    });
                     this.lastSpawn = now;
                 }
 
-                // Auto shot
-                if (now - this.lastShot > 300 && this.enemies.length > 0) {
-                    let target = this.enemies[0];
-                    let minDist = Infinity;
+                // Auto shot (Smooth)
+                const fireRate = Math.max(100, 400 - (survivalTime * 2));
+                if (now - this.lastShot > fireRate && this.enemies.length > 0) {
+                    let target = null;
+                    let minDist = 300;
                     this.enemies.forEach(e => {
                         const d = Math.hypot(e.x - this.player.x, e.y - this.player.y);
                         if (d < minDist) { minDist = d; target = e; }
                     });
                     
-                    const angle = Math.atan2(target.y - this.player.y, target.x - this.player.x);
-                    this.bullets.push({ 
-                        x: this.player.x, y: this.player.y, 
-                        vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8 
-                    });
-                    this.lastShot = now;
+                    if (target) {
+                        const angle = Math.atan2(target.y - this.player.y, target.x - this.player.x);
+                        this.bullets.push({ 
+                            x: this.player.x, y: this.player.y, 
+                            vx: Math.cos(angle) * 10, vy: Math.sin(angle) * 10 
+                        });
+                        this.lastShot = now;
+                    }
                 }
 
-                // Update Bullets
-                for (let i = this.bullets.length - 1; i >= 0; i--) {
-                    const b = this.bullets[i];
+                // Update items
+                this.bullets.forEach((b, i) => {
                     b.x += b.vx; b.y += b.vy;
-                    if (b.x < 0 || b.x > 600 || b.y < 0 || b.y > 600) this.bullets.splice(i, 1);
-                }
+                    if (b.x < -100 || b.x > 700 || b.y < -100 || b.y > 700) this.bullets.splice(i, 1);
+                });
 
-                // Update Enemies
-                const speedMult = 1 + survivalTime / 60;
-                for (let i = this.enemies.length - 1; i >= 0; i--) {
-                    const e = this.enemies[i];
+                this.enemies.forEach((e, i) => {
                     const angle = Math.atan2(this.player.y - e.y, this.player.x - e.x);
-                    e.x += Math.cos(angle) * 1.5 * speedMult;
-                    e.y += Math.sin(angle) * 1.5 * speedMult;
+                    e.x += Math.cos(angle) * e.speed;
+                    e.y += Math.sin(angle) * e.speed;
 
-                    // Bullet Collision
-                    for (let j = this.bullets.length - 1; j >= 0; j--) {
-                        const b = this.bullets[j];
+                    // Collision with bullets
+                    this.bullets.forEach((b, bj) => {
                         if (Math.hypot(b.x - e.x, b.y - e.y) < e.r) {
                             e.hp--;
-                            this.bullets.splice(j, 1);
-                            this.createExplosion(e.x, e.y, '#bc13fe', 5);
+                            this.bullets.splice(bj, 1);
+                            this.createExplosion(e.x, e.y, '#bc13fe', 3);
                             if (e.hp <= 0) {
                                 this.enemies.splice(i, 1);
-                                this.score++;
+                                this.score += 10;
                                 this.scoreEl.textContent = this.score;
-                                this.createExplosion(e.x, e.y, '#bc13fe', 15);
-                                break;
+                                this.createExplosion(e.x, e.y, '#bc13fe', 12);
                             }
                         }
-                    }
+                    });
 
-                    // Player Collision
-                    if (Math.hypot(e.x - this.player.x, e.y - this.player.y) < e.r + this.player.r) {
-                        this.gameOver(survivalTime);
+                    // Collision with Player
+                    if (Math.hypot(e.x - this.player.x, e.y - this.player.y) < e.r + 10) {
+                        this.gameOver(Math.floor(survivalTime));
                     }
-                }
+                });
 
-                // Particles
-                for (let i = this.particles.length - 1; i >= 0; i--) {
-                    const p = this.particles[i];
-                    p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+                this.particles.forEach((p, i) => {
+                    p.x += p.vx; p.y += p.vy; p.life -= 0.03;
                     if (p.life <= 0) this.particles.splice(i, 1);
-                }
+                });
             }
 
             createExplosion(x, y, color, count) {
                 for(let i=0; i<count; i++) {
                     this.particles.push({
                         x, y,
-                        vx: (Math.random() - 0.5) * 5,
-                        vy: (Math.random() - 0.5) * 5,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
                         life: 1,
                         color
                     });
@@ -285,41 +300,66 @@
                 this.ctx.fillStyle = '#050510';
                 this.ctx.fillRect(0, 0, 600, 600);
 
-                // Stars
-                this.ctx.fillStyle = 'white';
-                for(let i=0; i<50; i++) {
-                    const x = (Math.sin(i) * 300 + 300);
-                    const y = (Math.cos(i * 2) * 300 + 300);
-                    this.ctx.fillRect(x, y, 1, 1);
+                // Grid
+                this.ctx.strokeStyle = 'rgba(0, 242, 255, 0.05)';
+                for(let i=0; i<600; i+=100) {
+                    this.ctx.beginPath(); this.ctx.moveTo(i, 0); this.ctx.lineTo(i, 600); this.ctx.stroke();
+                    this.ctx.beginPath(); this.ctx.moveTo(0, i); this.ctx.lineTo(600, i); this.ctx.stroke();
                 }
 
-                // Player
-                this.ctx.shadowBlur = 20;
+                // Player Trails
+                this.trails.forEach(t => {
+                    this.ctx.globalAlpha = t.life * 0.3;
+                    this.ctx.fillStyle = '#00f2ff';
+                    this.ctx.beginPath();
+                    this.ctx.arc(t.x, t.y, 8 * t.life, 0, Math.PI*2);
+                    this.ctx.fill();
+                });
+                this.ctx.globalAlpha = 1;
+
+                // Player (Ship)
+                this.ctx.save();
+                this.ctx.translate(this.player.x, this.player.y);
+                this.ctx.rotate(this.player.angle);
+                this.ctx.shadowBlur = 15;
                 this.ctx.shadowColor = '#00f2ff';
                 this.ctx.fillStyle = '#00f2ff';
                 this.ctx.beginPath();
-                this.ctx.arc(this.player.x, this.player.y, this.player.r, 0, Math.PI*2);
+                this.ctx.moveTo(15, 0);
+                this.ctx.lineTo(-10, -12);
+                this.ctx.lineTo(-10, 12);
+                this.ctx.closePath();
                 this.ctx.fill();
+                this.ctx.restore();
                 this.ctx.shadowBlur = 0;
 
                 // Bullets
-                this.ctx.fillStyle = '#00f2ff';
+                this.ctx.fillStyle = '#fff';
                 this.bullets.forEach(b => {
                     this.ctx.beginPath();
-                    this.ctx.arc(b.x, b.y, 4, 0, Math.PI*2);
+                    this.ctx.arc(b.x, b.y, 3, 0, Math.PI*2);
                     this.ctx.fill();
                 });
 
-                // Enemies
+                // Enemies (Meteors)
                 this.enemies.forEach(e => {
-                    this.ctx.fillStyle = '#bc13fe';
-                    this.ctx.beginPath();
-                    this.ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
-                    this.ctx.fill();
-                    // Rock detail
-                    this.ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                    this.ctx.save();
+                    this.ctx.translate(e.x, e.y);
+                    this.ctx.fillStyle = '#1e1e3f';
+                    this.ctx.strokeStyle = '#bc13fe';
                     this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    for(let i=0; i<8; i++) {
+                        const a = (i/8) * Math.PI * 2;
+                        const r = e.r * (0.8 + Math.random() * 0.4);
+                        const px = Math.cos(a) * r;
+                        const py = Math.sin(a) * r;
+                        if(i===0) this.ctx.moveTo(px, py); else this.ctx.lineTo(px, py);
+                    }
+                    this.ctx.closePath();
+                    this.ctx.fill();
                     this.ctx.stroke();
+                    this.ctx.restore();
                 });
 
                 // Particles
@@ -337,7 +377,7 @@
                 this.active = false;
                 const isNew = GameUtils.saveScore('meteorsurvivor', this.score);
                 this.overlay.style.display = 'flex';
-                this.overlayMsg.innerHTML = `存活时长: ${time}s | 击落数量: ${this.score}<br>${isNew ? '<b style="color:var(--neon-blue)">新纪元纪录！</b>' : ''}`;
+                this.overlayMsg.innerHTML = `本次生还: ${time}s | 击破陨石: ${this.score}<br>${isNew ? '<b style="color:#00f2ff">创下新的星际纪录！</b>' : ''}`;
                 if (isNew) GameUtils.showToast('记录刷新！', 'success');
             }
         }
