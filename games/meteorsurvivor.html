@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>陨石生存战 · 织星游艺场</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../assets/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #39ff14;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #050510;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            touch-action: none;
+        }
+
+        .game-container {
+            position: relative;
+            width: min(95vw, 600px);
+            aspect-ratio: 1/1;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.1);
+        }
+
+        #game-canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .stat-label { font-size: 10px; color: var(--neon-blue); text-transform: uppercase; }
+        .stat-value { font-size: 20px; font-weight: 800; color: white; }
+
+        .game-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .btn-start {
+            margin-top: 2rem;
+            padding: 1.2rem 3rem;
+            background: var(--neon-blue);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+        }
+
+        .back-btn {
+            position: fixed; top: 20px; left: 20px; color: white; text-decoration: none;
+            background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); z-index: 200;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回</a>
+
+    <div class="game-container" id="game-area">
+        <canvas id="game-canvas"></canvas>
+        
+        <div class="hud">
+            <div class="stat-box">
+                <div class="stat-label">Time</div>
+                <div id="time" class="stat-value">0s</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Kills</div>
+                <div id="score" class="stat-value">0</div>
+            </div>
+        </div>
+
+        <div id="overlay" class="game-overlay">
+            <h1 style="color: var(--neon-blue); font-size: 3rem; margin: 0;">METEOR SURVIVOR</h1>
+            <p id="overlay-msg" style="color: white; opacity: 0.6; margin: 1rem 0;">在陨石雨中生存。拖动移动，自动射击。</p>
+            <button class="btn-start" onclick="game.start()">进入虚空</button>
+        </div>
+    </div>
+
+    <script src="game-utils.js"></script>
+    <script>
+        class MeteorSurvivor {
+            constructor() {
+                this.canvas = document.getElementById('game-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.timeEl = document.getElementById('time');
+                this.scoreEl = document.getElementById('score');
+                this.overlay = document.getElementById('overlay');
+                this.overlayMsg = document.getElementById('overlay-msg');
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                this.mouse = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+                this.canvas.onmousemove = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    this.mouse.x = (e.clientX - rect.left) * (this.canvas.width / rect.width);
+                    this.mouse.y = (e.clientY - rect.top) * (this.canvas.height / rect.height);
+                };
+                this.canvas.ontouchmove = (e) => {
+                    e.preventDefault();
+                    const rect = this.canvas.getBoundingClientRect();
+                    this.mouse.x = (e.touches[0].clientX - rect.left) * (this.canvas.width / rect.width);
+                    this.mouse.y = (e.touches[0].clientY - rect.top) * (this.canvas.height / rect.height);
+                };
+
+                this.active = false;
+            }
+
+            resize() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = 600;
+                this.canvas.height = 600;
+            }
+
+            init() {
+                this.player = { x: 300, y: 300, r: 15, speed: 0.1 };
+                this.enemies = [];
+                this.bullets = [];
+                this.particles = [];
+                this.score = 0;
+                this.startTime = Date.now();
+                this.lastSpawn = 0;
+                this.lastShot = 0;
+                this.enemySpeed = 1;
+            }
+
+            start() {
+                this.init();
+                this.active = true;
+                this.overlay.style.display = 'none';
+                this.loop();
+            }
+
+            loop() {
+                if (!this.active) return;
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+
+            update() {
+                const now = Date.now();
+                const survivalTime = Math.floor((now - this.startTime) / 1000);
+                this.timeEl.textContent = survivalTime + 's';
+                
+                // Player movement (lag follow)
+                this.player.x += (this.mouse.x - this.player.x) * 0.15;
+                this.player.y += (this.mouse.y - this.player.y) * 0.15;
+
+                // Spawn enemies
+                if (now - this.lastSpawn > Math.max(200, 1000 - survivalTime * 10)) {
+                    const side = Math.floor(Math.random() * 4);
+                    let x, y;
+                    if (side === 0) { x = Math.random() * 600; y = -50; }
+                    else if (side === 1) { x = Math.random() * 600; y = 650; }
+                    else if (side === 2) { x = -50; y = Math.random() * 600; }
+                    else { x = 650; y = Math.random() * 600; }
+                    
+                    this.enemies.push({ x, y, r: 15 + Math.random() * 15, hp: 1 + Math.floor(survivalTime/30) });
+                    this.lastSpawn = now;
+                }
+
+                // Auto shot
+                if (now - this.lastShot > 300 && this.enemies.length > 0) {
+                    let target = this.enemies[0];
+                    let minDist = Infinity;
+                    this.enemies.forEach(e => {
+                        const d = Math.hypot(e.x - this.player.x, e.y - this.player.y);
+                        if (d < minDist) { minDist = d; target = e; }
+                    });
+                    
+                    const angle = Math.atan2(target.y - this.player.y, target.x - this.player.x);
+                    this.bullets.push({ 
+                        x: this.player.x, y: this.player.y, 
+                        vx: Math.cos(angle) * 8, vy: Math.sin(angle) * 8 
+                    });
+                    this.lastShot = now;
+                }
+
+                // Update Bullets
+                for (let i = this.bullets.length - 1; i >= 0; i--) {
+                    const b = this.bullets[i];
+                    b.x += b.vx; b.y += b.vy;
+                    if (b.x < 0 || b.x > 600 || b.y < 0 || b.y > 600) this.bullets.splice(i, 1);
+                }
+
+                // Update Enemies
+                const speedMult = 1 + survivalTime / 60;
+                for (let i = this.enemies.length - 1; i >= 0; i--) {
+                    const e = this.enemies[i];
+                    const angle = Math.atan2(this.player.y - e.y, this.player.x - e.x);
+                    e.x += Math.cos(angle) * 1.5 * speedMult;
+                    e.y += Math.sin(angle) * 1.5 * speedMult;
+
+                    // Bullet Collision
+                    for (let j = this.bullets.length - 1; j >= 0; j--) {
+                        const b = this.bullets[j];
+                        if (Math.hypot(b.x - e.x, b.y - e.y) < e.r) {
+                            e.hp--;
+                            this.bullets.splice(j, 1);
+                            this.createExplosion(e.x, e.y, '#bc13fe', 5);
+                            if (e.hp <= 0) {
+                                this.enemies.splice(i, 1);
+                                this.score++;
+                                this.scoreEl.textContent = this.score;
+                                this.createExplosion(e.x, e.y, '#bc13fe', 15);
+                                break;
+                            }
+                        }
+                    }
+
+                    // Player Collision
+                    if (Math.hypot(e.x - this.player.x, e.y - this.player.y) < e.r + this.player.r) {
+                        this.gameOver(survivalTime);
+                    }
+                }
+
+                // Particles
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+                    if (p.life <= 0) this.particles.splice(i, 1);
+                }
+            }
+
+            createExplosion(x, y, color, count) {
+                for(let i=0; i<count; i++) {
+                    this.particles.push({
+                        x, y,
+                        vx: (Math.random() - 0.5) * 5,
+                        vy: (Math.random() - 0.5) * 5,
+                        life: 1,
+                        color
+                    });
+                }
+            }
+
+            draw() {
+                this.ctx.fillStyle = '#050510';
+                this.ctx.fillRect(0, 0, 600, 600);
+
+                // Stars
+                this.ctx.fillStyle = 'white';
+                for(let i=0; i<50; i++) {
+                    const x = (Math.sin(i) * 300 + 300);
+                    const y = (Math.cos(i * 2) * 300 + 300);
+                    this.ctx.fillRect(x, y, 1, 1);
+                }
+
+                // Player
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = '#00f2ff';
+                this.ctx.fillStyle = '#00f2ff';
+                this.ctx.beginPath();
+                this.ctx.arc(this.player.x, this.player.y, this.player.r, 0, Math.PI*2);
+                this.ctx.fill();
+                this.ctx.shadowBlur = 0;
+
+                // Bullets
+                this.ctx.fillStyle = '#00f2ff';
+                this.bullets.forEach(b => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(b.x, b.y, 4, 0, Math.PI*2);
+                    this.ctx.fill();
+                });
+
+                // Enemies
+                this.enemies.forEach(e => {
+                    this.ctx.fillStyle = '#bc13fe';
+                    this.ctx.beginPath();
+                    this.ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
+                    this.ctx.fill();
+                    // Rock detail
+                    this.ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                });
+
+                // Particles
+                this.particles.forEach(p => {
+                    this.ctx.globalAlpha = p.life;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, 2, 0, Math.PI*2);
+                    this.ctx.fill();
+                });
+                this.ctx.globalAlpha = 1;
+            }
+
+            gameOver(time) {
+                this.active = false;
+                const isNew = GameUtils.saveScore('meteorsurvivor', this.score);
+                this.overlay.style.display = 'flex';
+                this.overlayMsg.innerHTML = `存活时长: ${time}s | 击落数量: ${this.score}<br>${isNew ? '<b style="color:var(--neon-blue)">新纪元纪录！</b>' : ''}`;
+                if (isNew) GameUtils.showToast('记录刷新！', 'success');
+            }
+        }
+
+        const game = new MeteorSurvivor();
+    </script>
+</body>
+</html>
