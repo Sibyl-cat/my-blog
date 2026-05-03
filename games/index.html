@@ -140,34 +140,9 @@
             backdrop-filter: blur(20px);
         }
 
-        @media (max-width: 768px) {
-            .arcade-title { font-size: 2.8rem; }
-            .game-grid { grid-template-columns: 1fr; padding: 0 1rem 3rem; }
-        }
-
-        /* Missing Background Styles */
-        .stars-container {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
-        }
-        .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: twinkle var(--duration) infinite ease-in-out;
-        }
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
     </style>
 </head>
 <body>
-    <div class="stars-container" id="stars"></div>
     <blog-navbar-secondary></blog-navbar-secondary>
 
     <div class="arcade-hero">
@@ -400,32 +375,12 @@
     <script src="game-utils.js"></script>
     <script src="../components.js"></script>
     <script>
-        // Star Generation
-        function createStars() {
-            const container = document.getElementById('stars');
-            const count = 100;
-            for (let i = 0; i < count; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                const size = Math.random() * 3;
-                star.style.width = size + 'px';
-                star.style.height = size + 'px';
-                star.style.left = Math.random() * 100 + 'vw';
-                star.style.top = Math.random() * 100 + 'vh';
-                star.style.opacity = Math.random();
-                star.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                star.style.animationDelay = Math.random() * 5 + 's';
-                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-                container.appendChild(star);
-            }
-        }
         createStars();
-
         function updateHubScores() {
             const games = [
                 'star2048', 'starmine', 'startetris', 'starflappy', 
                 'neonsnake', 'planetbreaker', 'dinorun', 'meteorsurvivor',
-                'starmemory', 'coredefender', 'starsudoku', 'starwar', 'stararchery'
+                'starmemory', 'starsudoku', 'starwar'
             ];
             const names = {
                 'star2048': '星际 2048',
@@ -437,10 +392,8 @@
                 'dinorun': '织星小恐龙',
                 'meteorsurvivor': '陨石生存战',
                 'starmemory': '星际记忆',
-                'coredefender': '星核保卫战',
                 'starsudoku': '星海数独',
-                'starwar': '星际战机',
-                'stararchery': '星际射手'
+                'starwar': '星际战机'
             };
             
             const statsContainer = document.getElementById('stats-summary');
