@@ -294,38 +294,7 @@
             </div>
 
             <!-- Star Archery -->
-            <div class="game-card" data-game="stararchery">
-                <div class="game-thumb" style="color: #ff4757;"><i class="fas fa-bullseye"></i></div>
-                <div class="game-info">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; gap: 5px;">
-                            <span class="game-tag" style="background: rgba(255, 71, 87, 0.1); color: #ff4757;">Physics</span>
-                            <span class="game-tag" style="background: #fb7299; color: white;">NEW</span>
-                        </div>
-                        <div class="high-score-badge" style="color: #ff4757;"><i class="fas fa-trophy"></i> <span id="score-stararchery">0</span></div>
-                    </div>
-                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星际射手</h2>
-                    <p style="opacity: 0.6; min-height: 3em;">拉弓，瞄准。考虑重力影响，命中遥远的星际标靶。极致物理手感。</p>
-                    <a href="stararchery.html" class="game-btn" style="background: #ff4757;">进入挑战</a>
-                </div>
-            </div>
 
-            <!-- Core Defender -->
-            <div class="game-card" data-game="coredefender">
-                <div class="game-thumb" style="color: #00f2ff;"><i class="fas fa-shield-alt"></i></div>
-                <div class="game-info">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="display: flex; gap: 5px;">
-                            <span class="game-tag" style="background: rgba(0, 242, 255, 0.1); color: #00f2ff;">Defense</span>
-                            <span class="game-tag" style="background: #fb7299; color: white;">NEW</span>
-                        </div>
-                        <div class="high-score-badge" style="color: #00f2ff;"><i class="fas fa-trophy"></i> <span id="score-coredefender">0</span></div>
-                    </div>
-                    <h2 style="font-size: 2rem; margin: 0.5rem 0;">星核保卫战</h2>
-                    <p style="opacity: 0.6; min-height: 3em;">旋转护盾，保卫星核。阻挡来自虚空的陨石冲击。</p>
-                    <a href="coredefender.html" class="game-btn" style="background: #00f2ff; color: #000;">进入挑战</a>
-                </div>
-            </div>
 
             <!-- Starry Sudoku -->
             <div class="game-card" data-game="starsudoku">
@@ -375,7 +344,7 @@
     <script src="game-utils.js"></script>
     <script src="../components.js"></script>
     <script>
-        createStars();
+
         function updateHubScores() {
             const games = [
                 'star2048', 'starmine', 'startetris', 'starflappy', 
