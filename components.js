@@ -256,19 +256,18 @@ class BlogNavbarSecondary extends HTMLElement {
                     align-items: center;
                     justify-content: space-between;
                     padding: 0.8rem 2rem;
-                    margin: 0 auto 2rem auto;
+                    margin: 0 auto;
                     background: var(--nav-bg, rgba(255, 255, 255, 0.25));
                     backdrop-filter: blur(20px) saturate(180%);
                     -webkit-backdrop-filter: blur(20px) saturate(180%);
-                    border-radius: 60px;
-                    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
-                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
                     position: sticky;
-                    top: 1rem;
-                    width: auto;
-                    max-width: 95%;
+                    top: 0;
+                    width: 100%;
+                    max-width: 100%;
                     font-family: 'Inter', sans-serif;
                     color: var(--text-main, #1f1f1f);
+                    border-radius: 0;
                 }
                 .logo-container {
                     display: flex;
@@ -950,19 +949,19 @@ class BlogNavbarHome extends HTMLElement {
                     align-items: center;
                     justify-content: space-between;
                     padding: 0.8rem 2.5rem;
-                    margin: 0 auto 2rem auto;
+                    margin: 0;
                     background: var(--nav-bg, rgba(255, 255, 255, 0.25));
                     backdrop-filter: blur(20px) saturate(180%);
                     -webkit-backdrop-filter: blur(20px) saturate(180%);
-                    border-radius: 60px;
-                    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
-                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.4));
+                    transition: all 0.4s;
                     position: sticky;
-                    top: 1rem;
-                    width: auto;
-                    max-width: 95%;
+                    top: 0;
+                    width: 100%;
+                    max-width: 100%;
                     font-family: 'Inter', sans-serif;
                     color: var(--text-main, #1f1f1f);
+                    z-index: 1000;
                 }
                 .navbar-scrolled {
                     padding: 0.5rem 2rem;
