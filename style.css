@@ -22,6 +22,7 @@
   --card-shadow: rgba(0, 0, 0, 0.03);
   --pink-shadow: rgba(251, 114, 153, 0.1);
   --nav-bg: rgba(255, 255, 255, 0.2);
+  --bubble-bg: rgba(255, 255, 255, 0.95);
 }
 
 /* 深色模式变量定义 (系统自动感应) */
@@ -40,6 +41,7 @@
     --pink-shadow: rgba(251, 114, 153, 0.05);
     --nav-bg: rgba(0, 0, 0, 0.4);
     --glow-pink: 0 0 10px rgba(251, 114, 153, 0.2);
+    --bubble-bg: rgba(20, 20, 20, 0.95);
   }
 }
 
@@ -58,6 +60,7 @@ body.dark-mode {
   --pink-shadow: rgba(251, 114, 153, 0.05);
   --nav-bg: rgba(0, 0, 0, 0.4);
   --glow-pink: 0 0 10px rgba(251, 114, 153, 0.2);
+  --bubble-bg: rgba(20, 20, 20, 0.95);
 }
 
 /* ========== 全局重置与主色调 ========== */

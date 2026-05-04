@@ -397,7 +397,7 @@ class UserMenu extends HTMLElement {
                     top: 55px;
                     right: 0;
                     width: 280px;
-                    background: var(--glass-bg, rgba(255,255,255,0.95));
+                    background: var(--bubble-bg, rgba(255,255,255,0.95));
                     backdrop-filter: blur(24px) saturate(200%);
                     border-radius: 28px;
                     border: 1px solid var(--glass-border, rgba(251,114,153,0.3));
@@ -459,18 +459,27 @@ class UserMenu extends HTMLElement {
                     margin: 0.5rem 0;
                 }
                 .user-bubble-menu a, .user-bubble-menu button {
-                    display: block;
+                    display: flex;
+                    align-items: center;
                     width: 100%;
                     text-align: left;
-                    padding: 0.5rem 0.8rem;
+                    padding: 0.6rem 1rem;
                     border-radius: 30px;
                     background: none;
                     border: none;
                     cursor: pointer;
                     font-size: 0.95rem;
-                    color: #2a2a2a;
+                    color: var(--text-main, #2a2a2a);
                     text-decoration: none;
                     transition: all 0.2s;
+                    font-family: inherit;
+                    box-sizing: border-box;
+                    line-height: 1.5;
+                }
+                .user-bubble-menu a i, .user-bubble-menu button i {
+                    width: 24px;
+                    text-align: center;
+                    margin-right: 8px;
                 }
                 .user-bubble-menu a:hover, .user-bubble-menu button:hover {
                     background: rgba(251,114,153,0.1);
@@ -490,32 +499,42 @@ class UserMenu extends HTMLElement {
                         font-size: 1.2rem;
                     }
                     .user-bubble {
-                        width: 220px;
-                        right: -30px;
-                        top: 48px;
-                        padding: 1rem;
-                        border-radius: 20px;
+                        width: 170px;
+                        right: -10px;
+                        top: 46px;
+                        padding: 0.8rem;
+                        border-radius: 18px;
                     }
                     .user-bubble-header {
-                        gap: 0.8rem;
+                        flex-direction: column;
+                        gap: 0.4rem;
                         padding-bottom: 0.6rem;
+                        border-bottom: 1px solid rgba(251,114,153,0.2);
+                        margin-bottom: 0.6rem;
+                        text-align: center;
                     }
                     .user-bubble-avatar {
-                        width: 44px;
-                        height: 44px;
+                        width: 42px;
+                        height: 42px;
+                        margin: 0 auto;
                     }
                     .user-bubble-avatar i {
                         font-size: 1.8rem;
                     }
+                    .user-bubble-info {
+                        width: 100%;
+                    }
                     .user-bubble-name {
-                        font-size: 0.95rem;
+                        font-size: 0.9rem;
+                        margin-bottom: 2px;
                     }
                     .user-bubble-role {
                         font-size: 0.7rem;
                     }
                     .user-bubble-menu a, .user-bubble-menu button {
-                        padding: 0.4rem 0.6rem;
+                        padding: 0.5rem 0.8rem;
                         font-size: 0.85rem;
+                        justify-content: flex-start;
                     }
                 }
             </style>
