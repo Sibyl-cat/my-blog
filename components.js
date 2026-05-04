@@ -258,7 +258,7 @@ class BlogNavbarSecondary extends HTMLElement {
                     display: block;
                     width: 100%;
                     position: relative;
-                    z-index: 9999;
+                    z-index: 1000;
                 }
                 .navbar {
                     display: flex;
@@ -278,7 +278,6 @@ class BlogNavbarSecondary extends HTMLElement {
                     max-width: 95%;
                     font-family: 'Inter', sans-serif;
                     color: var(--text-main, #1f1f1f);
-                    z-index: 9000;
                 }
                 .logo-container {
                     display: flex;
@@ -369,7 +368,7 @@ class UserMenu extends HTMLElement {
                     display: inline-block;
                     position: relative;
                     margin-left: 1rem;
-                    z-index: 10;
+                    z-index: 1;
                 }
                 .user-avatar {
                     width: 40px;
@@ -482,16 +481,20 @@ class UserMenu extends HTMLElement {
                     background: rgba(251,114,153,0.2);
                     margin: 0.5rem 0;
                 }
-                    .user-bubble {
-                        width: 260px;
-                        right: 0;
-                        transform: translateY(-15px) scale(0.95);
-                        top: 48px;
-                        padding: 1.2rem;
-                        border-radius: 24px;
+                @media (max-width: 768px) {
+                    .user-avatar {
+                        width: 32px;
+                        height: 32px;
                     }
-                    .user-bubble.show {
-                        transform: translateY(0) scale(1);
+                    .user-avatar i {
+                        font-size: 1.2rem;
+                    }
+                    .user-bubble {
+                        width: 220px;
+                        right: -30px;
+                        top: 48px;
+                        padding: 1rem;
+                        border-radius: 20px;
                     }
                     .user-bubble-header {
                         gap: 0.8rem;
@@ -952,7 +955,7 @@ class BlogNavbarHome extends HTMLElement {
                     display: block;
                     width: 100%;
                     position: relative;
-                    z-index: 9999;
+                    z-index: 1000;
                 }
                 /* 导航栏样式 */
                 .navbar {
@@ -973,7 +976,6 @@ class BlogNavbarHome extends HTMLElement {
                     max-width: 95%;
                     font-family: 'Inter', sans-serif;
                     color: var(--text-main, #1f1f1f);
-                    z-index: 9000;
                 }
                 .navbar-scrolled {
                     padding: 0.5rem 2rem;
