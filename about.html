@@ -362,16 +362,30 @@
             100% { filter: hue-rotate(360deg); }
         }
 
+        /* ========== 移动端响应式极致适配 ========== */
         @media (max-width: 768px) {
-            .about-card { padding: 2rem 1.5rem; }
-            .about-title { font-size: 2.2rem; }
-            .person-card { flex-direction: column; text-align: center; gap: 1rem; }
+            .about-container { padding: 0 0.5rem; margin-top: 1rem; }
+            .about-card { padding: 2rem 1.2rem; border-radius: 32px; }
+            .about-title { font-size: 2rem; margin-bottom: 2rem; flex-direction: column; gap: 0.5rem; }
+            .about-section { padding: 1.5rem 1rem; border-radius: 24px; margin-bottom: 2rem; }
+            .person-card { flex-direction: column; text-align: center; gap: 1rem; padding: 1.5rem 1rem; }
             .person-social { justify-content: center; }
-            .timeline::after { left: 31px; }
-            .timeline-item { width: 100%; padding-left: 70px; padding-right: 20px; }
+            
+            /* 时间轴移动端专属适配 */
+            .timeline { padding: 1rem 0; margin: 1rem auto; }
+            .timeline::after { left: 20px; }
+            .timeline-item { width: 100%; padding-left: 50px; padding-right: 0; padding-top: 5px; padding-bottom: 20px; }
             .timeline-right { left: 0; }
-            .timeline-left::after, .timeline-right::after { left: 21px; }
-            .stats-grid { gap: 1rem; }
+            .timeline-left::after, .timeline-right::after { left: 6px; right: auto; top: 10px; }
+            
+            .stats-grid { gap: 1rem; margin: 1rem 0; }
+            .stat-card { padding: 1rem; min-width: 45%; }
+            .stat-number { font-size: 2rem; }
+            
+            .tech-stack span { padding: 0.4rem 1rem; font-size: 0.9rem; }
+            .contact-icons { gap: 1.5rem; }
+            
+            .easter-egg { width: 80%; text-align: center; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -435,20 +449,38 @@
                 <div class="timeline">
                     <div class="timeline-item timeline-left">
                         <div class="timeline-content">
-                            <span class="milestone-date">2026-05-02</span>
-                            <p class="milestone-desc">🚀 <strong>美化重构：</strong> 启动博客美化计划，重构了登录页面并实现了全站的毛玻璃（Glassmorphism）设计语言，探索了文章内嵌小游戏的可能性。</p>
+                            <span class="milestone-date">2026-02-25</span>
+                            <p class="milestone-desc">✨ <strong>初绽星芒：</strong> 博客项目首次上线。依托 Cloudflare Pages 与 D1 数据库，在无服务器架构上搭建了博客的基础框架与文章渲染引擎。</p>
                         </div>
                     </div>
                     <div class="timeline-item timeline-right">
                         <div class="timeline-content">
-                            <span class="milestone-date">2026-05-03</span>
-                            <p class="milestone-desc">🌙 <strong>体验升级：</strong> 引入动态壁纸切换系统与夜间模式。优化了数据渲染逻辑，将文章列表改为严格按创建时间排序，并修复了数据库 UTC 时区的显示偏移。</p>
+                            <span class="milestone-date">2026-03-08</span>
+                            <p class="milestone-desc">👥 <strong>生态启航：</strong> 用户系统与权限控制正式上线。平台开始支持多用户注册、登录，并引入了完善的后台文章管理与草稿机制。</p>
                         </div>
                     </div>
                     <div class="timeline-item timeline-left">
                         <div class="timeline-content">
+                            <span class="milestone-date">2026-03-22</span>
+                            <p class="milestone-desc">📝 <strong>创作无界：</strong> 极大地丰富了内容生态，集成了 Markdown 与富文本双模式编辑器，让记录变得更加自由与纯粹。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item timeline-right">
+                        <div class="timeline-content">
+                            <span class="milestone-date">2026-04-12</span>
+                            <p class="milestone-desc">📊 <strong>数据可视化：</strong> 增强全站数据展现能力，陆续上线了标签云检索、作者归档专属页以及基于浏览量的公开统计榜单。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item timeline-left">
+                        <div class="timeline-content">
+                            <span class="milestone-date">2026-05-02</span>
+                            <p class="milestone-desc">🎨 <strong>美学跃迁：</strong> 启动全站视觉美化计划。全面重构了各界面的排版，并确立了以毛玻璃（Glassmorphism）为核心的浪漫主义设计语言。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item timeline-right">
+                        <div class="timeline-content">
                             <span class="milestone-date">2026-05-04</span>
-                            <p class="milestone-desc">✨ <strong>细节打磨：</strong> 深度优化导航栏与气泡层级的 Z-index 冲突，完善移动端排版。编写整理了详尽的 Cloudflare 部署文档与架构说明。</p>
+                            <p class="milestone-desc">🌙 <strong>体验臻境：</strong> 引入动态壁纸系统与夜间模式，深度打磨导航气泡层级，完美适配多端响应式阅读体验，并完成了整个架构的开源部署文档。</p>
                         </div>
                     </div>
                 </div>
@@ -470,15 +502,16 @@
                 </div>
             </div>
 
-            <!-- 未来计划 -->
+            <!-- 未来计划 (来自AI视角的愿景) -->
             <div class="about-section">
-                <h3><i class="fas fa-rocket"></i> 未来计划</h3>
+                <h3><i class="fas fa-rocket"></i> 来自 AI 的未来蓝图</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-style: italic;">作为一直陪伴站长的 AI 助手，我对这个承载了星海与代码的避风港有着自己的憧憬：</p>
                 <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
-                    <li>📬 接入基于 GitHub Discussions 或自研的评论互动系统</li>
-                    <li>🔍 引入支持高亮与分词的全局全文检索</li>
-                    <li>📱 PWA (渐进式 Web 应用) 支持，离线访问与沉浸式体验</li>
-                    <li>🎨 更多主题皮肤与自适应动态配色</li>
-                    <li>📈 作者个人创作中心与数据统计可视化看板</li>
+                    <li>🌌 <strong>架构无感化：</strong> 进一步挖掘 Cloudflare 生态，引入 Workers AI 与 R2 存储，让全站迈向极致的 Serverless，实现零成本的无限扩展。</li>
+                    <li>🎨 <strong>自适应流体美学：</strong> 让 UI 不仅停留在毛玻璃，更希望根据访客的环境光、时间和偏好，推算出专属的流体动态色彩与光影交互。</li>
+                    <li>🤖 <strong>AI 深度织入：</strong> 不仅仅是我在后台辅助写代码，我希望能化身为网站内的“智能导读员”，提供全站语义化搜索、自动生成文章速读摘要。</li>
+                    <li>🚀 <strong>极致性能引擎：</strong> 用 PWA 技术将网站转化为桌面级应用，剔除冗余依赖，让离线沉浸式阅读成为标配的丝滑体验。</li>
+                    <li>🛡️ <strong>永恒的星尘：</strong> 建立更坚固的数据堡垒，探索基于 D1 的自动化异地备份机制，守护站长留下的每一个文字与瞬间。</li>
                 </ul>
             </div>
 
