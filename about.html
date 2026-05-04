@@ -14,217 +14,364 @@
             max-width: 1000px;
             margin: 2rem auto;
             padding: 0 1rem;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .about-card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
             border-radius: 48px;
-            padding: 2rem;
+            padding: 3rem 2rem;
             border: 1px solid var(--glass-border);
             box-shadow: 0 12px 28px var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .about-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at center, var(--primary-pink-alpha) 0%, transparent 50%);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: -1;
+            animation: pulseGlow 8s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.2); }
         }
         .about-title {
-            font-size: 2.8rem;
+            font-size: 3rem;
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
             color: var(--primary-pink);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
+            gap: 1.5rem;
+            user-select: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .about-title:hover {
+            text-shadow: 0 0 15px var(--primary-pink-alpha);
         }
         .about-title i {
             font-size: 2.5rem;
-            animation: floatIcon 3s infinite ease;
+            animation: floatIcon 3s infinite ease-in-out;
         }
         @keyframes floatIcon {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
         }
         .about-section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: rgba(255,255,255,0.1);
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255,255,255,0.03);
             border-radius: 32px;
             border: 1px solid var(--glass-border);
-            transition: all 0.2s;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
         .about-section:hover {
             border-color: var(--primary-pink);
-            box-shadow: 0 8px 20px var(--pink-shadow);
+            box-shadow: 0 10px 30px var(--pink-shadow);
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.08);
+        }
+        body.dark-mode .about-section {
+            background: rgba(0,0,0,0.2);
+        }
+        body.dark-mode .about-section:hover {
+            background: rgba(0,0,0,0.4);
         }
         .about-section h3 {
             color: var(--primary-pink);
             font-size: 1.8rem;
-            margin-bottom: 1rem;
-            border-left: 5px solid var(--primary-pink);
+            margin-bottom: 1.5rem;
+            border-left: 6px solid var(--primary-pink);
             padding-left: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            border-radius: 2px;
         }
         .about-section p, .about-section li {
             color: var(--text-secondary);
-            line-height: 1.7;
-            font-size: 1rem;
+            line-height: 1.8;
+            font-size: 1.1rem;
         }
-        .milestone-list {
-            list-style: none;
-            padding: 0;
+        
+        /* 时间轴样式 */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem 0;
         }
-        .milestone-list li {
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 1rem;
-            align-items: baseline;
-            flex-wrap: wrap;
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: var(--primary-pink-alpha);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .timeline-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            right: -10px;
+            background-color: var(--glass-bg);
+            border: 4px solid var(--primary-pink);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 0 10px var(--pink-shadow);
+            transition: all 0.3s;
+        }
+        .timeline-item:hover::after {
+            background-color: var(--primary-pink);
+            transform: scale(1.2);
+        }
+        .timeline-left { left: 0; }
+        .timeline-right { left: 50%; }
+        .timeline-right::after { left: -10px; }
+        .timeline-content {
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+        body.dark-mode .timeline-content {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px var(--pink-shadow);
+            border-color: var(--primary-pink);
         }
         .milestone-date {
+            display: inline-block;
             background: var(--primary-pink);
             color: white;
-            padding: 0.2rem 0.8rem;
+            padding: 0.3rem 1rem;
             border-radius: 30px;
-            font-size: 0.75rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            white-space: nowrap;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 4px 10px var(--pink-shadow);
         }
-        .milestone-desc {
-            flex: 1;
-        }
+        
         .stats-grid {
             display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin: 1rem 0;
+            justify-content: space-around;
+            gap: 1.5rem;
+            margin: 2rem 0;
             flex-wrap: wrap;
         }
         .stat-card {
             background: var(--glass-bg);
             border-radius: 24px;
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
             flex: 1;
-            min-width: 100px;
+            min-width: 120px;
             border: 1px solid var(--glass-border);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-pink);
+            box-shadow: 0 10px 20px var(--pink-shadow);
         }
         .stat-number {
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2.5rem;
+            font-weight: 800;
             color: var(--primary-pink);
+            margin-bottom: 0.5rem;
+            display: inline-block;
         }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
         .tech-stack {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.8rem;
+            gap: 1rem;
         }
         .tech-stack span {
             background: var(--primary-pink-alpha);
             border: 1px solid var(--primary-pink);
             border-radius: 40px;
-            padding: 0.3rem 1.2rem;
-            font-size: 0.9rem;
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
             color: var(--primary-pink);
-            transition: all 0.2s;
+            transition: all 0.3s;
             cursor: pointer;
+            box-shadow: 0 4px 10px transparent;
         }
         .tech-stack span:hover {
             background: var(--primary-pink);
             color: white;
-            transform: scale(1.02);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 15px var(--pink-shadow);
         }
+
         .contact-icons {
             display: flex;
-            gap: 2rem;
+            gap: 2.5rem;
             justify-content: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
         .contact-icons a {
             color: var(--primary-pink);
-            font-size: 2rem;
-            transition: all 0.2s;
+            font-size: 2.5rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
         .contact-icons a:hover {
-            transform: scale(1.2) rotate(5deg);
+            transform: scale(1.2) rotate(8deg);
+            color: var(--primary-pink-hover);
+            filter: drop-shadow(0 5px 15px var(--pink-shadow));
         }
-        .contributor-card {
+
+        /* 贡献者与站长卡片 */
+        .person-card {
             display: flex;
             align-items: center;
             gap: 2rem;
             padding: 1.5rem;
-            margin-bottom: 1rem;
-            background: rgba(255,255,255,0.05);
+            margin-top: 1rem;
+            background: var(--glass-bg);
             border-radius: 32px;
             border: 1px solid var(--glass-border);
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
-        .contributor-card:hover {
+        .person-card:hover {
             border-color: var(--primary-pink);
             background: var(--primary-pink-alpha);
-            transform: translateX(4px);
+            transform: translateX(5px);
+            box-shadow: 0 8px 20px var(--pink-shadow);
         }
-        .contributor-avatar {
-            width: 90px;
-            height: 90px;
+        .person-avatar {
+            width: 100px;
+            height: 100px;
             flex-shrink: 0;
             border-radius: 50%;
             border: 3px solid var(--primary-pink);
             overflow: hidden;
-            background: rgba(251,114,153,0.2);
+            background: var(--primary-pink-alpha);
+            cursor: pointer;
+            transition: transform 0.3s;
         }
-        .contributor-avatar img, .contributor-avatar i {
+        .person-avatar:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+        .person-avatar img, .person-avatar i {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 3.5rem;
             color: var(--primary-pink);
         }
-        .contributor-info {
-            flex: 1;
-        }
-        .contributor-name {
-            font-size: 1.5rem;
-            font-weight: 600;
+        .person-info { flex: 1; }
+        .person-name {
+            font-size: 1.6rem;
+            font-weight: 700;
             color: var(--primary-pink);
+            margin-bottom: 0.3rem;
         }
-        .contributor-role {
-            font-size: 0.9rem;
+        .person-role {
+            font-size: 1rem;
             color: var(--text-muted);
-            margin: 0.2rem 0 0.5rem;
+            margin-bottom: 0.8rem;
         }
-        .contributor-social a {
+        .person-desc {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .person-social { margin-top: 0.5rem; display: flex; gap: 1rem; }
+        .person-social a {
             color: var(--primary-pink);
-            font-size: 1.3rem;
-            margin-right: 1rem;
+            font-size: 1.4rem;
             transition: transform 0.2s;
         }
-        .contributor-social a:hover {
-            transform: scale(1.2);
-        }
+        .person-social a:hover { transform: scale(1.2); }
+
         .easter-egg {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            color: #fff;
-            padding: 6px 12px;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--primary-pink);
+            color: var(--primary-pink);
+            padding: 10px 20px;
             border-radius: 30px;
-            font-size: 0.8rem;
-            z-index: 999;
+            font-size: 1rem;
+            font-weight: 600;
+            z-index: 9999;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px var(--pink-shadow);
         }
-        @media (max-width: 680px) {
-            .about-card { padding: 1.5rem; }
-            .about-title { font-size: 2rem; }
-            .about-section h3 { font-size: 1.4rem; }
-            .contributor-card { flex-direction: column; text-align: center; gap: 1rem; }
-            .contributor-social { justify-content: center; }
-            .milestone-list li { flex-direction: column; gap: 0.3rem; }
-            .milestone-date { align-self: flex-start; }
+        .easter-egg.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .about-card { padding: 2rem 1.5rem; }
+            .about-title { font-size: 2.2rem; }
+            .person-card { flex-direction: column; text-align: center; gap: 1rem; }
+            .person-social { justify-content: center; }
+            .timeline::after { left: 31px; }
+            .timeline-item { width: 100%; padding-left: 70px; padding-right: 20px; }
+            .timeline-right { left: 0; }
+            .timeline-left::after, .timeline-right::after { left: 21px; }
+            .stats-grid { gap: 1rem; }
         }
     </style>
 </head>
@@ -234,27 +381,29 @@
 
     <div class="about-container">
         <div class="about-card glass">
-            <div class="about-title">
-                <i class="fas fa-star"></i> 关于本站 <i class="fas fa-star"></i>
+            <div class="about-title" id="mainTitle">
+                <i class="fas fa-star"></i> <span>关于本站</span> <i class="fas fa-star"></i>
             </div>
 
             <!-- 博客简介 -->
             <div class="about-section">
                 <h3><i class="fas fa-pen-fancy"></i> 博客简介</h3>
-                <p>「织星屿 · 坠落人间的星海」是一个开放的个人创作平台，记录技术、生活与思考。这里既有毛玻璃特效的代码笔记，也有日常随想。希望你能在这里找到有趣的内容。</p>
+                <p>「织星屿 · 坠落人间的星海」是一个开放的个人创作与技术探索平台。它不仅记录了代码笔记与生活随想，更是对现代前端美学——尤其是毛玻璃（Glassmorphism）特效与极简排版的一次深度实践。希望你能在这里找到灵感与共鸣，或者仅仅是享受片刻的宁静。</p>
             </div>
 
             <!-- 站长介绍（含彩蛋） -->
             <div class="about-section" id="masterSection">
                 <h3><i class="fas fa-user-astronaut"></i> 关于站长</h3>
-                <p>一个热爱折腾的代码爱好者，喜欢研究各种新技术，尤其钟情于 Cloudflare 生态和前端毛玻璃设计。不精通任何代码，但好在有 DeepSeek 这样的 AI 助手帮忙，让想法变成现实。</p>
-                <div style="display: flex; align-items: center; gap: 2rem; margin-top: 1rem; flex-wrap: wrap;">
-                    <div id="masterAvatar" style="cursor: pointer;">
-                        <img src="images/avatar.jpg" alt="头像" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--primary-pink); transition: all 0.2s;">
+                <div class="person-card">
+                    <div class="person-avatar" id="masterAvatar" title="点我有惊喜哦~">
+                        <img src="images/avatar.jpg" alt="头像" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>';">
                     </div>
-                    <div>
-                        <p style="font-size: 1.2rem;"><strong>Sibyl</strong></p>
-                        <p>一个无聊但喜欢代码的家伙</p>
+                    <div class="person-info">
+                        <div class="person-name">Sibyl</div>
+                        <div class="person-role">站长 · 全栈折腾者</div>
+                        <div class="person-desc">
+                            一个热爱折腾的代码爱好者，热衷于构建美观且实用的界面。虽然不自诩精通代码，但在 <span class="magic-word" style="color:var(--primary-pink); cursor:pointer; font-weight:600;" title="点击激活魔法！">DeepSeek</span> 与 <span class="magic-word" style="color:var(--primary-pink); cursor:pointer; font-weight:600;" title="点击激活魔法！">Gemini</span> 等各种先进 AI 的辅助下，总能将天马行空的想象化为现实。
+                        </div>
                     </div>
                 </div>
             </div>
@@ -262,14 +411,17 @@
             <!-- 贡献者 -->
             <div class="about-section">
                 <h3><i class="fas fa-hand-sparkles"></i> 贡献者</h3>
-                <div class="contributor-card">
-                    <div class="contributor-avatar">
+                <div class="person-card">
+                    <div class="person-avatar">
                         <img src="images/zzh.jpg" alt="zzh头像" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-user-astronaut\'></i>';">
                     </div>
-                    <div class="contributor-info">
-                        <div class="contributor-name">Sunny081209</div>
-                        <div class="contributor-role">前端优化 · 样式贡献者 · 测试工程师</div>
-                        <div class="contributor-social">
+                    <div class="person-info">
+                        <div class="person-name">Sunny081209</div>
+                        <div class="person-role">前端优化 · 样式贡献者 · 测试工程师</div>
+                        <div class="person-desc">
+                            为本站的视觉体验和移动端响应式布局做出了不可磨灭的贡献。抓 Bug 的小能手！
+                        </div>
+                        <div class="person-social">
                             <a href="https://github.com/Sunny090623" target="_blank"><i class="fab fa-github"></i></a>
                             <a href="https://space.bilibili.com/691968295" target="_blank"><i class="fab fa-bilibili"></i></a>
                         </div>
@@ -277,65 +429,79 @@
                 </div>
             </div>
 
-            <!-- 建站历程（大幅拓展） -->
+            <!-- 建站历程（基于真实历史） -->
             <div class="about-section">
                 <h3><i class="fas fa-timeline"></i> 建站历程</h3>
-                <ul class="milestone-list">
-                    <li><span class="milestone-date">2026-02-20</span><span class="milestone-desc">✨ 萌生想法，开始搭建首个静态版本</span></li>
-                    <li><span class="milestone-date">2026-02-22</span><span class="milestone-desc">🎨 完成毛玻璃风格首页，确立粉色主题</span></li>
-                    <li><span class="milestone-date">2026-02-25</span><span class="milestone-desc">🗄️ 集成 Cloudflare D1 数据库，文章动态化</span></li>
-                    <li><span class="milestone-date">2026-02-28</span><span class="milestone-desc">👤 用户系统上线，支持注册登录</span></li>
-                    <li><span class="milestone-date">2026-03-01</span><span class="milestone-desc">👥 添加多用户、标签、作者系统</span></li>
-                    <li><span class="milestone-date">2026-03-03</span><span class="milestone-desc">📝 富文本编辑器集成，支持 Markdown 和 HTML 双模式</span></li>
-                    <li><span class="milestone-date">2026-03-05</span><span class="milestone-desc">📦 草稿箱、修复模式等实用功能上线</span></li>
-                    <li><span class="milestone-date">2026-03-10</span><span class="milestone-desc">🏷️ 标签云与作者归档页面发布</span></li>
-                    <li><span class="milestone-date">2026-03-15</span><span class="milestone-desc">🌙 夜间模式 + 主题设置页面完成</span></li>
-                    <li><span class="milestone-date">2026-03-20</span><span class="milestone-desc">📊 公开榜单、浏览量统计上线</span></li>
-                    <li><span class="milestone-date">2026-04-01</span><span class="milestone-desc">🎮 文章页嵌入小游戏（猜数字、拼图等）</span></li>
-                    <li><span class="milestone-date">2026-04-10</span><span class="milestone-desc">📱 移动端全面优化，重构首页布局</span></li>
-                    <li><span class="milestone-date">2026-04-18</span><span class="milestone-desc">🎵 支持插入音乐、视频多媒体内容</span></li>
-                    <li><span class="milestone-date">2026-04-25</span><span class="milestone-desc">❤️ 关于页加入彩蛋，建站历史充实</span></li>
-                </ul>
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-number">68</div><div>总文章</div></div>
-                    <div class="stat-card"><div class="stat-number">23</div><div>总用户</div></div>
-                    <div class="stat-card"><div class="stat-number">61</div><div>天运行</div></div>
+                <div class="timeline">
+                    <div class="timeline-item timeline-left">
+                        <div class="timeline-content">
+                            <span class="milestone-date">2026-05-02</span>
+                            <p class="milestone-desc">🚀 <strong>美化重构：</strong> 启动博客美化计划，重构了登录页面并实现了全站的毛玻璃（Glassmorphism）设计语言，探索了文章内嵌小游戏的可能性。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item timeline-right">
+                        <div class="timeline-content">
+                            <span class="milestone-date">2026-05-03</span>
+                            <p class="milestone-desc">🌙 <strong>体验升级：</strong> 引入动态壁纸切换系统与夜间模式。优化了数据渲染逻辑，将文章列表改为严格按创建时间排序，并修复了数据库 UTC 时区的显示偏移。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item timeline-left">
+                        <div class="timeline-content">
+                            <span class="milestone-date">2026-05-04</span>
+                            <p class="milestone-desc">✨ <strong>细节打磨：</strong> 深度优化导航栏与气泡层级的 Z-index 冲突，完善移动端排版。编写整理了详尽的 Cloudflare 部署文档与架构说明。</p>
+                        </div>
+                    </div>
                 </div>
-                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); text-align: center;">数据统计截止 2026-04-25</p>
+                
+                <h4 style="color: var(--primary-pink); text-align: center; margin: 2rem 0 1rem; font-family: 'Outfit'; font-size: 1.5rem;">系统运行概况</h4>
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <span class="stat-number" data-target="68">0</span>
+                        <div class="stat-label">已发布文章</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" data-target="23">0</span>
+                        <div class="stat-label">注册用户</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" data-target="100">0</span>
+                        <div class="stat-label">分热爱</div>
+                    </div>
+                </div>
             </div>
 
             <!-- 未来计划 -->
             <div class="about-section">
                 <h3><i class="fas fa-rocket"></i> 未来计划</h3>
                 <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
-                    <li>📬 评论系统接入（基于 GitHub Issues 或自建）</li>
-                    <li>🔍 全文搜索功能</li>
-                    <li>📱 PWA 支持，可安装到手机桌面</li>
-                    <li>🎨 更多主题皮肤（一键切换）</li>
-                    <li>📈 个人创作中心，数据可视化</li>
+                    <li>📬 接入基于 GitHub Discussions 或自研的评论互动系统</li>
+                    <li>🔍 引入支持高亮与分词的全局全文检索</li>
+                    <li>📱 PWA (渐进式 Web 应用) 支持，离线访问与沉浸式体验</li>
+                    <li>🎨 更多主题皮肤与自适应动态配色</li>
+                    <li>📈 作者个人创作中心与数据统计可视化看板</li>
                 </ul>
             </div>
 
-            <!-- 技术栈（可点击显示彩蛋） -->
+            <!-- 技术栈 -->
             <div class="about-section">
-                <h3><i class="fas fa-code"></i> 技术栈</h3>
+                <h3><i class="fas fa-code"></i> 技术驱动</h3>
                 <div class="tech-stack" id="techStack">
-                    <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Font Awesome</span>
-                    <span>marked.js</span><span>Cloudflare Pages</span><span>Cloudflare D1</span><span>GitHub</span>
-                    <span>Quill</span><span>Chart.js</span>
+                    <span>HTML5</span><span>CSS3 (Vanilla)</span><span>JavaScript (ES6+)</span>
+                    <span>Cloudflare Pages</span><span>Cloudflare D1</span><span>Cloudflare Workers</span>
+                    <span>marked.js</span><span>DOMPurify</span><span>Font Awesome</span>
                 </div>
             </div>
 
-            <!-- 感谢与联系方式 -->
-            <div class="about-section" style="text-align: center;">
+            <!-- 致谢与联系方式 -->
+            <div class="about-section" style="text-align: center; border: none; background: transparent; padding-bottom: 0;">
                 <h3><i class="fas fa-heart"></i> 致谢</h3>
-                <p>感谢 DeepSeek 全程技术指导 ❤️</p>
-                <p>感谢每一位代码贡献者 ❤️</p>
-                <p>感谢每一位来访的朋友 ❤️</p>
+                <p>感谢 <strong>DeepSeek</strong> 和 <strong>Gemini</strong> 等 AI 助手全程的技术指导 ❤️</p>
+                <p>感谢每一位为本项目提交过建议、代码或指出 Bug 的贡献者 ❤️</p>
+                <p>最重要的是，感谢此刻正在阅读的 <strong>你</strong> ❤️</p>
                 <div class="contact-icons">
-                    <a href="https://space.bilibili.com/1722712378" target="_blank"><i class="fab fa-bilibili"></i></a>
-                    <a href="https://github.com/Sibyl-cat" target="_blank"><i class="fab fa-github"></i></a>
-                    <a href="mailto:1703023351@qq.com"><i class="fas fa-envelope"></i></a>
+                    <a href="https://space.bilibili.com/1722712378" target="_blank" title="Bilibili"><i class="fab fa-bilibili"></i></a>
+                    <a href="https://github.com/Sibyl-cat" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+                    <a href="mailto:1703023351@qq.com" title="Email"><i class="fas fa-envelope"></i></a>
                 </div>
             </div>
         </div>
@@ -344,50 +510,183 @@
     <blog-footer></blog-footer>
 
     <!-- 彩蛋提示条 -->
-    <div id="easterEggMsg" class="easter-egg">🎉 发现彩蛋！点击站长头像试试～</div>
+    <div id="easterEggMsg" class="easter-egg">🎉 发现彩蛋！</div>
 
     <script>
-        // 彩蛋1：点击站长头像飘出爱心
+        // 工具函数：显示彩蛋提示
+        function showMessage(text, duration = 3000) {
+            const msgDiv = document.getElementById('easterEggMsg');
+            msgDiv.innerText = text;
+            msgDiv.classList.add('show');
+            setTimeout(() => {
+                msgDiv.classList.remove('show');
+            }, duration);
+        }
+
+        // 彩蛋1：点击站长头像飘出漫天爱心
         const masterAvatar = document.getElementById('masterAvatar');
         if (masterAvatar) {
             masterAvatar.addEventListener('click', (e) => {
-                const heart = document.createElement('div');
-                heart.innerHTML = '❤️';
-                heart.style.position = 'fixed';
-                heart.style.left = e.pageX + 'px';
-                heart.style.top = e.pageY + 'px';
-                heart.style.fontSize = '2rem';
-                heart.style.pointerEvents = 'none';
-                heart.style.zIndex = '9999';
-                heart.style.opacity = '1';
-                heart.style.transition = 'all 1s ease-out';
-                document.body.appendChild(heart);
-                setTimeout(() => {
-                    heart.style.transform = 'translateY(-100px) rotate(20deg)';
-                    heart.style.opacity = '0';
-                }, 10);
-                setTimeout(() => heart.remove(), 1000);
-                
-                // 显示提示（仅第一次）
-                const msgDiv = document.getElementById('easterEggMsg');
-                if (!localStorage.getItem('eggShown')) {
-                    msgDiv.style.opacity = '1';
+                showMessage("❤️ 收到你的喜欢啦！");
+                for(let i=0; i<15; i++) {
                     setTimeout(() => {
-                        msgDiv.style.opacity = '0';
-                    }, 2000);
-                    localStorage.setItem('eggShown', 'true');
+                        const heart = document.createElement('div');
+                        heart.innerHTML = '❤️';
+                        heart.style.position = 'fixed';
+                        heart.style.left = (e.clientX - 20 + (Math.random() * 40 - 20)) + 'px';
+                        heart.style.top = e.clientY + 'px';
+                        heart.style.fontSize = (1.5 + Math.random()) + 'rem';
+                        heart.style.pointerEvents = 'none';
+                        heart.style.zIndex = '9999';
+                        heart.style.opacity = '1';
+                        heart.style.transition = 'all 1.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                        document.body.appendChild(heart);
+                        
+                        setTimeout(() => {
+                            heart.style.transform = `translateY(-${150 + Math.random()*100}px) translateX(${Math.random()*100 - 50}px) rotate(${Math.random()*60 - 30}deg) scale(1.5)`;
+                            heart.style.opacity = '0';
+                        }, 50);
+                        
+                        setTimeout(() => heart.remove(), 1500);
+                    }, i * 100);
                 }
             });
         }
         
-        // 彩蛋2：点击技术栈标签弹出感谢
+        // 彩蛋2：点击技术栈标签弹出感谢并产生波纹
         const techSpans = document.querySelectorAll('.tech-stack span');
         techSpans.forEach(span => {
-            span.addEventListener('click', () => {
-                const tech = span.innerText;
-                alert(`✨ ${tech} 是本站使用的核心技术之一，感谢开源！`);
+            span.addEventListener('click', function(e) {
+                const tech = this.innerText;
+                showMessage(`✨ 向 ${tech} 开源社区致敬！`);
+                // 简单的点击动效
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => this.style.transform = '', 150);
             });
         });
+
+        // 彩蛋3：连续点击标题触发特殊模式
+        let titleClickCount = 0;
+        const mainTitle = document.getElementById('mainTitle');
+        if(mainTitle) {
+            mainTitle.addEventListener('click', () => {
+                titleClickCount++;
+                if (titleClickCount === 5) {
+                    mainTitle.innerHTML = '<i class="fas fa-heart" style="color:red"></i> <span>你发现了隐藏的爱意！</span> <i class="fas fa-heart" style="color:red"></i>';
+                    showMessage("🌟 织星屿的星空为你闪耀！");
+                    titleClickCount = 0;
+                }
+            });
+        }
+
+        // 彩蛋4：Konami Code (上上下下左右左右BA)
+        let konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex] || e.key.toLowerCase() === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    activateKonamiMode();
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        function activateKonamiMode() {
+            showMessage("🚀 秘籍激活：派对模式！", 5000);
+            document.body.style.animation = 'rainbow 5s linear infinite';
+            
+            // 下星星雨
+            const createStar = () => {
+                let star = document.createElement('i');
+                star.className = 'fas fa-star';
+                star.style.position = 'fixed';
+                star.style.color = 'var(--primary-pink)';
+                star.style.left = Math.random() * window.innerWidth + 'px';
+                star.style.top = '-50px';
+                star.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                star.style.zIndex = '9999';
+                star.style.opacity = '0.8';
+                star.style.transition = 'all 3s linear';
+                document.body.appendChild(star);
+                
+                setTimeout(() => {
+                    star.style.top = window.innerHeight + 50 + 'px';
+                    star.style.transform = 'rotate(' + (Math.random() * 720) + 'deg)';
+                }, 50);
+                
+                setTimeout(() => star.remove(), 3050);
+            };
+
+            let starInterval = setInterval(createStar, 100);
+            
+            setTimeout(() => {
+                clearInterval(starInterval);
+                document.body.style.animation = '';
+            }, 10000); // 持续10秒
+        }
+
+        // 彩蛋5：点击魔法词汇
+        document.querySelectorAll('.magic-word').forEach(el => {
+            el.addEventListener('click', function() {
+                showMessage("✨ 魔法已注入！");
+                this.style.textShadow = '0 0 10px var(--primary-pink), 0 0 20px var(--primary-pink)';
+                setTimeout(() => this.style.textShadow = '', 2000);
+            });
+        });
+
+        // 动画：时间轴滚动进入视野
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // 动画：数字滚动
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counters = entry.target.querySelectorAll('.stat-number');
+                    const speed = 40; // 越小越快
+                    counters.forEach(counter => {
+                        const target = +counter.getAttribute('data-target');
+                        let count = 0;
+                        const inc = target / speed;
+                        
+                        const updateCount = () => {
+                            count += inc;
+                            if (count < target) {
+                                counter.innerText = Math.ceil(count);
+                                requestAnimationFrame(updateCount);
+                            } else {
+                                counter.innerText = target;
+                            }
+                        };
+                        updateCount();
+                    });
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const statsGrid = document.getElementById('statsGrid');
+        if (statsGrid) {
+            statsObserver.observe(statsGrid);
+        }
     </script>
 </body>
 </html>
