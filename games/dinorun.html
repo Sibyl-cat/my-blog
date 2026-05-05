@@ -144,12 +144,14 @@
                 this.highScore = GameUtils.getHighScore('dinorun');
                 this.active = false;
                 this.lastTime = 0;
-                this.obstacles = [];
+                
+                // Initialize defaults before resizing
+                this.groundY = 220;
+                this.init();
                 
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
                 
-                this.init();
                 this.updateUI();
             }
 
