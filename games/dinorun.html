@@ -121,7 +121,7 @@
         <div class="game-overlay" id="overlay">
             <h1 style="color: var(--dino-orange); font-size: 3rem; margin: 0;">STARRY DINO</h1>
             <p id="overlay-msg" style="color: white; opacity: 0.6; margin-top: 10px;">在星海边缘奔跑，躲避时空裂缝</p>
-            <button class="btn-start" onclick="game.start()">开始奔跑</button>
+            <button class="btn-start" onclick="window.game.start()">开始奔跑</button>
         </div>
     </div>
 
@@ -140,13 +140,50 @@
                 
                 this.gravity = 0.6;
                 this.jumpForce = -12;
-                this.groundY = 220;
                 
                 this.highScore = GameUtils.getHighScore('dinorun');
                 this.active = false;
                 this.lastTime = 0;
+                
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
                 this.init();
                 this.updateUI();
+            }
+
+            resize() {
+                const w = window.innerWidth;
+                if (w < 768) {
+                    // Mobile: narrower but taller aspect ratio
+                    this.canvas.width = w * 0.95;
+                    this.canvas.height = 350;
+                    this.groundY = 300;
+                } else {
+                    // Desktop: classic 800x250
+                    this.canvas.width = 800;
+                    this.canvas.height = 250;
+                    this.groundY = 220;
+                }
+                
+                if (this.dino) {
+                    this.dino.y = this.groundY - this.dino.h;
+                }
+                if (!this.active) {
+                    this.initElements();
+                    this.draw();
+                }
+            }
+
+            initElements() {
+                this.stars = [];
+                for(let i=0; i<50; i++) {
+                    this.stars.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * (this.canvas.height - 50),
+                        s: Math.random() * 2
+                    });
+                }
             }
 
             init() {
@@ -159,16 +196,9 @@
                     isGrounded: true
                 };
                 this.obstacles = [];
-                this.stars = [];
-                for(let i=0; i<50; i++) {
-                    this.stars.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * (this.canvas.height - 50),
-                        s: Math.random() * 2
-                    });
-                }
+                this.initElements();
                 this.score = 0;
-                this.gameSpeed = 6;
+                this.gameSpeed = window.innerWidth < 768 ? 5 : 6; // Slower on mobile
                 this.spawnTimer = 0;
             }
 
@@ -216,11 +246,10 @@
 
                 // Obstacles
                 this.spawnTimer += dt;
-                // Randomized threshold for non-equidistant spawning
                 if (!this.nextSpawnThreshold) this.nextSpawnThreshold = 60 + Math.random() * 60;
                 
                 if (this.spawnTimer > this.nextSpawnThreshold / (this.gameSpeed / 6)) {
-                    if (Math.random() < 0.3) { // Increased spawn probability check
+                    if (Math.random() < 0.3) {
                         this.obstacles.push({
                             x: this.canvas.width,
                             y: this.groundY - 40,
@@ -228,7 +257,7 @@
                             h: 40,
                         });
                         this.spawnTimer = 0;
-                        this.nextSpawnThreshold = 60 + Math.random() * 100; // Randomize next gap
+                        this.nextSpawnThreshold = 60 + Math.random() * 100;
                     }
                 }
 
@@ -236,7 +265,7 @@
                     const obs = this.obstacles[i];
                     obs.x -= this.gameSpeed * dt;
 
-                    // Collision (refined hitbox)
+                    // Collision
                     const padding = 10;
                     if (this.dino.x + padding < obs.x + obs.w - padding &&
                         this.dino.x + this.dino.w - padding > obs.x + padding &&
@@ -350,25 +379,25 @@
             }
         }
 
-        const game = new StarryDino();
+        window.game = new StarryDino();
 
         window.addEventListener('keydown', e => {
             if (e.code === 'Space' || e.code === 'ArrowUp') {
                 e.preventDefault();
-                game.jump();
+                window.game.jump();
             }
         });
 
         window.addEventListener('touchstart', e => {
-            if (game.active) {
+            if (window.game.active) {
                 e.preventDefault();
-                game.jump();
+                window.game.jump();
             }
         }, { passive: false });
         
         window.addEventListener('mousedown', e => {
-            if (game.active && e.target.tagName !== 'BUTTON') {
-                game.jump();
+            if (window.game.active && e.target.tagName !== 'BUTTON') {
+                window.game.jump();
             }
         });
 
