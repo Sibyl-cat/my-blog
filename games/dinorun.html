@@ -359,12 +359,18 @@
             }
         });
 
-        document.getElementById('game-container').addEventListener('touchstart', e => {
-            e.preventDefault();
-            game.jump();
+        window.addEventListener('touchstart', e => {
+            if (game.active) {
+                e.preventDefault();
+                game.jump();
+            }
         }, { passive: false });
         
-        document.getElementById('game-container').addEventListener('mousedown', () => game.jump());
+        window.addEventListener('mousedown', e => {
+            if (game.active && e.target.tagName !== 'BUTTON') {
+                game.jump();
+            }
+        });
 
         if (!CanvasRenderingContext2D.prototype.roundRect) {
             CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {

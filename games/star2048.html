@@ -330,7 +330,7 @@
                 let tempBoard = JSON.parse(JSON.stringify(this.board));
                 
                 // Align to "left" move
-                const rotations = { 'left': 0, 'up': 1, 'right': 2, 'down': 3 };
+                const rotations = { 'left': 0, 'up': 3, 'right': 2, 'down': 1 };
                 for (let i = 0; i < rotations[dir]; i++) tempBoard = rotate(tempBoard);
 
                 // Slide and merge
